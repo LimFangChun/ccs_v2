@@ -117,8 +117,9 @@ public class LoginActivity extends AppCompatActivity {
                                 progressBar.setVisibility(View.GONE);
                                 getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                                 Toast.makeText(LoginActivity.this, "Connection timeout", Toast.LENGTH_SHORT).show();
-                                MqttHelper.disconnect();
-                                MqttHelper.unsubscribe(uniqueTopic);
+                                //MqttHelper.disconnect();
+                                //MqttHelper.unsubscribe(uniqueTopic);
+                                resetConnection();
                             }
                         }
                     }, TASK_TIMEOUT);
@@ -170,7 +171,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void resetConnection() {
         //Shutdown the MQTT service to be turn on later.
-        this.stopService(new Intent(this, MessageService.class));
+        this.stopService(new Intent(LoginActivity.this, MessageService.class));
     }
 
     private boolean isNetworkAvailable() {
@@ -202,7 +203,7 @@ public class LoginActivity extends AppCompatActivity {
 
             //Random ClientID and Topic generated before log in.
             //Subscribed to random topic to listen to server.
-            MqttHelper.startMqtt(getBaseContext());
+            //MqttHelper.startMqtt(getBaseContext());
             MqttHelper.subscribe(uniqueTopic);
             MqttHelper.publish(uniqueTopic, handler.getPublish());
         }
@@ -255,7 +256,8 @@ public class LoginActivity extends AppCompatActivity {
                 Toast.makeText(LoginActivity.this, "No internet connection", Toast.LENGTH_SHORT).show();
             }
             //MqttHelper.disconnect();
-            MqttHelper.unsubscribe(uniqueTopic);
+            //MqttHelper.unsubscribe(uniqueTopic);
+            resetConnection();
         }
     }
 

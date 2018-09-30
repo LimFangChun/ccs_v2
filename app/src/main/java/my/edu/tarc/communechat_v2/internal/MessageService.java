@@ -95,6 +95,14 @@ public class MessageService extends Service {
     public void onDestroy() {
         super.onDestroy();
         isRunning = false;
+        MqttHelper.disconnect();
+    }
+
+    @Override
+    public boolean stopService(Intent name) {
+        isRunning = false;
+        MqttHelper.disconnect();
+        return super.stopService(name);
     }
 
     private boolean appInForeground(@NonNull Context context) {

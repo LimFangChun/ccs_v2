@@ -1,0 +1,35 @@
+<resources>
+    <string name="app_name">Commune Chat</string>
+    <string name="nav_tab1">Contacts</string>
+    <string name="nav_tab2">Chat</string>
+    <string name="nav_tab3">Explore</string>
+    <string name="nav_tab4">Me</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in</string>
+    <string name="action_sign_in_short">Sign in</string>
+
+    <string name="prompt_username">Username</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="logout_description">Are you sure you want to log out?</string>
+    <string name="status">Status</string>
+    <string name="logout">Log Out</string>
+    <string name="search">Search ID</string>
+    <string name="search_category">Search by category</string>
+    <string name="search_nearby">Explore nearby friends</string>
+    <string name="search_recommend">Suggested friends</string>
+    <string name="search_localchat">Join the local chat!</string>
+    <string name="send_message">Send Message</string>
+    <string name="send">Send</string>
+    <string name="accept">Accept</string>
+    <string name="friend_request">Friend Requests</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="check_pinned_message">Check pinned message</string>
+    <string name="settings">Settings</string>
+
+</resources>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/contact_tab"
+            android:checked="true"
+            android:icon="@drawable/ic_group_people"
+            android:title="@string/nav_tab1"
+            app:showAsAction="always" />
+        <item
+            android:id="@+id/chat_tab"
+            android:checked="false"
+            android:icon="@drawable/ic_chat_bubble"
+            android:title="@string/nav_tab2"
+            app:showAsAction="always" />
+        <item
+            android:id="@+id/search_tab"
+            android:checked="false"
+            android:icon="@drawable/ic_search"
+            android:title="@string/nav_tab3"
+            app:showAsAction="always" />
+        <item
+            android:id="@+id/user_tab"
+            android:checked="false"
+            android:icon="@drawable/ic_person"
+            android:title="@string/nav_tab4"
+            app:showAsAction="always" />
+    </group>
+</menu>

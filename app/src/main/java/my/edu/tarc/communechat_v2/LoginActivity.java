@@ -117,8 +117,6 @@ public class LoginActivity extends AppCompatActivity {
                                 progressBar.setVisibility(View.GONE);
                                 getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                                 Toast.makeText(LoginActivity.this, "Connection timeout", Toast.LENGTH_SHORT).show();
-                                //MqttHelper.disconnect();
-                                //MqttHelper.unsubscribe(uniqueTopic);
                                 resetConnection();
                             }
                         }
@@ -255,8 +253,6 @@ public class LoginActivity extends AppCompatActivity {
             } else if (integer == 4) {
                 Toast.makeText(LoginActivity.this, "No internet connection", Toast.LENGTH_SHORT).show();
             }
-            //MqttHelper.disconnect();
-            //MqttHelper.unsubscribe(uniqueTopic);
             resetConnection();
         }
     }

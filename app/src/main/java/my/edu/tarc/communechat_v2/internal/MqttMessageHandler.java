@@ -2,6 +2,7 @@ package my.edu.tarc.communechat_v2.internal;
 
 import java.util.ArrayList;
 
+import my.edu.tarc.communechat_v2.R;
 import my.edu.tarc.communechat_v2.model.Contact;
 import my.edu.tarc.communechat_v2.model.User;
 
@@ -82,12 +83,11 @@ public class MqttMessageHandler {
         switch (command) {
             case REQ_AUTHENTICATION: {
                 String[] credential = (String[]) data;
-                sb.append(REQ_AUTHENTICATION
-                        + RESERVED_STRING
-                        + String.format("%03d", credential[0].length())
-                        + credential[0]
-                        + String.format("%03d", credential[1].length())
-                        + credential[1]);
+                sb.append(REQ_AUTHENTICATION)
+                        .append(",")
+                        .append(credential[0])
+                        .append(",")
+                        .append(credential[1]);
                 result = sb.toString();
                 break;
             }
@@ -292,10 +292,10 @@ public class MqttMessageHandler {
     //      Convert the message strings to desired data.
     public int isLoginAuthenticated() {
         if (this.mqttCommand == MqttCommand.ACK_AUTHENTICATION) {
-            String data = received.substring(30);
-            if (data.equalsIgnoreCase("1")) {
+            String[] data = received.split(String.valueOf(R.string.splitter));
+            if (data[1].equalsIgnoreCase("1")) {
                 return 1;
-            } else if (data.equalsIgnoreCase("2")) {
+            } else if (data[1].equalsIgnoreCase("2")) {
                 return 2;
             } else
                 return 3;
@@ -306,98 +306,30 @@ public class MqttMessageHandler {
     public User getUserData() {
         User user = new User();
         if (this.mqttCommand == MqttCommand.ACK_AUTHENTICATION) {
-            received = received.substring(30);
-            int temp = 0;
-            String data = received;
+            String[] data = received.split(String.valueOf(R.string.splitter));
 
-            user.setStudent_id(data.substring(0, 10));
-            data = data.substring(10);
-
-            user.setFaculty(data.substring(0, 4));
-            data = data.substring(4);
-
-            user.setCourse(data.substring(0, 3));
-            data = data.substring(3);
-
-            user.setTutorial_group(Integer.parseInt(data.substring(0, 2)));
-            data = data.substring(2);
-
-            user.setIntake(data.substring(0, 6));
-            data = data.substring(6);
-
-            user.setAcademic_year(Integer.parseInt(data.substring(0, 4)));
-            data = data.substring(4);
-
-            user.setUid(Integer.parseInt(data.substring(0, 10)));
-            data = data.substring(10);
-
-            user.setGender(Integer.parseInt(data.substring(0, 1)));
-            data = data.substring(1);
-
-            user.setBirth_year(Integer.parseInt(data.substring(0, 4)));
-            data = data.substring(4);
-
-            user.setBirth_month(Integer.parseInt(data.substring(0, 2)));
-            data = data.substring(2);
-
-            user.setBirth_day(Integer.parseInt(data.substring(0, 2)));
-            data = data.substring(2);
-
-            temp = Integer.parseInt(data.substring(0, 3));
-            data = data.substring(3);
-            user.setUsername(data.substring(0, temp));
-            data = data.substring(temp);
-
-            temp = Integer.parseInt(data.substring(0, 3));
-            data = data.substring(3);
-            user.setNickname(data.substring(0, temp));
-            data = data.substring(temp);
-
-            temp = Integer.parseInt(data.substring(0, 3));
-            data = data.substring(3);
-            user.setPassword(data.substring(0, temp));
-            data = data.substring(temp);
-
-            temp = Integer.parseInt(data.substring(0, 3));
-            data = data.substring(3);
-            user.setStatus(data.substring(0, temp));
-            data = data.substring(temp);
-
-            temp = Integer.parseInt(data.substring(0, 3));
-            data = data.substring(3);
-            user.setPhone_number(data.substring(0, temp));
-            data = data.substring(temp);
-
-            temp = Integer.parseInt(data.substring(0, 3));
-            data = data.substring(3);
-            user.setEmail(data.substring(0, temp));
-            data = data.substring(temp);
-
-            temp = Integer.parseInt(data.substring(0, 3));
-            data = data.substring(3);
-            user.setAddress(data.substring(0, temp));
-            data = data.substring(temp);
-
-            temp = Integer.parseInt(data.substring(0, 3));
-            data = data.substring(3);
-            user.setTown(data.substring(0, temp));
-            data = data.substring(temp);
-
-            temp = Integer.parseInt(data.substring(0, 3));
-            data = data.substring(3);
-            user.setState(data.substring(0, temp));
-            data = data.substring(temp);
-
-            temp = Integer.parseInt(data.substring(0, 3));
-            data = data.substring(3);
-            user.setPostal_code(data.substring(0, temp));
-            data = data.substring(temp);
-
-
-            temp = Integer.parseInt(data.substring(0, 3));
-            data = data.substring(3);
-            user.setCountry(data.substring(0, temp));
-
+            user.setStudent_id(data[0]);
+            user.setFaculty(data[1]);
+            user.setCourse(data[2]);
+            user.setTutorial_group(Integer.parseInt(data[3]));
+            user.setIntake(data[4]);
+            user.setAcademic_year(Integer.parseInt(data[5]));
+            user.setUid(Integer.parseInt(data[6]));
+            user.setGender(Integer.parseInt(data[7]));
+            user.setBirth_year(Integer.parseInt(data[8]));
+            user.setBirth_month(Integer.parseInt(data[9]));
+            user.setBirth_day(Integer.parseInt(data[10]));
+            user.setUsername(data[11]);
+            user.setNickname(data[12]);
+            user.setPassword(data[13]);
+            user.setState(data[14]);
+            user.setPhone_number(data[15]);
+            user.setEmail(data[16]);
+            user.setAddress(data[17]);
+            user.setTown(data[18]);
+            user.setState(data[19]);
+            user.setPostal_code(data[20]);
+            user.setCountry(data[21]);
         }
         return user;
     }

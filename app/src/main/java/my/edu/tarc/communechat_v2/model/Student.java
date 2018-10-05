@@ -1,6 +1,6 @@
 package my.edu.tarc.communechat_v2.model;
 
-public class Student {
+public class Student extends User {
     private String student_id;
     private String faculty;
     private String course;

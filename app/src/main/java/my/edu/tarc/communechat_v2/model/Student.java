@@ -1,5 +1,7 @@
 package my.edu.tarc.communechat_v2.model;
 
+import java.util.Date;
+
 public class Student extends User {
     private String student_id;
     private String faculty;
@@ -9,6 +11,8 @@ public class Student extends User {
     private int academic_year;
     private int user_id;
 
+    public Student(){
+    }
 
     public Student(String student_id, String faculty, String course, int tutorial_group,
                    String intake, int academic_year, int user_id) {
@@ -19,6 +23,21 @@ public class Student extends User {
         this.intake = intake;
         this.academic_year = academic_year;
         this.user_id = user_id;
+    }
+
+    public Student(int user_id, String username, String password, String position, String gender,
+                   String nric, String phone_number, String email, String address, String city_id,
+                   String status, Date last_online, String student_id, String faculty, String course,
+                   int tutorial_group, String intake, int academic_year, int user_id1) {
+        super(user_id, username, password, position, gender, nric, phone_number, email, address,
+                city_id, status, last_online);
+        this.student_id = student_id;
+        this.faculty = faculty;
+        this.course = course;
+        this.tutorial_group = tutorial_group;
+        this.intake = intake;
+        this.academic_year = academic_year;
+        this.user_id = user_id1;
     }
 
     public String getStudent_id() {

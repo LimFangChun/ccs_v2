@@ -3,6 +3,16 @@ package my.edu.tarc.communechat_v2.model;
 import java.util.Date;
 
 public class Student extends User {
+    //variables that define column name
+    public static final String COL_STUDENT_ID = "student_id";
+    public static final String COL_FACULTY = "faculty";
+    public static final String COL_COURSE = "course";
+    public static final String COL_TUTORIAL_GROUP = "tutorial_group";
+    public static final String COL_INTAKE = "intake";
+    public static final String COL_ACADEMIC_YEAR = "academic_year";
+    public static final String COL_USER_ID = "user_id";
+
+    //variables for encapsulation
     private String student_id;
     private String faculty;
     private String course;

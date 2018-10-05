@@ -1,6 +1,12 @@
 package my.edu.tarc.communechat_v2.model;
 
 public class Participant {
+    //variables that define column name
+    public static final String COL_ROOM_ID = "room_id";
+    public static final String COL_USER_ID = "user_id";
+    public static final String COL_ROLE = "role";
+
+    //variables for encapsulation
     private int room_id;
     private int user_id;
     private String role;

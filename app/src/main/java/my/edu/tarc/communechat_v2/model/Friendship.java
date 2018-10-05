@@ -3,6 +3,13 @@ package my.edu.tarc.communechat_v2.model;
 import java.util.Date;
 
 public class Friendship {
+    //variables that define column name
+    public static final String COL_USER_ID = "user_id";
+    public static final String COL_FRIEND_ID = "friend_id";
+    public static final String COL_STATUS = "status";
+    public static final String COL_DATE_CREATED = "date_created";
+
+    //variables for encapsulation
     private int user_id;
     private int friend_id;
     private String status;

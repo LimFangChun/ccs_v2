@@ -7,6 +7,21 @@ import java.util.Date;
  */
 
 public class User {
+    //static final variables that define column name
+    public static final String COL_USER_ID = "user_id";
+    public static final String COL_USERNAME = "username";
+    public static final String COL_PASSWORD = "password";
+    public static final String COL_POSITION = "position";
+    public static final String COL_GENDER = "gender";
+    public static final String COL_NRIC = "nric";
+    public static final String COL_PHONE_NUMBER = "phone_number";
+    public static final String COL_EMAIL = "email";
+    public static final String COL_ADDRESS = "address";
+    public static final String COL_CITY_ID = "city_id";
+    public static final String COL_STATUS = "status";
+    public static final String COL_LAST_ONLINE = "last_online";
+
+    //variables for encapsulation
     private int user_id;
     private String username;
     private String password;

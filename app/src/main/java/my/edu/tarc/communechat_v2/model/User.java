@@ -1,5 +1,8 @@
 package my.edu.tarc.communechat_v2.model;
 
+import android.annotation.SuppressLint;
+
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 /**
@@ -150,5 +153,17 @@ public class User {
 
     public void setLast_online(Date last_online) {
         this.last_online = last_online;
+    }
+
+    //i dont know what is this suppressLint thing
+    //it gives me error if i dont put it
+    @SuppressLint("NewApi")
+    public void setLast_online(String last_online) {
+        try{
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            this.last_online = (Date) formatter.parse(last_online);
+        }catch (NullPointerException e){
+            e.printStackTrace();
+        }
     }
 }

@@ -3,6 +3,15 @@ package my.edu.tarc.communechat_v2.model;
 import java.util.Date;
 
 public class Chat_Room {
+    //variables that define column name
+    public static final String COL_ROOM_ID = "room_id";
+    public static final String COL_OWNER_ID = "owner_id";
+    public static final String COL_ROOM_NAME = "room_name";
+    public static final String COL_DATE_CREATED = "date_created";
+    public static final String COL_LAST_UPDATE = "last_update";
+    public static final String COL_TOPIC_ADDRESS = "topic_address";
+
+    //variables for encapsulation
     private int room_id;
     private int owner_id;
     private String room_name;

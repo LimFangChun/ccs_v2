@@ -27,4 +27,5 @@ public final class MqttHeader {
     public static final String DELETE_FRIEND_REPLY = "DELETE_FRIEND_REPLY";
     public static final String SEARCH_USERNAME = "SEARCH_USERNAME";
     public static final String SERACH_USERNAME_REPLY = "SERACH_USERNAME_REPLY";
+    public static final String NO_REPLY = "NO_REPLY";
 }

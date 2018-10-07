@@ -1,76 +1,70 @@
 package my.edu.tarc.communechat_v2.model;
 
+import android.annotation.SuppressLint;
+
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+
 /**
  * Created by Xeosz on 26-Sep-17.
  */
 
 public class User {
-    private int uid;
+    //static final variables that define column name
+    public static final String COL_USER_ID = "user_id";
+    public static final String COL_USERNAME = "username";
+    public static final String COL_PASSWORD = "password";
+    public static final String COL_POSITION = "position";
+    public static final String COL_GENDER = "gender";
+    public static final String COL_NRIC = "nric";
+    public static final String COL_PHONE_NUMBER = "phone_number";
+    public static final String COL_EMAIL = "email";
+    public static final String COL_ADDRESS = "address";
+    public static final String COL_CITY_ID = "city_id";
+    public static final String COL_STATUS = "status";
+    public static final String COL_LAST_ONLINE = "last_online";
+
+    //variables for encapsulation
+    private int user_id;
     private String username;
-    private String nickname;
     private String password;
-    private int gender;
-    private int nric;
+    private String position;
+    private String gender;
+    private String nric;
     private String phone_number;
     private String email;
     private String address;
-    private String state;
-    private String postal_code;
-    private String town;
-    private String country;
-    private int birth_year;
-    private int birth_month;
-    private int birth_day;
-    private float latitude;
-    private float longitude;
-    private String student_id;
-    private String faculty;
-    private String course;
-    private int academic_year;
-    private String intake;
-    private int tutorial_group;
-    private int last_online;
+    private String city_id;
     private String status;
+    private Date last_online;
 
-    public User() {
+    public  User(){
 
     }
 
-    public User(int uid, String username, String nickname, String password, int gender, int nric, String phone_number, String email, String address, String state, String postal_code, String town, String country, int birth_year, int birth_month, int birth_day, float latitude, float longitude, String student_id, String faculty, String course, int academic_year, String intake, int tutorial_group, int last_online, String status) {
-        this.uid = uid;
+    public User(int user_id, String username, String password, String position, String gender,
+                String nric, String phone_number, String email, String address, String city_id,
+                String status, Date last_online) {
+        this.user_id = user_id;
         this.username = username;
-        this.nickname = nickname;
         this.password = password;
+        this.position = position;
         this.gender = gender;
         this.nric = nric;
         this.phone_number = phone_number;
         this.email = email;
         this.address = address;
-        this.state = state;
-        this.postal_code = postal_code;
-        this.town = town;
-        this.country = country;
-        this.birth_year = birth_year;
-        this.birth_month = birth_month;
-        this.birth_day = birth_day;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.student_id = student_id;
-        this.faculty = faculty;
-        this.course = course;
-        this.academic_year = academic_year;
-        this.intake = intake;
-        this.tutorial_group = tutorial_group;
-        this.last_online = last_online;
+        this.city_id = city_id;
         this.status = status;
+        this.last_online = last_online;
     }
 
-    public int getUid() {
-        return uid;
+    public int getUser_id() {
+        return user_id;
     }
 
-    public void setUid(int uid) {
-        this.uid = uid;
+    public void setUser_id(int user_id) {
+        this.user_id = user_id;
     }
 
     public String getUsername() {
@@ -81,14 +75,6 @@ public class User {
         this.username = username;
     }
 
-    public String getNickname() {
-        return nickname;
-    }
-
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
-    }
-
     public String getPassword() {
         return password;
     }
@@ -97,19 +83,27 @@ public class User {
         this.password = password;
     }
 
-    public int getGender() {
+    public String getPosition() {
+        return position;
+    }
+
+    public void setPosition(String position) {
+        this.position = position;
+    }
+
+    public String getGender() {
         return gender;
     }
 
-    public void setGender(int gender) {
+    public void setGender(String gender) {
         this.gender = gender;
     }
 
-    public int getNric() {
+    public String getNric() {
         return nric;
     }
 
-    public void setNric(int nric) {
+    public void setNric(String nric) {
         this.nric = nric;
     }
 
@@ -137,132 +131,12 @@ public class User {
         this.address = address;
     }
 
-    public String getState() {
-        return state;
+    public String getCity_id() {
+        return city_id;
     }
 
-    public void setState(String state) {
-        this.state = state;
-    }
-
-    public String getPostal_code() {
-        return postal_code;
-    }
-
-    public void setPostal_code(String postal_code) {
-        this.postal_code = postal_code;
-    }
-
-    public String getTown() {
-        return town;
-    }
-
-    public void setTown(String town) {
-        this.town = town;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    public int getBirth_year() {
-        return birth_year;
-    }
-
-    public void setBirth_year(int birth_year) {
-        this.birth_year = birth_year;
-    }
-
-    public int getBirth_month() {
-        return birth_month;
-    }
-
-    public void setBirth_month(int birth_month) {
-        this.birth_month = birth_month;
-    }
-
-    public int getBirth_day() {
-        return birth_day;
-    }
-
-    public void setBirth_day(int birth_day) {
-        this.birth_day = birth_day;
-    }
-
-    public float getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(float latitude) {
-        this.latitude = latitude;
-    }
-
-    public float getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(float longitude) {
-        this.longitude = longitude;
-    }
-
-    public String getStudent_id() {
-        return student_id;
-    }
-
-    public void setStudent_id(String student_id) {
-        this.student_id = student_id;
-    }
-
-    public String getFaculty() {
-        return faculty;
-    }
-
-    public void setFaculty(String faculty) {
-        this.faculty = faculty;
-    }
-
-    public String getCourse() {
-        return course;
-    }
-
-    public void setCourse(String course) {
-        this.course = course;
-    }
-
-    public int getAcademic_year() {
-        return academic_year;
-    }
-
-    public void setAcademic_year(int academic_year) {
-        this.academic_year = academic_year;
-    }
-
-    public String getIntake() {
-        return intake;
-    }
-
-    public void setIntake(String intake) {
-        this.intake = intake;
-    }
-
-    public int getTutorial_group() {
-        return tutorial_group;
-    }
-
-    public void setTutorial_group(int tutorial_group) {
-        this.tutorial_group = tutorial_group;
-    }
-
-    public int getLast_online() {
-        return last_online;
-    }
-
-    public void setLast_online(int last_online) {
-        this.last_online = last_online;
+    public void setCity_id(String city_id) {
+        this.city_id = city_id;
     }
 
     public String getStatus() {
@@ -273,4 +147,23 @@ public class User {
         this.status = status;
     }
 
+    public Date getLast_online() {
+        return last_online;
+    }
+
+    public void setLast_online(Date last_online) {
+        this.last_online = last_online;
+    }
+
+    //i dont know what is this suppressLint thing
+    //it gives me error if i dont put it
+    @SuppressLint("NewApi")
+    public void setLast_online(String last_online) {
+        try{
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            this.last_online = (Date) formatter.parse(last_online);
+        }catch (NullPointerException e){
+            e.printStackTrace();
+        }
+    }
 }

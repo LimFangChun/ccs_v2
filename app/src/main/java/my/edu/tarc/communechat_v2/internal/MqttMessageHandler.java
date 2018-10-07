@@ -1,9 +1,16 @@
 package my.edu.tarc.communechat_v2.internal;
 
+import android.annotation.SuppressLint;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
-import my.edu.tarc.communechat_v2.R;
 import my.edu.tarc.communechat_v2.model.Contact;
+import my.edu.tarc.communechat_v2.model.Friendship;
+import my.edu.tarc.communechat_v2.model.Student;
 import my.edu.tarc.communechat_v2.model.User;
 
 /**
@@ -19,47 +26,9 @@ import my.edu.tarc.communechat_v2.model.User;
  */
 
 public class MqttMessageHandler {
-    private final static String RESERVED_STRING = "000000000000000000000000";
-
-    //Mqtt Command String
-    private static String REQ_AUTHENTICATION = "003801";
-    private static String ACK_AUTHENTICATION = "003802";
-    private static String REQ_CONTACT_LIST = "003810";
-    private static String ACK_CONTACT_LIST = "003811";
-    private static String REQ_CONTACT_DETAILS = "003812";
-    private static String ACK_CONTACT_DETAILS = "003813";
-    private static String REQ_NEARBY_FRIENDS = "003814";
-    private static String ACK_NEARBY_FRIENDS = "003815";
-    private static String REQ_SEARCH_USER = "003816";
-    private static String ACK_SEARCH_USER = "003817";
-    private static String REQ_RECOMMEND_FRIENDS = "003818";
-    private static String ACK_RECOMMEND_FRIENDS = "003819";
-    private static String REQ_FRIEND_REQUEST = "003820";
-    private static String ACK_FRIEND_REQUEST = "003821";
-    private static String REQ_FRIEND_REQUEST_LIST = "003822";
-    private static String ACK_FRIEND_REQUEST_LIST = "003823";
-    private static String REQ_RESPONSE_FRIEND_REQUEST = "003824";
-    private static String ACK_RESPONSE_FRIEND_REQUEST = "003825";
-
-    // Progressive command for searching user by category
-    // retrieve available records from database
-    // 003826 to 003837
-    private static String REQ_SEARCH_CATEGORY_FACULTY = "003826";
-    private static String ACK_SEARCH_CATEGORY_FACULTY = "003827";
-    private static String REQ_SEARCH_CATEGORY_YEAR = "003828";
-    private static String ACK_SEARCH_CATEGORY_YEAR = "003829";
-    private static String REQ_SEARCH_CATEGORY_SESSION = "003830";
-    private static String ACK_SEARCH_CATEGORY_SESSION = "003831";
-    private static String REQ_SEARCH_CATEGORY_COURSES = "003832";
-    private static String ACK_SEARCH_CATEGORY_COURSES = "003833";
-    private static String REQ_SEARCH_CATEGORY_GROUP = "003834";
-    private static String ACK_SEARCH_CATEGORY_GROUP = "003835";
-    private static String REQ_SEARCH_CATEGORY_MEMBER = "003836";
-    private static String ACK_SEARCH_CATEGORY_MEMBER = "003837";
-
-    private static String KEEP_ALIVE = "003999";
-
-    public MqttCommand mqttCommand;
+    public MqttCommand mqttCommand;//TODO: remove this
+    private String receivedHeader;
+    private String receivedResult;
     private String publish;
     private String received;
 
@@ -77,259 +46,181 @@ public class MqttMessageHandler {
 
     //After encode with MqttCommand and designed input data
     //Get the publish messages from getPublish() to publish the messages
-    public void encode(MqttCommand command, Object data) {
-        StringBuilder sb = new StringBuilder();
+    public void encode(String command, Object data) {
+        StringBuilder temp = new StringBuilder();
         String result = null;
         switch (command) {
-            case REQ_AUTHENTICATION: {
-                String[] credential = (String[]) data;
-                sb.append(REQ_AUTHENTICATION)
+            case MqttHeader.LOGIN: {
+                User loginUser = (User)data;
+                temp.append(MqttHeader.LOGIN)
                         .append(",")
-                        .append(credential[0])
+                        .append(loginUser.getUsername())
                         .append(",")
-                        .append(credential[1]);
-                result = sb.toString();
+                        .append(loginUser.getPassword());
+                result = temp.toString();
                 break;
             }
-            case REQ_CONTACT_LIST: {
-                String uid;
-                uid = (String) data;
-                sb.append(REQ_CONTACT_LIST
-                        + RESERVED_STRING
-                        + uid);
-                result = sb.toString();
+            case MqttHeader.REGISTER_USER:{
+                User newUser = (User)data;
+                temp.append(MqttHeader.REGISTER_USER)
+                        .append(",")
+                        .append(newUser.getUsername())
+                        .append(",")
+                        .append(newUser.getPassword());
+                result = temp.toString();
                 break;
             }
-            case REQ_CONTACT_DETAILS: {
-                String uid;
-                uid = (String) data;
-                sb.append(REQ_CONTACT_DETAILS
-                        + RESERVED_STRING
-                        + uid);
-                result = sb.toString();
+            case MqttHeader.GET_FRIEND_LIST:{
+                User user = (User)data;
+                temp.append(MqttHeader.GET_FRIEND_LIST)
+                        .append(",")
+                        .append(user.getUser_id());
+                result = temp.toString();
                 break;
             }
-            case REQ_NEARBY_FRIENDS: {
-                String uid = (String) data;
-                sb.append(REQ_NEARBY_FRIENDS
-                        + RESERVED_STRING
-                        + uid);
-                result = sb.toString();
+            case MqttHeader.FIND_BY_ADDRESS:{
+                User user = (User)data;
+                temp.append(MqttHeader.FIND_BY_ADDRESS)
+                        .append(",")
+                        .append(user.getUser_id())
+                        .append(",")
+                        .append(user.getCity_id());
+                result = temp.toString();
                 break;
             }
-            case REQ_SEARCH_USER: {
-                String searchString = (String) data;
-                sb.append(REQ_SEARCH_USER
-                        + RESERVED_STRING
-                        + searchString);
-                result = sb.toString();
+            case MqttHeader.FIND_BY_PROGRAMME:{
+                Student student = (Student) data;
+                temp.append(MqttHeader.FIND_BY_PROGRAMME)
+                        .append(",")
+                        .append(student.getUser_id())
+                        .append(",")
+                        .append(student.getFaculty())
+                        .append(",")
+                        .append(student.getCourse())
+                        .append(",")
+                        .append(student.getTutorial_group());
+                result = temp.toString();
                 break;
             }
-            case REQ_RECOMMEND_FRIENDS: {
-                String uid = (String) data;
-                sb.append(REQ_RECOMMEND_FRIENDS
-                        + RESERVED_STRING
-                        + uid);
-                result = sb.toString();
+            case MqttHeader.FIND_BY_TUTORIAL_GROUP:{
+                Student student = (Student) data;
+                temp.append(MqttHeader.FIND_BY_PROGRAMME)
+                        .append(",")
+                        .append(student.getUser_id())
+                        .append(",")
+                        .append(student.getFaculty())
+                        .append(",")
+                        .append(student.getCourse())
+                        .append(",")
+                        .append(student.getTutorial_group())
+                        .append(",")
+                        .append(student.getIntake())
+                        .append(",")
+                        .append(student.getAcademic_year());
+                result = temp.toString();
                 break;
             }
-            case REQ_FRIEND_REQUEST: {
-                String[] str = (String[]) data;
-                sb.append(REQ_FRIEND_REQUEST
-                        + RESERVED_STRING
-                        + str[0]
-                        + str[1]
-                        + str[2]);
-                result = sb.toString();
+            case MqttHeader.FIND_BY_AGE:{
+                Student student = (Student) data;
+                temp.append(MqttHeader.FIND_BY_AGE)
+                        .append(",")
+                        .append(student.getUser_id())
+                        .append(",")
+                        .append(student.getNric().substring(0,1))
+                        .append(",")
+                        .append(student.getFaculty())
+                        .append(",")
+                        .append(student.getCourse());
+                result = temp.toString();
                 break;
             }
-            case REQ_FRIEND_REQUEST_LIST: {
-                String uid = (String) data;
-                sb.append(REQ_FRIEND_REQUEST_LIST
-                        + RESERVED_STRING
-                        + uid);
-                result = sb.toString();
+            case MqttHeader.REQ_ADD_FRIEND:{
+                Friendship friendship = (Friendship) data;
+                temp.append(MqttHeader.REQ_ADD_FRIEND)
+                        .append(",")
+                        .append(friendship.getUser_id())
+                        .append(",")
+                        .append(friendship.getFriend_id());
+                result = temp.toString();
                 break;
             }
-            case REQ_RESPONSE_FRIEND_REQUEST: {
-                String[] id = (String[]) data;
-                sb.append(REQ_RESPONSE_FRIEND_REQUEST
-                        + RESERVED_STRING
-                        + id[0]
-                        + id[1]);
-                result = sb.toString();
+            case MqttHeader.ADD_FRIEND:{
+                Friendship friendship = (Friendship) data;
+                temp.append(MqttHeader.ADD_FRIEND)
+                        .append(",")
+                        .append(friendship.getUser_id())
+                        .append(",")
+                        .append(friendship.getFriend_id());
+                result = temp.toString();
                 break;
             }
-            case REQ_SEARCH_CATEGORY_FACULTY: {
-                sb.append(REQ_SEARCH_CATEGORY_FACULTY
-                        + RESERVED_STRING);
-                result = sb.toString();
+            case MqttHeader.DELETE_FRIEND:{
+                Friendship friendship = (Friendship) data;
+                temp.append(MqttHeader.DELETE_FRIEND)
+                        .append(",")
+                        .append(friendship.getUser_id())
+                        .append(",")
+                        .append(friendship.getFriend_id());
+                result = temp.toString();
                 break;
             }
-            case REQ_SEARCH_CATEGORY_YEAR: {
-                String[] str = (String[]) data;
-                sb.append(REQ_SEARCH_CATEGORY_YEAR
-                        + RESERVED_STRING
-                        + str[0]);
-                result = sb.toString();
-                break;
-            }
-            case REQ_SEARCH_CATEGORY_SESSION: {
-                String[] strings = (String[]) data;
-                sb.append(REQ_SEARCH_CATEGORY_SESSION
-                        + RESERVED_STRING
-                        + strings[0]
-                        + strings[1]);
-                result = sb.toString();
-                break;
-            }
-            case REQ_SEARCH_CATEGORY_COURSES: {
-                String[] strings = (String[]) data;
-                sb.append(REQ_SEARCH_CATEGORY_COURSES
-                        + RESERVED_STRING
-                        + strings[0]
-                        + strings[1]
-                        + strings[2]);
-                result = sb.toString();
-                break;
-            }
-            case REQ_SEARCH_CATEGORY_GROUP: {
-                String[] strings = (String[]) data;
-                sb.append(REQ_SEARCH_CATEGORY_GROUP
-                        + RESERVED_STRING
-                        + strings[0]
-                        + strings[1]
-                        + strings[2]
-                        + strings[3]);
-                result = sb.toString();
-                break;
-            }
-            case REQ_SEARCH_CATEGORY_MEMBER: {
-                String[] strings = (String[]) data;
-                sb.append(REQ_SEARCH_CATEGORY_MEMBER
-                        + RESERVED_STRING
-                        + strings[0]
-                        + strings[1]
-                        + strings[2]
-                        + strings[3]
-                        + strings[4]);
-                result = sb.toString();
-                break;
-            }
-            case KEEP_ALIVE: {
-                String[] update = (String[]) data;
-                sb.append(KEEP_ALIVE
-                        + RESERVED_STRING
-                        + update[0]
-                        + update[1]
-                        + String.format("%02d", update[2].length())
-                        + update[2]
-                        + String.format("%02d", update[3].length())
-                        + update[3]);
-                result = sb.toString();
+            case MqttHeader.SEARCH_USERNAME:{
+                User user = (User) data;
+                temp.append(MqttHeader.SEARCH_USERNAME)
+                        .append(",")
+                        .append(user.getUser_id())
+                        .append(",")
+                        .append(user.getUsername());
+                result = temp.toString();
                 break;
             }
         }
         this.publish = result;
     }
 
-    //Decode the received Mqtt Message to check command
+    //Decode the received Mqtt Message
+    //so the data can be processed later
     private void decode(String msg) {
-        if (!msg.isEmpty() && msg.length() >= 30) {
-            String data = msg.substring(0, 6);
-
-            if (data.equalsIgnoreCase(ACK_AUTHENTICATION)) {
-                this.mqttCommand = MqttCommand.ACK_AUTHENTICATION;
-
-            } else if (data.equalsIgnoreCase(ACK_CONTACT_LIST)) {
-                this.mqttCommand = MqttCommand.ACK_CONTACT_LIST;
-
-            } else if (data.equalsIgnoreCase(ACK_CONTACT_DETAILS)) {
-                this.mqttCommand = MqttCommand.ACK_CONTACT_DETAILS;
-
-            } else if (data.equalsIgnoreCase(ACK_NEARBY_FRIENDS)) {
-                this.mqttCommand = MqttCommand.ACK_NEARBY_FRIENDS;
-
-            } else if (data.equalsIgnoreCase(ACK_SEARCH_USER)) {
-                this.mqttCommand = MqttCommand.ACK_SEARCH_USER;
-
-            } else if (data.equalsIgnoreCase(ACK_RECOMMEND_FRIENDS)) {
-                this.mqttCommand = MqttCommand.ACK_RECOMMEND_FRIENDS;
-
-            } else if (data.equalsIgnoreCase(ACK_FRIEND_REQUEST)) {
-                this.mqttCommand = MqttCommand.ACK_FRIEND_REQUEST;
-
-            } else if (data.equalsIgnoreCase(ACK_FRIEND_REQUEST_LIST)) {
-                this.mqttCommand = MqttCommand.ACK_FRIEND_REQUEST_LIST;
-
-            } else if (data.equalsIgnoreCase(ACK_RESPONSE_FRIEND_REQUEST)) {
-                this.mqttCommand = MqttCommand.ACK_RESPONSE_FRIEND_REQUEST;
-
-            } else if (data.equalsIgnoreCase(ACK_SEARCH_CATEGORY_FACULTY)) {
-                this.mqttCommand = MqttCommand.ACK_SEARCH_CATEGORY_FACULTY;
-
-            } else if (data.equalsIgnoreCase(ACK_SEARCH_CATEGORY_YEAR)) {
-                this.mqttCommand = MqttCommand.ACK_SEARCH_CATEGORY_YEAR;
-
-            } else if (data.equalsIgnoreCase(ACK_SEARCH_CATEGORY_SESSION)) {
-                this.mqttCommand = MqttCommand.ACK_SEARCH_CATEGORY_SESSION;
-
-            } else if (data.equalsIgnoreCase(ACK_SEARCH_CATEGORY_COURSES)) {
-                this.mqttCommand = MqttCommand.ACK_SEARCH_CATEGORY_COURSES;
-
-            } else if (data.equalsIgnoreCase(ACK_SEARCH_CATEGORY_GROUP)) {
-                this.mqttCommand = MqttCommand.ACK_SEARCH_CATEGORY_GROUP;
-
-            } else if (data.equalsIgnoreCase(ACK_SEARCH_CATEGORY_MEMBER)) {
-                this.mqttCommand = MqttCommand.ACK_SEARCH_CATEGORY_MEMBER;
-
-            } else
-                this.mqttCommand = null;
+        if (msg != null && !msg.isEmpty()) {
+            receivedHeader = msg.split(",")[0];
+            receivedResult = msg.split(",")[1];
+        }else{
+            receivedHeader = MqttHeader.NO_REPLY;
+            receivedResult = "";
         }
     }
 
     //------All functions below are for handling received Mqtt Messages------
     //      Convert the message strings to desired data.
-    public int isLoginAuthenticated() {
-        if (this.mqttCommand == MqttCommand.ACK_AUTHENTICATION) {
-            String[] data = received.split(String.valueOf(R.string.splitter));
-            if (data[1].equalsIgnoreCase("1")) {
-                return 1;
-            } else if (data[1].equalsIgnoreCase("2")) {
-                return 2;
-            } else
-                return 3;
-        } else
-            return 4;
+    public boolean isLoginAuthenticated() {
+        return (this.receivedHeader.equals(MqttHeader.LOGIN_REPLY) &&
+                !receivedResult.equalsIgnoreCase(MqttHeader.NO_RESULT));
     }
 
+    @SuppressLint("NewApi")
     public User getUserData() {
         User user = new User();
-        if (this.mqttCommand == MqttCommand.ACK_AUTHENTICATION) {
-            String[] data = received.split(String.valueOf(R.string.splitter));
-
-            user.setStudent_id(data[0]);
-            user.setFaculty(data[1]);
-            user.setCourse(data[2]);
-            user.setTutorial_group(Integer.parseInt(data[3]));
-            user.setIntake(data[4]);
-            user.setAcademic_year(Integer.parseInt(data[5]));
-            user.setUid(Integer.parseInt(data[6]));
-            user.setGender(Integer.parseInt(data[7]));
-            user.setBirth_year(Integer.parseInt(data[8]));
-            user.setBirth_month(Integer.parseInt(data[9]));
-            user.setBirth_day(Integer.parseInt(data[10]));
-            user.setUsername(data[11]);
-            user.setNickname(data[12]);
-            user.setPassword(data[13]);
-            user.setState(data[14]);
-            user.setPhone_number(data[15]);
-            user.setEmail(data[16]);
-            user.setAddress(data[17]);
-            user.setTown(data[18]);
-            user.setState(data[19]);
-            user.setPostal_code(data[20]);
-            user.setCountry(data[21]);
+        if (this.receivedHeader.equals(MqttHeader.LOGIN_REPLY)) {
+            try {
+                JSONArray userData = new JSONArray(receivedResult);
+                JSONObject temp = userData.getJSONObject(0);
+                user.setUser_id(temp.getInt(User.COL_USER_ID));
+                user.setUsername(temp.getString(User.COL_USERNAME));
+                user.setPassword(temp.getString(User.COL_PASSWORD));
+                user.setPosition(temp.getString(User.COL_POSITION));
+                user.setGender(temp.getString(User.COL_GENDER));
+                user.setNric(temp.getString(User.COL_NRIC));
+                user.setPhone_number(temp.getString(User.COL_PHONE_NUMBER));
+                user.setEmail(temp.getString(User.COL_EMAIL));
+                user.setAddress(temp.getString(User.COL_ADDRESS));
+                user.setCity_id(temp.getString(User.COL_CITY_ID));
+                user.setStatus(temp.getString(User.COL_STATUS));
+                user.setLast_online(temp.getString(User.COL_LAST_ONLINE));
+            } catch (JSONException|NullPointerException e) {
+                e.printStackTrace();
+            }
+        }else{
+            user = null;
         }
         return user;
     }
@@ -643,6 +534,22 @@ public class MqttMessageHandler {
                 this.mqttCommand == MqttCommand.ACK_SEARCH_CATEGORY_COURSES ||
                 this.mqttCommand == MqttCommand.ACK_SEARCH_CATEGORY_GROUP ||
                 this.mqttCommand == MqttCommand.ACK_SEARCH_CATEGORY_MEMBER);
+    }
+
+    public String getReceivedHeader() {
+        return receivedHeader;
+    }
+
+    public String getReceivedResult() {
+        return receivedResult;
+    }
+
+    public void setReceivedHeader(String receivedHeader) {
+        this.receivedHeader = receivedHeader;
+    }
+
+    public void setReceivedResult(String receivedResult) {
+        this.receivedResult = receivedResult;
     }
 
     // New command must be defined as ENUM as shown below

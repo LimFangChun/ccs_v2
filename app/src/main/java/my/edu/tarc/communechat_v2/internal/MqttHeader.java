@@ -1,6 +1,7 @@
 package my.edu.tarc.communechat_v2.internal;
 
 public final class MqttHeader {
+    public static final String TOPIC_PREFIX = "MY/TARUC/CCS/000000001/";
     public static final String SUCCESS = "SUCCESS";
     public static final String NO_RESULT = "NO_RESULT";
     public static final String DUPLICATED = "DUPLICATED";

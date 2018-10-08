@@ -1,8 +1,8 @@
 package my.edu.tarc.communechat_v2;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -17,6 +17,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -33,9 +34,7 @@ import my.edu.tarc.communechat_v2.model.User;
 
 public class LoginActivity extends AppCompatActivity {
 
-    //private MqttHelper helper;
-
-    private ProgressDialog progressDialog;
+    private ProgressBar progressBar;
     private AlertDialog.Builder alertDialog;
     private static final long TASK_TIMEOUT = 10000;//10 seconds
 
@@ -60,12 +59,12 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        progressDialog  = new ProgressDialog(LoginActivity.this);
+        progressBar = findViewById(R.id.progressBar_login);
         alertDialog = new AlertDialog.Builder(LoginActivity.this);
 
         MainActivity.mqttHelper.connect(getApplicationContext());
 
-        uniqueTopic = MqttHeader.TOPIC_PREFIX + UUID.randomUUID().toString().substring(0, 8);
+        uniqueTopic = UUID.randomUUID().toString().substring(0, 8);
         pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         editor = pref.edit();editor.apply();
 
@@ -77,6 +76,8 @@ public class LoginActivity extends AppCompatActivity {
         etUsername = (AutoCompleteTextView) findViewById(R.id.editText_username);
         btnLogin = (Button) findViewById(R.id.button_login);
         buttonRegister = (Button)findViewById(R.id.button_register);
+
+        setTitle(getString(R.string.login));
 
         etPassword.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -108,21 +109,20 @@ public class LoginActivity extends AppCompatActivity {
 
 
                 if (username.isEmpty() || password.isEmpty()) {
-                    alertDialog.setMessage("Please enter your username and password");
-                    alertDialog.setTitle("Notice");
-                    alertDialog.setNeutralButton("OK", null);
+                    alertDialog.setMessage(R.string.empty_username_password);
+                    alertDialog.setTitle(R.string.notice);
+                    alertDialog.setNeutralButton(R.string.ok, null);
                     alertDialog.show();
                 } else if (!isNetworkAvailable()) {
-                    alertDialog.setMessage("No internet connection. Please try again");
-                    alertDialog.setTitle("Notice");
-                    alertDialog.setNeutralButton("OK", null);
+                    alertDialog.setMessage(R.string.no_internet_connection);
+                    alertDialog.setTitle(R.string.notice);
+                    alertDialog.setNeutralButton(R.string.ok, null);
                     alertDialog.show();
                 }else{
                     user.setUsername(username);
                     user.setPassword(password);
 
-                    progressDialog.setMessage("Loading...");
-                    progressDialog.show();
+                    progressBar.setVisibility(View.VISIBLE);
                     MainActivity.mqttHelper.connect(getApplicationContext());
                     MainActivity.mqttHelper.publish(uniqueTopic, MqttHeader.LOGIN, user);
                     MainActivity.mqttHelper.subscribe(uniqueTopic);
@@ -134,27 +134,7 @@ public class LoginActivity extends AppCompatActivity {
 
                         @Override
                         public void messageArrived(String topic, MqttMessage message) throws Exception {
-                            Log.i("[MqttHelper]", "Topic arrive: " + topic);
-                            Log.i("[MqttHelper]", "Message arrive: " + message);
-
-                            MainActivity.mqttHelper.decode(message.toString());
-                            Log.i("[MqttHelper]", "Received header: " + MainActivity.mqttHelper.getReceivedHeader());
-                            Log.i("[MqttHelper]", "Received result: " + MainActivity.mqttHelper.getReceivedResult());
-                            if (MainActivity.mqttHelper.getReceivedHeader().equals(MqttHeader.LOGIN_REPLY) &&
-                                    MainActivity.mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
-                                if (progressDialog.isShowing()) {
-                                    progressDialog.dismiss();
-                                }
-                                alertDialog.setTitle("Wrong username or password");
-                                alertDialog.setMessage("Please check if you have typed correct username and password");
-                                alertDialog.setNeutralButton("OK", null);
-                                alertDialog.show();
-                            } else {
-                                login();
-                                if (progressDialog.isShowing()) {
-                                    progressDialog.dismiss();
-                                }
-                            }
+                            login(topic, message);
                         }
 
                         @Override
@@ -165,31 +145,55 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
+
+        buttonRegister.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(LoginActivity.this, RegisterUserActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
-    private void login() {
-        try{
-            JSONArray userData = new JSONArray(MainActivity.mqttHelper.getReceivedResult());
-            JSONObject temp = userData.getJSONObject(0);
+    private void login(String topic, MqttMessage message) {
+        Log.i("[MqttHelper]", "Topic arrive: " + topic);
+        Log.i("[MqttHelper]", "Message arrive: " + message);
 
-            editor.putInt(User.COL_USER_ID, temp.getInt(User.COL_USER_ID));
-            editor.putString(User.COL_USERNAME, temp.getString(User.COL_USERNAME));
-            editor.putString(User.COL_PASSWORD, temp.getString(User.COL_PASSWORD));
-            editor.putString(User.COL_POSITION, temp.getString(User.COL_POSITION));
-            editor.putString(User.COL_GENDER, temp.getString(User.COL_GENDER));
-            editor.putString(User.COL_NRIC, temp.getString(User.COL_NRIC));
-            editor.putString(User.COL_PHONE_NUMBER, temp.getString(User.COL_PHONE_NUMBER));
-            editor.putString(User.COL_EMAIL, temp.getString(User.COL_EMAIL));
-            editor.putString(User.COL_ADDRESS, temp.getString(User.COL_ADDRESS));
-            editor.putString(User.COL_CITY_ID, temp.getString(User.COL_CITY_ID));
-            editor.putString(User.COL_STATUS, temp.getString(User.COL_STATUS));
-            editor.putString(User.COL_LAST_ONLINE, temp.getString(User.COL_LAST_ONLINE));
+        MainActivity.mqttHelper.decode(message.toString());
+        progressBar.setVisibility(View.INVISIBLE);
+        Log.i("[MqttHelper]", "Received header: " + MainActivity.mqttHelper.getReceivedHeader());
+        Log.i("[MqttHelper]", "Received result: " + MainActivity.mqttHelper.getReceivedResult());
+        if (MainActivity.mqttHelper.getReceivedHeader().equals(MqttHeader.LOGIN_REPLY) &&
+                MainActivity.mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
 
-            editor.commit();
-            MainActivity.mqttHelper.unsubscribe(uniqueTopic);
-            finish();
-        }catch (JSONException |NullPointerException e){
-            e.printStackTrace();
+            alertDialog.setTitle(R.string.wrong_username_password);
+            alertDialog.setMessage(R.string.check_username_password);
+            alertDialog.setNeutralButton(R.string.ok, null);
+            alertDialog.show();
+        } else {
+            try{
+                JSONArray userData = new JSONArray(MainActivity.mqttHelper.getReceivedResult());
+                JSONObject temp = userData.getJSONObject(0);
+
+                editor.putInt(User.COL_USER_ID, temp.getInt(User.COL_USER_ID));
+                editor.putString(User.COL_USERNAME, temp.getString(User.COL_USERNAME));
+                editor.putString(User.COL_PASSWORD, temp.getString(User.COL_PASSWORD));
+                editor.putString(User.COL_POSITION, temp.getString(User.COL_POSITION));
+                editor.putString(User.COL_GENDER, temp.getString(User.COL_GENDER));
+                editor.putString(User.COL_NRIC, temp.getString(User.COL_NRIC));
+                editor.putString(User.COL_PHONE_NUMBER, temp.getString(User.COL_PHONE_NUMBER));
+                editor.putString(User.COL_EMAIL, temp.getString(User.COL_EMAIL));
+                editor.putString(User.COL_ADDRESS, temp.getString(User.COL_ADDRESS));
+                editor.putString(User.COL_CITY_ID, temp.getString(User.COL_CITY_ID));
+                editor.putString(User.COL_STATUS, temp.getString(User.COL_STATUS));
+                editor.putString(User.COL_LAST_ONLINE, temp.getString(User.COL_LAST_ONLINE));
+
+                editor.commit();
+                MainActivity.mqttHelper.unsubscribe(uniqueTopic);
+                finish();
+            }catch (JSONException |NullPointerException e){
+                e.printStackTrace();
+            }
         }
     }
 

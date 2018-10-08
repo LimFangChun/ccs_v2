@@ -35,5 +35,20 @@
     <string name="no_internet">No internet connection</string>
     <string name="wrong_username_pass">Wrong username or password</string>
     <string name="register_account">Register an account</string>
+    <string name="login">Login</string>
+    <string name="register">Register</string>
+    <string name="register_title">Register new user account</string>
+    <string name="notice">Notice</string>
+    <string name="no_internet_connection">No internet connection. Please try again</string>
+    <string name="empty_username_password">Please enter your username and password</string>
+    <string name="loading">Loading…</string>
+    <string name="wrong_username_password">Wrong username or password</string>
+    <string name="check_username_password">Please check if you have typed correct username and password</string>
+    <string name="duplicated_username">Username already existed</string>
+    <string name="try_again_username">The username already existed. Please try another one</string>
+    <string name="failed">Failed</string>
+    <string name="failed_register">Failed to register an account</string>
+    <string name="register_success">Successfully registered an account. Please try to login with your new account</string>
+    <string name="success">Success</string>
 
 </resources>

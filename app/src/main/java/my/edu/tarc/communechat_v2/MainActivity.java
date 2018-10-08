@@ -12,25 +12,26 @@ import my.edu.tarc.communechat_v2.model.User;
 
 public class MainActivity extends AppCompatActivity {
 
-    private MqttHelper mqttHelper;
+    public static final MqttHelper mqttHelper = new MqttHelper();
 
     private SharedPreferences pref;
     private TextView textViewHello;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mqttHelper = new MqttHelper();
+        mqttHelper.connect(getApplicationContext());
 
-        textViewHello = (TextView)findViewById(R.id.textViewHello);
+        textViewHello = (TextView) findViewById(R.id.textViewHello);
         pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
-        if (pref == null ||  pref.getInt(User.COL_USER_ID, 0) == 0){
+        if (pref == null || pref.getInt(User.COL_USER_ID, 0) == 0) {
             Intent intentLogin = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intentLogin);
-        }else{
-            textViewHello.setText("user_id: "+ pref.getInt(User.COL_USER_ID, 0));
+        } else {
+            textViewHello.setText("user_id: " + pref.getInt(User.COL_USER_ID, 0));
         }
     }
 
@@ -38,5 +39,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         mqttHelper.disconnect();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mqttHelper.disconnect();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mqttHelper.connect(getApplicationContext());
     }
 }

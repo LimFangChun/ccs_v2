@@ -32,7 +32,7 @@ public class MqttHelper{
     private MqttAndroidClient mqttAndroidClient;
     private MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
     private DisconnectedBufferOptions disconnectedBufferOptions = new DisconnectedBufferOptions();
-
+    private String clientId;
     //received results and headers
     private String receivedHeader;
     private String receivedResult;
@@ -49,11 +49,12 @@ public class MqttHelper{
     private static boolean automaticReconnect = true;
 
     public MqttHelper() {
+         clientId = MqttClient.generateClientId();
     }
 
     public void connect(Context context) {
         if (mqttAndroidClient == null || !mqttAndroidClient.isConnected()) {
-            String clientId = MqttClient.generateClientId();
+
             mqttAndroidClient = new MqttAndroidClient(context, serverUri, clientId);
             try {
                 IMqttToken token = mqttAndroidClient.connect();

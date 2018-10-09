@@ -1,11 +1,11 @@
-Hello there and welcome
-This is my university final year project
-This project is to develop a commune chat system like Facebook Messenger, WhatsApp etc
-This project is mainly developed on Android platform only
-This project also adopted MQTT protocol to control traffic and conserve bandwidth
-The server side is using PHP as backend language
-Currently, we are using XAMPP to simulate a local server
-To setup this project in your device, follow these steps
+Hello there and welcome.
+This is my university final year project.
+This project is to develop a commune chat system like Facebook Messenger, WhatsApp etc.
+This project is mainly developed on Android platform only.
+This project also adopted MQTT protocol to control traffic and conserve bandwidth.
+The server side is using PHP as backend language.
+Currently, we are using XAMPP to simulate a local server.
+To setup this project in your device, follow these steps:
   1. Download XAMPP and make sure Apache and MySQL is installed
   2. Download a free MQTT broker, we are using HiveMQ currently
   3. Activate XAMPP, turn on Apache and MySQL, turn off the rest in case they cause troubles

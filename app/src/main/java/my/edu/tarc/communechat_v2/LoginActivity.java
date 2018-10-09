@@ -30,6 +30,7 @@ import org.json.JSONObject;
 import java.util.UUID;
 
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
+import my.edu.tarc.communechat_v2.model.Student;
 import my.edu.tarc.communechat_v2.model.User;
 
 public class LoginActivity extends AppCompatActivity {
@@ -187,6 +188,11 @@ public class LoginActivity extends AppCompatActivity {
                 editor.putString(User.COL_CITY_ID, temp.getString(User.COL_CITY_ID));
                 editor.putString(User.COL_STATUS, temp.getString(User.COL_STATUS));
                 editor.putString(User.COL_LAST_ONLINE, temp.getString(User.COL_LAST_ONLINE));
+                editor.putString(Student.COL_FACULTY, temp.getString(Student.COL_FACULTY));
+                editor.putString(Student.COL_COURSE, temp.getString(Student.COL_COURSE));
+                editor.putInt(Student.COL_TUTORIAL_GROUP, temp.getInt(Student.COL_TUTORIAL_GROUP));
+                editor.putInt(Student.COL_INTAKE, temp.getInt(Student.COL_INTAKE));
+                editor.putInt(Student.COL_ACADEMIC_YEAR, temp.getInt(Student.COL_ACADEMIC_YEAR));
 
                 editor.commit();
                 MainActivity.mqttHelper.unsubscribe(uniqueTopic);

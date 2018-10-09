@@ -15,4 +15,6 @@
     <color name="tab_checked">#FFFFFF</color>
     <color name="tab_unchecked">#b589f1</color>
     <color name="colorRoundButtonBackground">#8f1ffc</color>
+    <color name="colorBottomNavigator">#bdbdbd</color>
+    <color name="colorBlack">#000000</color>
 </resources>

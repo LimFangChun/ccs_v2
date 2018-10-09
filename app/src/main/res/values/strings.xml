@@ -16,7 +16,7 @@
     <string name="cancel">Cancel</string>
     <string name="logout_description">Are you sure you want to log out?</string>
     <string name="status">Status</string>
-    <string name="logout">Log Out</string>
+    <string name="logout">Logout</string>
     <string name="search">Search ID</string>
     <string name="search_category">Search by category</string>
     <string name="search_nearby">Explore nearby friends</string>
@@ -36,5 +36,35 @@
     <string name="no_internet">No internet connection</string>
     <string name="wrong_username_pass">Wrong username or password</string>
     <string name="register_account">Register an account</string>
+    <string name="login">Login</string>
+    <string name="register">Register</string>
+    <string name="register_title">Register new user account</string>
+    <string name="notice">Notice</string>
+    <string name="no_internet_connection">No internet connection. Please try again</string>
+    <string name="empty_username_password">Please enter your username and password</string>
+    <string name="loading">Loading…</string>
+    <string name="wrong_username_password">Wrong username or password</string>
+    <string name="check_username_password">Please check if you have typed correct username and password</string>
+    <string name="duplicated_username">Username already existed</string>
+    <string name="try_again_username">The username already existed. Please try another one</string>
+    <string name="failed">Failed</string>
+    <string name="failed_register">Failed to register an account</string>
+    <string name="register_success">Successfully registered an account. Please try to login with your new account</string>
+    <string name="success">Success</string>
+    <string name="find_friend">Find friend</string>
+    <string name="add_friend">Add friend</string>
+    <string name="profile">Profile</string>
+    <string name="chat">Chat</string>
+    <string name="default_image">Default image</string>
+    <string name="find_by_programme">Find by programme</string>
+    <string name="find_by_programme_desc">Find those who study in the same programme with you</string>
+    <string name="find_by_tut">Find by tutorial group</string>
+    <string name="find_by_tut_desc">Find your classmates</string>
+    <string name="find_by_address">Find by address</string>
+    <string name="find_by_address_desc">Find those who may be living around you</string>
+    <string name="find_by_age">Find by age</string>
+    <string name="find_by_age_desc">Maybe you prefer to befriend with people of same age</string>
+    <string name="suggest_friend">Suggest me any friend</string>
+    <string name="suggest_friend_desc">No idea what to choose? Try me!</string>
 
 </resources>

@@ -69,11 +69,7 @@ public class MqttHelper{
                         Log.i(TAG, mqttAndroidClient.getClientId() + " failed to connect");
                     }
                 });
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                //while(!mqttAndroidClient.isConnected());
             } catch (MqttException e) {
                 e.printStackTrace();
             }

@@ -16,7 +16,7 @@
     <string name="cancel">Cancel</string>
     <string name="logout_description">Are you sure you want to log out?</string>
     <string name="status">Status</string>
-    <string name="logout">Log Out</string>
+    <string name="logout">Logout</string>
     <string name="search">Search ID</string>
     <string name="search_category">Search by category</string>
     <string name="search_nearby">Explore nearby friends</string>
@@ -50,5 +50,9 @@
     <string name="failed_register">Failed to register an account</string>
     <string name="register_success">Successfully registered an account. Please try to login with your new account</string>
     <string name="success">Success</string>
+    <string name="find_friend">Find friend</string>
+    <string name="add_friend">Add friend</string>
+    <string name="profile">Profile</string>
+    <string name="chat">Chat</string>
 
 </resources>

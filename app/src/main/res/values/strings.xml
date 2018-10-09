@@ -54,5 +54,16 @@
     <string name="add_friend">Add friend</string>
     <string name="profile">Profile</string>
     <string name="chat">Chat</string>
+    <string name="default_image">Default image</string>
+    <string name="find_by_programme">Find by programme</string>
+    <string name="find_by_programme_desc">Find those who study in the same programme with you</string>
+    <string name="find_by_tut">Find by tutorial group</string>
+    <string name="find_by_tut_desc">Find your classmates</string>
+    <string name="find_by_address">Find by address</string>
+    <string name="find_by_address_desc">Find those who may be living around you</string>
+    <string name="find_by_age">Find by age</string>
+    <string name="find_by_age_desc">Maybe you prefer to befriend with people of same age</string>
+    <string name="suggest_friend">Suggest me any friend</string>
+    <string name="suggest_friend_desc">No idea what to choose? Try me!</string>
 
 </resources>

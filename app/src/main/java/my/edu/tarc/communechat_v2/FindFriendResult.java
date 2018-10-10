@@ -70,6 +70,7 @@ public class FindFriendResult extends AppCompatActivity {
                 setTitle("Find by age");
                 break;
         }
+        MainActivity.mqttHelper.connect(getApplicationContext());
         MainActivity.mqttHelper.publish(publishTopic, header, student);
         MainActivity.mqttHelper.subscribe(publishTopic);
         MainActivity.mqttHelper.getMqttClient().setCallback(mqttCallback);
@@ -85,10 +86,10 @@ public class FindFriendResult extends AppCompatActivity {
         public void messageArrived(String topic, MqttMessage message) throws Exception {
             MainActivity.mqttHelper.decode(message.toString());
             ArrayList<Student> resultList = new ArrayList<>();
-            try{
+            try {
                 JSONArray result = new JSONArray(MainActivity.mqttHelper.getReceivedResult());
                 Student friend = new Student();
-                for(int i = 0;i<result.length()-1;i++){
+                for (int i = 0; i < result.length() - 1; i++) {
                     friend.setUser_id(result.getJSONObject(i).getInt(Student.COL_USER_ID));
                     friend.setUsername(result.getJSONObject(i).getString(Student.COL_USERNAME));
                     friend.setStatus(result.getJSONObject(i).getString(Student.COL_STATUS));
@@ -99,7 +100,7 @@ public class FindFriendResult extends AppCompatActivity {
 
                     resultList.add(friend);
                 }
-            }catch (JSONException|NullPointerException e){
+            } catch (JSONException | NullPointerException e) {
                 e.printStackTrace();
             }
 

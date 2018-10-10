@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/imageView_profilePic"
+        android:layout_width="50dp"
+        android:layout_height="70dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:contentDescription="@string/default_image"
+        app:srcCompat="@drawable/ic_person" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@+id/imageView_profilePic"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textView_username"
+            android:layout_width="200dp"
+            android:layout_height="30dp"
+            android:text="Username" />
+
+        <TextView
+            android:id="@+id/textView_description"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:text="Description" />
+    </LinearLayout>
+    <TextView
+        android:id="@+id/textView_userID"
+        android:layout_width="200dp"
+        android:layout_height="30dp"
+        android:text="ID"
+        android:enabled="false"
+        android:visibility="gone"/>
+
+</RelativeLayout>

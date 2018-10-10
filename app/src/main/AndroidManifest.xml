@@ -27,7 +27,8 @@
         <service android:name="org.eclipse.paho.android.service.MqttService" />
 
         <activity android:name=".RegisterUserActivity" />
-        <activity android:name=".FindFriendResult"></activity>
+        <activity android:name=".FindFriendResult" />
+        <activity android:name=".FriendRequestActivity"></activity>
     </application>
 
 </manifest>

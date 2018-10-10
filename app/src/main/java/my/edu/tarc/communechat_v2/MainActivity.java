@@ -11,7 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import my.edu.tarc.communechat_v2.Fragment.AddFriendFragment;
+import my.edu.tarc.communechat_v2.Fragment.FriendListFragment;
 import my.edu.tarc.communechat_v2.Fragment.ChatFragment;
 import my.edu.tarc.communechat_v2.Fragment.FindFriendFragment;
 import my.edu.tarc.communechat_v2.internal.MqttHelper;
@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
-        switch (itemId){
+        switch (itemId) {
             case R.id.nav_settings:
                 //TODO: intent to setting activity
                 break;
@@ -58,10 +58,12 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNavigationView.setOnNavigationItemSelectedListener(bottomNavListener);
 
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, new ChatFragment())
-                .commit();
+        if (savedInstanceState == null) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, new ChatFragment())
+                    .commit();
+        }
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener bottomNavListener =
@@ -69,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                     Fragment selectedFragment = null;
-                    switch (item.getItemId()){
+                    switch (item.getItemId()) {
                         case R.id.nav_chat:
                             selectedFragment = new ChatFragment();
                             break;
@@ -77,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
                             selectedFragment = new FindFriendFragment();
                             break;
                         case R.id.nav_add_friend:
-                            selectedFragment = new AddFriendFragment();
+                            selectedFragment = new FriendListFragment();
                             break;
                         case R.id.nav_profile:
                             break;
@@ -93,12 +95,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mqttHelper.disconnect();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
         mqttHelper.disconnect();
     }
 

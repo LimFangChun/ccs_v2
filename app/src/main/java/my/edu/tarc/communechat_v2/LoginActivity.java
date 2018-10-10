@@ -124,9 +124,10 @@ public class LoginActivity extends AppCompatActivity {
                     user.setPassword(password);
 
                     progressBar.setVisibility(View.VISIBLE);
-                    MainActivity.mqttHelper.connect(getApplicationContext());
-                    MainActivity.mqttHelper.publish(uniqueTopic, MqttHeader.LOGIN, user);
-                    MainActivity.mqttHelper.subscribe(uniqueTopic);
+                    MainActivity.mqttHelper.connectPublishSubscribe(getApplicationContext(),
+                            uniqueTopic,
+                            MqttHeader.LOGIN,
+                            user);
                     MainActivity.mqttHelper.getMqttClient().setCallback(new MqttCallback() {
                         @Override
                         public void connectionLost(Throwable cause) {
@@ -201,6 +202,7 @@ public class LoginActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+        MainActivity.mqttHelper.unsubscribe(uniqueTopic);
     }
 
     private boolean isNetworkAvailable() {

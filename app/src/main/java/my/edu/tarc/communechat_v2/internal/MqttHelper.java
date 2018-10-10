@@ -17,13 +17,7 @@ import my.edu.tarc.communechat_v2.model.Student;
 import my.edu.tarc.communechat_v2.model.User;
 
 /**
- * Created by Xeosz on 24-Sep-17.
- * Modified by Lim Fang Chun on 30-Sep-2018
- * <p>
- * ***ATTENTION***
- * MQTT will only callback to one of the MQTT Android Client with same ClientID
- * Which is why static class is applied for whole application context.
- * Do not create/start multiple MQTT connection / MqttAndroidClient
+ * Created by Lim Fang Chun on 30-Sep-2018
  */
 
 public class MqttHelper{
@@ -69,7 +63,31 @@ public class MqttHelper{
                         Log.i(TAG, mqttAndroidClient.getClientId() + " failed to connect");
                     }
                 });
-                //while(!mqttAndroidClient.isConnected());
+                //mqttAndroidClient.connect().waitForCompletion();
+            } catch (MqttException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void connectPublishSubscribe(Context context,final String topic, final String header, final Object data){
+        if (mqttAndroidClient == null || !mqttAndroidClient.isConnected()) {
+
+            mqttAndroidClient = new MqttAndroidClient(context, serverUri, clientId);
+            try {
+                IMqttToken token = mqttAndroidClient.connect();
+                token.setActionCallback(new IMqttActionListener() {
+                    @Override
+                    public void onSuccess(IMqttToken asyncActionToken) {
+                        publish(topic, header, data);
+                        subscribe(topic);
+                    }
+
+                    @Override
+                    public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                        Log.i(TAG, mqttAndroidClient.getClientId() + " failed to connect");
+                    }
+                });
             } catch (MqttException e) {
                 e.printStackTrace();
             }

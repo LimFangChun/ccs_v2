@@ -16,7 +16,7 @@
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/nav_add_friend"
-        android:icon="@drawable/ic_person_add_black_24dp"
+        android:icon="@drawable/ic_group_black_24dp"
         android:title="@string/add_friend"
         android:visible="true"
         app:showAsAction="ifRoom" />

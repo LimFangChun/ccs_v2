@@ -12,6 +12,8 @@ public final class MqttHeader {
     public static final String UPDATE_USER = "UPDATE_USER";
     public static final String GET_FRIEND_LIST = "GET_FRIEND_LIST";
     public static final String GET_FRIEND_LIST_REPLY = "GET_FRIEND_LIST_REPLY";
+    public static final String GET_FRIEND_REQUEST = "GET_FRIEND_REQUEST";
+    public static final String GET_FRIEND_REQUEST_REPLY = "GET_FRIEND_REQUEST_REPLY";
     public static final String FIND_BY_ADDRESS = "FIND_BY_ADDRESS";
     public static final String FIND_BY_ADDRESS_REPLY = "FIND_BY_ADDRESS_REPLY";
     public static final String FIND_BY_PROGRAMME = "FIND_BY_PROGRAMME";

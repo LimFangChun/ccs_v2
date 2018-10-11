@@ -14,9 +14,10 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import my.edu.tarc.communechat_v2.R;
+import my.edu.tarc.communechat_v2.model.Student;
 import my.edu.tarc.communechat_v2.model.User;
 
-public class FriendListAdapter extends ArrayAdapter<User> {
+public class FriendListAdapter extends ArrayAdapter<Student> {
     private Context mContext;
     private int mResource;
 
@@ -27,7 +28,7 @@ public class FriendListAdapter extends ArrayAdapter<User> {
         TextView textViewDescription;
     }
 
-    public FriendListAdapter(@NonNull Context context, int resource, @NonNull ArrayList<User> objects) {
+    public FriendListAdapter(@NonNull Context context, int resource, @NonNull ArrayList<Student> objects) {
         super(context, resource, objects);
         mContext = context;
         mResource = resource;
@@ -54,7 +55,7 @@ public class FriendListAdapter extends ArrayAdapter<User> {
 
         User user = new User();
         user.setUser_id(Objects.requireNonNull(getItem(position)).getUser_id());
-        user.setUsername(Objects.requireNonNull(getItem(position)).getUsername());
+        user.setDisplay_name(Objects.requireNonNull(getItem(position)).getDisplay_name());
         user.setLast_online(Objects.requireNonNull(getItem(position)).getLast_online());
         user.setStatus(Objects.requireNonNull(getItem(position)).getStatus());
 
@@ -73,7 +74,7 @@ public class FriendListAdapter extends ArrayAdapter<User> {
         }
 
         holder.textViewUserID.setText(String.valueOf(user.getUser_id()));
-        holder.textViewUsername.setText(user.getUsername());
+        holder.textViewUsername.setText(user.getDisplay_name());
         holder.textViewDescription.setText(temp.toString());
 
         return convertView;

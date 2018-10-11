@@ -6,22 +6,21 @@
     android:layout_height="match_parent">
 
     <ProgressBar
-        android:id="@+id/progressBar_FriendList"
-        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:indeterminate="true"
-        android:visibility="invisible" />
-
+    android:id="@+id/progressBar_FriendList"
+    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentTop="true"
+    android:indeterminate="true"
+    android:visibility="invisible" />
+    
     <ListView
-        android:id="@+id/listView_friendList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:divider="@color/colorBlack"
+        android:id="@+id/listView_friendList"
         android:dividerHeight="1dp"
-        android:scrollbars="vertical"
-        android:layout_alignTop="@+id/progressBar_FriendList"/>
+        android:divider="@color/colorBlack"
+        android:scrollbars="vertical"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_addFriend"
@@ -38,13 +37,13 @@
         app:useCompatPadding="true" />
 
     <TextView
-        android:id="@+id/textView_requestCount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:elevation="7dp"
+        android:text="123"
         android:layout_marginBottom="80dp"
         android:layout_marginEnd="30dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
-        android:textColor="@color/colorRed"
-        android:visibility="gone"/>
+        android:textColor="@color/colorRed"/>
 </RelativeLayout>

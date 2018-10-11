@@ -17,4 +17,5 @@
     <color name="colorRoundButtonBackground">#8f1ffc</color>
     <color name="colorBottomNavigator">#bdbdbd</color>
     <color name="colorBlack">#000000</color>
+    <color name="colorRed">#FF0000</color>
 </resources>

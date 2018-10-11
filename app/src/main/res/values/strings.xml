@@ -51,7 +51,7 @@
     <string name="register_success">Successfully registered an account. Please try to login with your new account</string>
     <string name="success">Success</string>
     <string name="find_friend">Find friend</string>
-    <string name="add_friend">Add friend</string>
+    <string name="friend_list">Friend list</string>
     <string name="profile">Profile</string>
     <string name="chat">Chat</string>
     <string name="default_image">Default image</string>

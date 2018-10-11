@@ -2,7 +2,8 @@ package my.edu.tarc.communechat_v2.model;
 
 import android.annotation.SuppressLint;
 
-import java.time.format.DateTimeFormatter;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -160,9 +161,9 @@ public class User {
     @SuppressLint("NewApi")
     public void setLast_online(String last_online) {
         try{
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            this.last_online = (Date) formatter.parse(last_online);
-        }catch (NullPointerException e){
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+            this.last_online = (Date) dateFormat.parse(last_online);
+        }catch (NullPointerException|ParseException e){
             e.printStackTrace();
         }
     }

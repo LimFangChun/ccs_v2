@@ -15,7 +15,6 @@ import java.util.Objects;
 
 import my.edu.tarc.communechat_v2.R;
 import my.edu.tarc.communechat_v2.model.Student;
-import my.edu.tarc.communechat_v2.model.User;
 
 public class FriendListAdapter extends ArrayAdapter<Student> {
     private Context mContext;
@@ -53,29 +52,23 @@ public class FriendListAdapter extends ArrayAdapter<Student> {
             holder = (ViewHolder)convertView.getTag();
         }
 
-        User user = new User();
+        Student user = new Student();
         user.setUser_id(Objects.requireNonNull(getItem(position)).getUser_id());
         user.setDisplay_name(Objects.requireNonNull(getItem(position)).getDisplay_name());
         user.setLast_online(Objects.requireNonNull(getItem(position)).getLast_online());
         user.setStatus(Objects.requireNonNull(getItem(position)).getStatus());
-
-        long lastOnlineAgo = user.getLast_online().getTime() - System.currentTimeMillis();
-        StringBuilder temp = new StringBuilder();
-        if (lastOnlineAgo / 1000 / 60 / 60 / 24 / 30 != 0) {
-            temp.append(lastOnlineAgo / 1000 / 60 / 60 / 24 / 30).append(" month(s) ago");
-        } else if (lastOnlineAgo / 1000 / 60 / 60 / 24 != 0) {
-            temp.append(lastOnlineAgo / 1000 / 60 / 60 / 24).append(" day(s) ago");
-        } else if (lastOnlineAgo / 1000 / 60 / 60 != 0) {
-            temp.append(lastOnlineAgo / 1000 / 60 / 60 / 24).append(" hour(s) ago");
-        } else if (lastOnlineAgo / 1000 / 60 / 60 / 24 != 0) {
-            temp.append(lastOnlineAgo / 1000 / 60).append(" minute(s) ago");
-        }else {
-            temp.append(lastOnlineAgo / 1000).append(" second(s) ago");
-        }
+        user.setCourse(Objects.requireNonNull(getItem(position)).getCourse());
+        user.setAcademic_year(Objects.requireNonNull(getItem(position)).getAcademic_year());
+        user.setTutorial_group(Objects.requireNonNull(getItem(position)).getTutorial_group());
 
         holder.textViewUserID.setText(String.valueOf(user.getUser_id()));
         holder.textViewUsername.setText(user.getDisplay_name());
-        holder.textViewDescription.setText(temp.toString());
+
+        StringBuilder temp = new StringBuilder();
+        holder.textViewDescription.setText(temp
+                .append(user.getCourse()).append(user.getAcademic_year())
+                .append(" ").append("G").append(user.getTutorial_group())
+                .append(user.calculateLastOnline()));
 
         return convertView;
     }

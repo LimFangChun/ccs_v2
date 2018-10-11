@@ -14,6 +14,7 @@ public class User {
     //static final variables that define column name
     public static final String COL_USER_ID = "user_id";
     public static final String COL_USERNAME = "username";
+    public static final String COL_DISPLAY_NAME = "display_name";
     public static final String COL_PASSWORD = "password";
     public static final String COL_POSITION = "position";
     public static final String COL_GENDER = "gender";
@@ -28,6 +29,7 @@ public class User {
     //variables for encapsulation
     private int user_id;
     private String username;
+    private String display_name;
     private String password;
     private String position;
     private String gender;
@@ -43,11 +45,12 @@ public class User {
 
     }
 
-    public User(int user_id, String username, String password, String position, String gender,
-                String nric, String phone_number, String email, String address, String city_id,
-                String status, Date last_online) {
+    public User(int user_id, String username, String display_name, String password, String position,
+                String gender, String nric, String phone_number, String email, String address,
+                String city_id, String status, Date last_online) {
         this.user_id = user_id;
         this.username = username;
+        this.display_name = display_name;
         this.password = password;
         this.position = position;
         this.gender = gender;
@@ -165,6 +168,29 @@ public class User {
             this.last_online = (Date) dateFormat.parse(last_online);
         }catch (NullPointerException|ParseException e){
             e.printStackTrace();
+        }
+    }
+
+    public String getDisplay_name() {
+        return display_name;
+    }
+
+    public void setDisplay_name(String display_name) {
+        this.display_name = display_name;
+    }
+
+    public long calculateLastOnline(){
+        long lastOnlineAgo = getLast_online().getTime() - System.currentTimeMillis();
+        if (lastOnlineAgo / 1000 / 60 / 60 / 24 / 30 != 0) {
+            return (lastOnlineAgo / 1000 / 60 / 60 / 24 / 30);
+        } else if (lastOnlineAgo / 1000 / 60 / 60 / 24 != 0) {
+            return lastOnlineAgo / 1000 / 60 / 60 / 24;
+        } else if (lastOnlineAgo / 1000 / 60 / 60 != 0) {
+            return lastOnlineAgo / 1000 / 60 / 60 / 24;
+        } else if (lastOnlineAgo / 1000 / 60 / 60 / 24 != 0) {
+            return lastOnlineAgo / 1000 / 60;
+        } else {
+            return lastOnlineAgo / 1000;
         }
     }
 }

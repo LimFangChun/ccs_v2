@@ -35,12 +35,12 @@ public class Student extends User {
         this.user_id = user_id;
     }
 
-    public Student(int user_id, String username, String password, String position, String gender,
-                   String nric, String phone_number, String email, String address, String city_id,
-                   String status, Date last_online, String student_id, String faculty, String course,
-                   int tutorial_group, String intake, int academic_year, int user_id1) {
-        super(user_id, username, password, position, gender, nric, phone_number, email, address,
-                city_id, status, last_online);
+    public Student(int user_id, String username, String display_name, String password, String position,
+                   String gender, String nric, String phone_number, String email, String address,
+                   String city_id, String status, Date last_online, String student_id, String faculty,
+                   String course, int tutorial_group, String intake, int academic_year, int user_id1) {
+        super(user_id, username, display_name, password, position, gender, nric, phone_number, email,
+                address, city_id, status, last_online);
         this.student_id = student_id;
         this.faculty = faculty;
         this.course = course;

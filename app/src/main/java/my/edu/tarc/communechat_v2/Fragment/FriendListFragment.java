@@ -112,7 +112,7 @@ public class FriendListFragment extends Fragment {
                         for (int i = 0; i < result.length() - 1; i++) {
                             JSONObject temp = result.getJSONObject(i);
                             friend.setUser_id(temp.getInt(Friendship.COL_FRIEND_ID));
-                            friend.setUsername(temp.getString(Student.COL_USERNAME));
+                            friend.setDisplay_name(temp.getString(Student.COL_DISPLAY_NAME));
                             friend.setStatus(temp.getString(Student.COL_STATUS));
                             friend.setLast_online(temp.getString(Student.COL_LAST_ONLINE));
 

@@ -85,7 +85,6 @@ public class FindFriendResult extends AppCompatActivity {
         @Override
         public void messageArrived(String topic, MqttMessage message) throws Exception {
             MainActivity.mqttHelper.decode(message.toString());
-            ArrayList<Student> resultList = new ArrayList<>();
 
             if (MainActivity.mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
                 setTitle("No result");
@@ -95,12 +94,13 @@ public class FindFriendResult extends AppCompatActivity {
                         android.R.layout.simple_list_item_1, response);
                 listViewResult.setAdapter(adapter);
             } else {
+                ArrayList<Student> resultList = new ArrayList<>();
                 try {
                     JSONArray result = new JSONArray(MainActivity.mqttHelper.getReceivedResult());
                     for (int i = 0; i < result.length() - 1; i++) {
                         Student friend = new Student();
                         friend.setUser_id(result.getJSONObject(i).getInt(Student.COL_USER_ID));
-                        friend.setUsername(result.getJSONObject(i).getString(Student.COL_USERNAME));
+                        friend.setDisplay_name(result.getJSONObject(i).getString(Student.COL_DISPLAY_NAME));
                         friend.setStatus(result.getJSONObject(i).getString(Student.COL_STATUS));
                         friend.setLast_online(result.getJSONObject(i).getString(Student.COL_LAST_ONLINE));
                         friend.setCourse(result.getJSONObject(i).getString(Student.COL_COURSE));

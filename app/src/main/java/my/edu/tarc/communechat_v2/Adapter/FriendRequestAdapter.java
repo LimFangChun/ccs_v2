@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -15,9 +16,8 @@ import java.util.Objects;
 
 import my.edu.tarc.communechat_v2.R;
 import my.edu.tarc.communechat_v2.model.Student;
-import my.edu.tarc.communechat_v2.model.User;
 
-public class FriendListAdapter extends ArrayAdapter<Student> {
+public class FriendRequestAdapter extends ArrayAdapter<Student> {
     private Context mContext;
     private int mResource;
 
@@ -26,9 +26,11 @@ public class FriendListAdapter extends ArrayAdapter<Student> {
         TextView textViewUserID;
         TextView textViewUsername;
         TextView textViewDescription;
+        Button buttonAdd;
+        Button buttonDetail;
     }
 
-    public FriendListAdapter(@NonNull Context context, int resource, @NonNull ArrayList<Student> objects) {
+    public FriendRequestAdapter(@NonNull Context context, int resource, @NonNull ArrayList<Student> objects) {
         super(context, resource, objects);
         mContext = context;
         mResource = resource;
@@ -47,35 +49,31 @@ public class FriendListAdapter extends ArrayAdapter<Student> {
             holder.textViewUserID = convertView.findViewById(R.id.textView_userID);
             holder.textViewDescription = convertView.findViewById(R.id.textView_description);
             holder.textViewUsername = convertView.findViewById(R.id.textView_username);
+            holder.buttonAdd = convertView.findViewById(R.id.button_add);
+            holder.buttonDetail = convertView.findViewById(R.id.button_detail);
 
             convertView.setTag(holder);
         }else {
             holder = (ViewHolder)convertView.getTag();
         }
 
-        User user = new User();
+        Student user = new Student();
         user.setUser_id(Objects.requireNonNull(getItem(position)).getUser_id());
         user.setDisplay_name(Objects.requireNonNull(getItem(position)).getDisplay_name());
         user.setLast_online(Objects.requireNonNull(getItem(position)).getLast_online());
         user.setStatus(Objects.requireNonNull(getItem(position)).getStatus());
-
-        long lastOnlineAgo = user.getLast_online().getTime() - System.currentTimeMillis();
-        StringBuilder temp = new StringBuilder();
-        if (lastOnlineAgo / 1000 / 60 / 60 / 24 / 30 != 0) {
-            temp.append(lastOnlineAgo / 1000 / 60 / 60 / 24 / 30).append(" month(s) ago");
-        } else if (lastOnlineAgo / 1000 / 60 / 60 / 24 != 0) {
-            temp.append(lastOnlineAgo / 1000 / 60 / 60 / 24).append(" day(s) ago");
-        } else if (lastOnlineAgo / 1000 / 60 / 60 != 0) {
-            temp.append(lastOnlineAgo / 1000 / 60 / 60 / 24).append(" hour(s) ago");
-        } else if (lastOnlineAgo / 1000 / 60 / 60 / 24 != 0) {
-            temp.append(lastOnlineAgo / 1000 / 60).append(" minute(s) ago");
-        }else {
-            temp.append(lastOnlineAgo / 1000).append(" second(s) ago");
-        }
+        user.setCourse(Objects.requireNonNull(getItem(position)).getCourse());
+        user.setAcademic_year(Objects.requireNonNull(getItem(position)).getAcademic_year());
+        user.setTutorial_group(Objects.requireNonNull(getItem(position)).getTutorial_group());
 
         holder.textViewUserID.setText(String.valueOf(user.getUser_id()));
         holder.textViewUsername.setText(user.getDisplay_name());
-        holder.textViewDescription.setText(temp.toString());
+
+        StringBuilder sb = new StringBuilder();
+        holder.textViewDescription.setText(sb.append(user.getCourse())
+                .append(user.getAcademic_year()).append(" ")
+                .append("G").append(user.getTutorial_group())
+                .append(" - ").append(user.calculateLastOnline()));
 
         return convertView;
     }

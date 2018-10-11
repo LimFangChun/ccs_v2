@@ -164,9 +164,9 @@ public class MqttMessageHandler {
                 result = temp.toString();
                 break;
             }
-            case MqttHeader.SEARCH_USERNAME:{
+            case MqttHeader.SEARCH_USER:{
                 User user = (User) data;
-                temp.append(MqttHeader.SEARCH_USERNAME)
+                temp.append(MqttHeader.SEARCH_USER)
                         .append(",")
                         .append(user.getUser_id())
                         .append(",")

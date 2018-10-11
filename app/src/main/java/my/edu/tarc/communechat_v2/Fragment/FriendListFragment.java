@@ -29,7 +29,6 @@ import my.edu.tarc.communechat_v2.Adapter.FriendListAdapter;
 import my.edu.tarc.communechat_v2.FriendRequestActivity;
 import my.edu.tarc.communechat_v2.R;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
-import my.edu.tarc.communechat_v2.model.Friendship;
 import my.edu.tarc.communechat_v2.model.Student;
 import my.edu.tarc.communechat_v2.model.User;
 
@@ -56,19 +55,21 @@ public class FriendListFragment extends Fragment {
         textViewCountRequest = view.findViewById(R.id.textView_requestCount);
         progressBarFriendList = view.findViewById(R.id.progressBar_FriendList);
 
-        User user = new User();
-        user.setUser_id(pref.getInt(User.COL_USER_ID, -1));
-        uniqueTopic = "friendList/" + user.getUser_id();
+        if (savedInstanceState == null){
+            User user = new User();
+            user.setUser_id(pref.getInt(User.COL_USER_ID, -1));
+            uniqueTopic = "friendList/" + user.getUser_id();
 
-        fabAddFriend.setOnClickListener(fabListener);
-        listViewFriendList.setOnItemClickListener(listViewListener);
-        progressBarFriendList.setVisibility(View.VISIBLE);
+            fabAddFriend.setOnClickListener(fabListener);
+            listViewFriendList.setOnItemClickListener(listViewListener);
+            progressBarFriendList.setVisibility(View.VISIBLE);
 
-        mqttHelper.connectPublishSubscribe(getActivity(),
-                uniqueTopic,
-                MqttHeader.GET_FRIEND_LIST,
-                user);
-        mqttHelper.getMqttClient().setCallback(mqttCallback);
+            mqttHelper.connectPublishSubscribe(getActivity(),
+                    uniqueTopic,
+                    MqttHeader.GET_FRIEND_LIST,
+                    user);
+            mqttHelper.getMqttClient().setCallback(mqttCallback);
+        }
         return view;
     }
 
@@ -107,14 +108,18 @@ public class FriendListFragment extends Fragment {
                 } else {
                     try {
                         JSONArray result = new JSONArray(mqttHelper.getReceivedResult());
-                        Student friend = new Student();
-                        ArrayList<User> resultList = new ArrayList<>();
+
+                        ArrayList<Student> resultList = new ArrayList<>();
                         for (int i = 0; i < result.length() - 1; i++) {
+                            Student friend = new Student();
                             JSONObject temp = result.getJSONObject(i);
-                            friend.setUser_id(temp.getInt(Friendship.COL_FRIEND_ID));
+                            friend.setUser_id(temp.getInt(User.COL_USER_ID));
                             friend.setDisplay_name(temp.getString(Student.COL_DISPLAY_NAME));
                             friend.setStatus(temp.getString(Student.COL_STATUS));
                             friend.setLast_online(temp.getString(Student.COL_LAST_ONLINE));
+                            friend.setCourse(temp.getString(Student.COL_COURSE));
+                            friend.setAcademic_year(temp.getInt(Student.COL_ACADEMIC_YEAR));
+                            friend.setTutorial_group(temp.getInt(Student.COL_TUTORIAL_GROUP));
 
                             resultList.add(friend);
                         }

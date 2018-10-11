@@ -182,15 +182,15 @@ public class User {
     public long calculateLastOnline(){
         long lastOnlineAgo = getLast_online().getTime() - System.currentTimeMillis();
         if (lastOnlineAgo / 1000 / 60 / 60 / 24 / 30 != 0) {
-            return (lastOnlineAgo / 1000 / 60 / 60 / 24 / 30);
+            return Math.abs(lastOnlineAgo / 1000 / 60 / 60 / 24 / 30);
         } else if (lastOnlineAgo / 1000 / 60 / 60 / 24 != 0) {
-            return lastOnlineAgo / 1000 / 60 / 60 / 24;
+            return  Math.abs(lastOnlineAgo / 1000 / 60 / 60 / 24);
         } else if (lastOnlineAgo / 1000 / 60 / 60 != 0) {
-            return lastOnlineAgo / 1000 / 60 / 60 / 24;
+            return  Math.abs(lastOnlineAgo / 1000 / 60 / 60);
         } else if (lastOnlineAgo / 1000 / 60 / 60 / 24 != 0) {
-            return lastOnlineAgo / 1000 / 60;
+            return Math.abs(lastOnlineAgo / 1000 / 60);
         } else {
-            return lastOnlineAgo / 1000;
+            return Math.abs(lastOnlineAgo / 1000);
         }
     }
 }

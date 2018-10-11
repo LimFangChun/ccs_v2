@@ -18,7 +18,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-import my.edu.tarc.communechat_v2.Adapter.FriendListAdapter;
+import my.edu.tarc.communechat_v2.Adapter.FriendRequestAdapter;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
 import my.edu.tarc.communechat_v2.model.Student;
 import my.edu.tarc.communechat_v2.model.User;
@@ -56,36 +56,36 @@ public class FriendRequestActivity extends AppCompatActivity {
         @Override
         public void messageArrived(String topic, MqttMessage message) throws Exception {
             MainActivity.mqttHelper.decode(message.toString());
-            if(MainActivity.mqttHelper.getReceivedHeader().equals(MqttHeader.GET_FRIEND_REQUEST_REPLY)){
-                if (MainActivity.mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)){
+            if (MainActivity.mqttHelper.getReceivedHeader().equals(MqttHeader.GET_FRIEND_REQUEST_REPLY)) {
+                if (MainActivity.mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
                     setTitle("No result");
                     String[] response = new String[1];
                     response[0] = "Hmmm...Something went wrong\nWe couldn't find any users";
                     ArrayAdapter adapter = new ArrayAdapter<String>(FriendRequestActivity.this,
                             android.R.layout.simple_list_item_1, response);
                     listViewFriendRequest.setAdapter(adapter);
-                }else{
+                } else {
                     ArrayList<Student> resultList = new ArrayList<>();
-                    try{
+                    try {
                         JSONArray result = new JSONArray(MainActivity.mqttHelper.getReceivedResult());
-                        for(int i = 0;i<result.length()-1;i++){
+                        for (int i = 0; i <= result.length() - 1; i++) {
                             JSONObject temp = result.getJSONObject(i);
 
                             Student friend = new Student();
-                            friend.setUser_id(result.getJSONObject(i).getInt(Student.COL_USER_ID));
-                            friend.setDisplay_name(result.getJSONObject(i).getString(Student.COL_DISPLAY_NAME));
-                            friend.setStatus(result.getJSONObject(i).getString(Student.COL_STATUS));
-                            friend.setLast_online(result.getJSONObject(i).getString(Student.COL_LAST_ONLINE));
-                            friend.setCourse(result.getJSONObject(i).getString(Student.COL_COURSE));
-                            friend.setAcademic_year(result.getJSONObject(i).getInt(Student.COL_ACADEMIC_YEAR));
-                            friend.setTutorial_group(result.getJSONObject(i).getInt(Student.COL_TUTORIAL_GROUP));
+                            friend.setUser_id(temp.getInt(Student.COL_USER_ID));
+                            friend.setDisplay_name(temp.getString(Student.COL_DISPLAY_NAME));
+                            friend.setStatus(temp.getString(Student.COL_STATUS));
+                            friend.setLast_online(temp.getString(Student.COL_LAST_ONLINE));
+                            friend.setCourse(temp.getString(Student.COL_COURSE));
+                            friend.setAcademic_year(temp.getInt(Student.COL_ACADEMIC_YEAR));
+                            friend.setTutorial_group(temp.getInt(Student.COL_TUTORIAL_GROUP));
 
                             resultList.add(friend);
                         }
-                        FriendListAdapter adapter = new FriendListAdapter(getApplicationContext(),
+                        FriendRequestAdapter adapter = new FriendRequestAdapter(FriendRequestActivity.this,
                                 R.layout.adapter_friend_request, resultList);
                         listViewFriendRequest.setAdapter(adapter);
-                    }catch (JSONException|NullPointerException e){
+                    } catch (JSONException | NullPointerException e) {
                         e.printStackTrace();
                     }
                 }

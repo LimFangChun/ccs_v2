@@ -1,5 +1,7 @@
 package my.edu.tarc.communechat_v2.model;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Message {
@@ -63,6 +65,15 @@ public class Message {
 
     public void setDate_created(Date date_created) {
         this.date_created = date_created;
+    }
+
+    public void setDate_created(String date_created){
+        try{
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+            this.date_created = (Date) dateFormat.parse(date_created);
+        }catch (NullPointerException|ParseException e){
+            e.printStackTrace();
+        }
     }
 
     public int getRoom_id() {

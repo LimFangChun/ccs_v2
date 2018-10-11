@@ -66,5 +66,7 @@
     <string name="suggest_friend">Suggest me any friend</string>
     <string name="suggest_friend_desc">No idea what to choose? Try me!</string>
     <string name="account">Account</string>
+    <string name="add">Add</string>
+    <string name="detail">Detail</string>
 
 </resources>

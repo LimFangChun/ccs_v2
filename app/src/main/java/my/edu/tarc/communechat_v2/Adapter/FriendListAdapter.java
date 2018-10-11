@@ -72,7 +72,7 @@ public class FriendListAdapter extends ArrayAdapter<User> {
             temp.append(lastOnlineAgo / 1000).append(" second(s) ago");
         }
 
-        holder.textViewUserID.setText(user.getUser_id());
+        holder.textViewUserID.setText(String.valueOf(user.getUser_id()));
         holder.textViewUsername.setText(user.getUsername());
         holder.textViewDescription.setText(temp.toString());
 

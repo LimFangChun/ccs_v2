@@ -20,7 +20,7 @@ import my.edu.tarc.communechat_v2.model.User;
  * Created by Lim Fang Chun on 30-Sep-2018
  */
 
-public class MqttHelper{
+public class MqttHelper {
 
     private static final String TAG = "[MQTTHelper]";
     private MqttAndroidClient mqttAndroidClient;
@@ -43,7 +43,7 @@ public class MqttHelper{
     private static boolean automaticReconnect = true;
 
     public MqttHelper() {
-         clientId = MqttClient.generateClientId();
+        clientId = MqttClient.generateClientId();
     }
 
     public void connect(Context context) {
@@ -70,7 +70,7 @@ public class MqttHelper{
         }
     }
 
-    public void connectPublishSubscribe(Context context,final String topic, final String header, final Object data){
+    public void connectPublishSubscribe(Context context, final String topic, final String header, final Object data) {
         if (mqttAndroidClient == null || !mqttAndroidClient.isConnected()) {
 
             mqttAndroidClient = new MqttAndroidClient(context, serverUri, clientId);
@@ -91,6 +91,9 @@ public class MqttHelper{
             } catch (MqttException e) {
                 e.printStackTrace();
             }
+        } else {
+            publish(topic, header, data);
+            subscribe(topic);
         }
     }
 
@@ -225,6 +228,14 @@ public class MqttHelper{
                 result = temp.toString();
                 break;
             }
+            case MqttHeader.COUNT_FRIEND_REQUEST: {
+                User newUser = (User) data;
+                temp.append(MqttHeader.COUNT_FRIEND_REQUEST)
+                        .append(",")
+                        .append(newUser.getUser_id());
+                result = temp.toString();
+                break;
+            }
             case MqttHeader.GET_FRIEND_LIST: {
                 User user = (User) data;
                 temp.append(MqttHeader.GET_FRIEND_LIST)
@@ -281,7 +292,7 @@ public class MqttHelper{
                         .append(",")
                         .append(student.getUser_id())
                         .append(",")
-                        .append(student.getNric().substring(0, 1))
+                        .append(student.getNric().substring(0, 2))
                         .append(",")
                         .append(student.getFaculty())
                         .append(",")
@@ -353,7 +364,7 @@ public class MqttHelper{
         return receivedResult;
     }
 
-    public MqttAndroidClient getMqttClient(){
+    public MqttAndroidClient getMqttClient() {
         return mqttAndroidClient;
     }
 }

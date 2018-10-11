@@ -29,7 +29,7 @@
         android:layout_alignBottom="@+id/imageView_profilePic"
         android:layout_toEndOf="@+id/imageView_profilePic"
         android:text="Text2"
-        android:textSize="12sp" />
+        android:textSize="14sp" />
 
     <ImageButton
         android:id="@+id/button_addFriend"

@@ -48,6 +48,7 @@ public class FindFriendResult extends AppCompatActivity {
         student.setIntake(pref.getString(Student.COL_INTAKE, ""));
         student.setAcademic_year(pref.getInt(Student.COL_ACADEMIC_YEAR, -1));
         student.setNric(pref.getString(User.COL_NRIC, ""));
+        student.setCity_id(pref.getString(User.COL_CITY_ID, ""));
         int type = getIntent().getIntExtra("Type", -1);
         if (type > 3 || type < 0) {
             type = new Random().nextInt(3);
@@ -70,9 +71,8 @@ public class FindFriendResult extends AppCompatActivity {
                 setTitle("Find by age");
                 break;
         }
-        MainActivity.mqttHelper.connect(getApplicationContext());
-        MainActivity.mqttHelper.publish(publishTopic, header, student);
-        MainActivity.mqttHelper.subscribe(publishTopic);
+        MainActivity.mqttHelper.connectPublishSubscribe(getApplicationContext(),
+                publishTopic, header, student);
         MainActivity.mqttHelper.getMqttClient().setCallback(mqttCallback);
     }
 
@@ -86,23 +86,6 @@ public class FindFriendResult extends AppCompatActivity {
         public void messageArrived(String topic, MqttMessage message) throws Exception {
             MainActivity.mqttHelper.decode(message.toString());
             ArrayList<Student> resultList = new ArrayList<>();
-            try {
-                JSONArray result = new JSONArray(MainActivity.mqttHelper.getReceivedResult());
-                Student friend = new Student();
-                for (int i = 0; i < result.length() - 1; i++) {
-                    friend.setUser_id(result.getJSONObject(i).getInt(Student.COL_USER_ID));
-                    friend.setUsername(result.getJSONObject(i).getString(Student.COL_USERNAME));
-                    friend.setStatus(result.getJSONObject(i).getString(Student.COL_STATUS));
-                    friend.setLast_online(result.getJSONObject(i).getString(Student.COL_LAST_ONLINE));
-                    friend.setCourse(result.getJSONObject(i).getString(Student.COL_COURSE));
-                    friend.setAcademic_year(result.getJSONObject(i).getInt(Student.COL_ACADEMIC_YEAR));
-                    friend.setTutorial_group(result.getJSONObject(i).getInt(Student.COL_TUTORIAL_GROUP));
-
-                    resultList.add(friend);
-                }
-            } catch (JSONException | NullPointerException e) {
-                e.printStackTrace();
-            }
 
             if (MainActivity.mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
                 setTitle("No result");
@@ -112,6 +95,24 @@ public class FindFriendResult extends AppCompatActivity {
                         android.R.layout.simple_list_item_1, response);
                 listViewResult.setAdapter(adapter);
             } else {
+                try {
+                    JSONArray result = new JSONArray(MainActivity.mqttHelper.getReceivedResult());
+                    for (int i = 0; i < result.length() - 1; i++) {
+                        Student friend = new Student();
+                        friend.setUser_id(result.getJSONObject(i).getInt(Student.COL_USER_ID));
+                        friend.setUsername(result.getJSONObject(i).getString(Student.COL_USERNAME));
+                        friend.setStatus(result.getJSONObject(i).getString(Student.COL_STATUS));
+                        friend.setLast_online(result.getJSONObject(i).getString(Student.COL_LAST_ONLINE));
+                        friend.setCourse(result.getJSONObject(i).getString(Student.COL_COURSE));
+                        friend.setAcademic_year(result.getJSONObject(i).getInt(Student.COL_ACADEMIC_YEAR));
+                        friend.setTutorial_group(result.getJSONObject(i).getInt(Student.COL_TUTORIAL_GROUP));
+
+                        resultList.add(friend);
+                    }
+                } catch (JSONException | NullPointerException e) {
+                    e.printStackTrace();
+                }
+
                 //put all result into custom list
                 FindResultAdapter adapter = new FindResultAdapter(FindFriendResult.this,
                         R.layout.adapter_find_result,

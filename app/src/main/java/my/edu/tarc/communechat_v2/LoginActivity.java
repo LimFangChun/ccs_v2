@@ -192,7 +192,7 @@ public class LoginActivity extends AppCompatActivity {
                 editor.putString(Student.COL_FACULTY, temp.getString(Student.COL_FACULTY));
                 editor.putString(Student.COL_COURSE, temp.getString(Student.COL_COURSE));
                 editor.putInt(Student.COL_TUTORIAL_GROUP, temp.getInt(Student.COL_TUTORIAL_GROUP));
-                editor.putInt(Student.COL_INTAKE, temp.getInt(Student.COL_INTAKE));
+                editor.putString(Student.COL_INTAKE, temp.getString(Student.COL_INTAKE));
                 editor.putInt(Student.COL_ACADEMIC_YEAR, temp.getInt(Student.COL_ACADEMIC_YEAR));
 
                 editor.commit();

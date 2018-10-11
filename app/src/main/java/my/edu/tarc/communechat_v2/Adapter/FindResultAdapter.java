@@ -28,7 +28,7 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
     //that would cause lag issues
     //you can use recycle view but that only available API 21 or later
     //our target is target API 19 which recycle view is not available
-    static class ViewHolder{
+    static class ViewHolder {
         TextView textViewUserID;
         TextView textViewUsername;
         TextView textViewDescription;
@@ -49,57 +49,53 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
         student.setUsername(Objects.requireNonNull(getItem(position)).getUsername());
         student.setStatus(Objects.requireNonNull(getItem(position)).getStatus());
         student.setLast_online(Objects.requireNonNull(getItem(position)).getLast_online());
-        student.setFaculty(Objects.requireNonNull(getItem(position)).getFaculty());
         student.setCourse(Objects.requireNonNull(getItem(position)).getCourse());
-        student.setIntake(Objects.requireNonNull(getItem(position)).getIntake());
         student.setAcademic_year(Objects.requireNonNull(getItem(position)).getAcademic_year());
         student.setTutorial_group(Objects.requireNonNull(getItem(position)).getTutorial_group());
 
         ViewHolder holder;
 
-        if (convertView == null){
+        if (convertView != null) {
+            holder = (ViewHolder) convertView.getTag();
+        } else {
             LayoutInflater inflater = LayoutInflater.from(mContext);
             convertView = inflater.inflate(mResource, parent, false);
             holder = new ViewHolder();
 
             holder.textViewUserID = convertView.findViewById(R.id.textView_userID);
-            holder.textViewUsername  = convertView.findViewById(R.id.textView_username);
-            holder.textViewDescription  = convertView.findViewById(R.id.textView_description);
+            holder.textViewUsername = convertView.findViewById(R.id.textView_username);
+            holder.textViewDescription = convertView.findViewById(R.id.textView_description);
             convertView.setTag(holder);
-        }else{
-            holder = (ViewHolder)convertView.getTag();
         }
 
 
         long lastOnlineAgo = student.getLast_online().getTime() - System.currentTimeMillis();
-        StringBuilder temp = new StringBuilder();
-        temp.append(student.getUser_id())
-                .append("\t");
         //lastOnlineAgo would result in millisecond
         //convert to month first
         //if less than 1 month
         //display days instead
+        StringBuilder temp2 = new StringBuilder();
+        temp2.append("  ");
         if (lastOnlineAgo / 1000 / 60 / 60 / 24 / 30 != 0) {
-            temp.append(lastOnlineAgo / 1000 / 60 / 60 / 24 / 30).append(" month(s) ago");
+            temp2.append(lastOnlineAgo / 1000 / 60 / 60 / 24 / 30).append(" month(s) ago");
         } else if (lastOnlineAgo / 1000 / 60 / 60 / 24 != 0) {
-            temp.append(lastOnlineAgo / 1000 / 60 / 60 / 24).append(" day(s) ago");
+            temp2.append(lastOnlineAgo / 1000 / 60 / 60 / 24).append(" day(s) ago");
         } else if (lastOnlineAgo / 1000 / 60 / 60 != 0) {
-            temp.append(lastOnlineAgo / 1000 / 60 / 60 / 24).append(" hour(s) ago");
+            temp2.append(lastOnlineAgo / 1000 / 60 / 60 / 24).append(" hour(s) ago");
         } else if (lastOnlineAgo / 1000 / 60 / 60 / 24 != 0) {
-            temp.append(lastOnlineAgo / 1000 / 60).append(" minute(s) ago");
-        }else {
-            temp.append(lastOnlineAgo / 1000).append(" second(s) ago");
+            temp2.append(lastOnlineAgo / 1000 / 60).append(" minute(s) ago");
+        } else {
+            temp2.append(lastOnlineAgo / 1000).append(" second(s) ago");
         }
-        holder.textViewUserID.setText(temp.toString());
+        holder.textViewUserID.setText(String.valueOf(student.getUser_id()));
         holder.textViewUsername.setText(student.getUsername());
 
-        temp = new StringBuilder();
-        holder.textViewDescription.setText(temp
-                .append(student.getFaculty()).append(" ")
+        StringBuilder temp = new StringBuilder();
+        holder.textViewDescription.setText(temp.append(" ")
                 .append(student.getCourse())
                 .append(student.getAcademic_year()).append(" ")
-                .append(student.getIntake()).append(" ")
                 .append("G").append(student.getTutorial_group())
+                .append(" - ").append(temp2)
                 .toString());
 
         return convertView;

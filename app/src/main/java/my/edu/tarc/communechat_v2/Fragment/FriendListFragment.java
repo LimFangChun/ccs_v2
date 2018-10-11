@@ -10,8 +10,11 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -24,18 +27,22 @@ import java.util.ArrayList;
 
 import my.edu.tarc.communechat_v2.Adapter.FriendListAdapter;
 import my.edu.tarc.communechat_v2.FriendRequestActivity;
-import my.edu.tarc.communechat_v2.MainActivity;
 import my.edu.tarc.communechat_v2.R;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
+import my.edu.tarc.communechat_v2.model.Friendship;
 import my.edu.tarc.communechat_v2.model.Student;
 import my.edu.tarc.communechat_v2.model.User;
 
+import static my.edu.tarc.communechat_v2.MainActivity.mqttHelper;
+
 public class FriendListFragment extends Fragment {
 
-    ListView listViewFriendRequest;
-    FloatingActionButton fabAddFriend;
-    SharedPreferences pref;
-    String uniqueTopic;
+    private ListView listViewFriendList;
+    private TextView textViewCountRequest;
+    private FloatingActionButton fabAddFriend;
+    private ProgressBar progressBarFriendList;
+    private SharedPreferences pref;
+    private String uniqueTopic;
 
     @Nullable
     @Override
@@ -44,20 +51,24 @@ public class FriendListFragment extends Fragment {
 
         pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
-        listViewFriendRequest = view.findViewById(R.id.listView_friendRequest);
+        listViewFriendList = view.findViewById(R.id.listView_friendList);
         fabAddFriend = view.findViewById(R.id.fab_addFriend);
+        textViewCountRequest = view.findViewById(R.id.textView_requestCount);
+        progressBarFriendList = view.findViewById(R.id.progressBar_FriendList);
 
         User user = new User();
         user.setUser_id(pref.getInt(User.COL_USER_ID, -1));
-        uniqueTopic = "friendlist/" + user.getUser_id();
+        uniqueTopic = "friendList/" + user.getUser_id();
 
         fabAddFriend.setOnClickListener(fabListener);
+        listViewFriendList.setOnItemClickListener(listViewListener);
+        progressBarFriendList.setVisibility(View.VISIBLE);
 
-        MainActivity.mqttHelper.connectPublishSubscribe(getActivity(),
+        mqttHelper.connectPublishSubscribe(getActivity(),
                 uniqueTopic,
                 MqttHeader.GET_FRIEND_LIST,
                 user);
-        MainActivity.mqttHelper.getMqttClient().setCallback(mqttCallback);
+        mqttHelper.getMqttClient().setCallback(mqttCallback);
         return view;
     }
 
@@ -65,6 +76,16 @@ public class FriendListFragment extends Fragment {
         @Override
         public void onClick(View view) {
             startActivity(new Intent(getActivity(), FriendRequestActivity.class));
+        }
+    };
+
+    private ListView.OnItemClickListener listViewListener = new ListView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            TextView textViewUserID = (TextView) view.findViewById(R.id.textView_userID);
+            int userID = Integer.parseInt(textViewUserID.getText().toString());
+
+            //TODO:pass user id to view user profile activity
         }
     };
 
@@ -76,21 +97,21 @@ public class FriendListFragment extends Fragment {
 
         @Override
         public void messageArrived(String topic, MqttMessage message) throws Exception {
-            MainActivity.mqttHelper.decode(message.toString());
-            if (MainActivity.mqttHelper.getReceivedHeader().equals(MqttHeader.GET_FRIEND_LIST_REPLY)) {
-                if (MainActivity.mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
+            mqttHelper.decode(message.toString());
+            if (mqttHelper.getReceivedHeader().equals(MqttHeader.GET_FRIEND_LIST_REPLY)) {
+                if (mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
                     ArrayList<String> result = new ArrayList<>();
                     result.add("Seems like you don't have any friend yet");
                     ArrayAdapter adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, result);
-                    listViewFriendRequest.setAdapter(adapter);
+                    listViewFriendList.setAdapter(adapter);
                 } else {
                     try {
-                        JSONArray result = new JSONArray(MainActivity.mqttHelper.getReceivedResult());
+                        JSONArray result = new JSONArray(mqttHelper.getReceivedResult());
                         Student friend = new Student();
                         ArrayList<User> resultList = new ArrayList<>();
                         for (int i = 0; i < result.length() - 1; i++) {
                             JSONObject temp = result.getJSONObject(i);
-                            friend.setUser_id(temp.getInt(Student.COL_USER_ID));
+                            friend.setUser_id(temp.getInt(Friendship.COL_FRIEND_ID));
                             friend.setUsername(temp.getString(Student.COL_USERNAME));
                             friend.setStatus(temp.getString(Student.COL_STATUS));
                             friend.setLast_online(temp.getString(Student.COL_LAST_ONLINE));
@@ -98,13 +119,50 @@ public class FriendListFragment extends Fragment {
                             resultList.add(friend);
                         }
                         FriendListAdapter adapter = new FriendListAdapter(getActivity(), R.layout.adapter_friend_list, resultList);
-                        listViewFriendRequest.setAdapter(adapter);
+                        listViewFriendList.setAdapter(adapter);
                     } catch (JSONException | NullPointerException e) {
                         e.printStackTrace();
                     }
                 }
             }
-            MainActivity.mqttHelper.unsubscribe(uniqueTopic);
+            progressBarFriendList.setVisibility(View.INVISIBLE);
+            mqttHelper.unsubscribe(uniqueTopic);
+            countFriendRequest();
+        }
+
+        @Override
+        public void deliveryComplete(IMqttDeliveryToken token) {
+
+        }
+    };
+
+    private void countFriendRequest() {
+        User user = new User();
+        user.setUser_id(pref.getInt(User.COL_USER_ID, -1));
+        String topic = "countFriendRequest/" + user.getUser_id();
+        String header = MqttHeader.COUNT_FRIEND_REQUEST;
+
+        mqttHelper.connectPublishSubscribe(getActivity(), topic, header, user);
+        mqttHelper.getMqttClient().setCallback(countFriendRequestCallback);
+    }
+
+    private MqttCallback countFriendRequestCallback = new MqttCallback() {
+        @Override
+        public void connectionLost(Throwable cause) {
+
+        }
+
+        @Override
+        public void messageArrived(String topic, MqttMessage message) throws Exception {
+            mqttHelper.decode(message.toString());
+            mqttHelper.unsubscribe(topic);
+            if (mqttHelper.getReceivedHeader().equals(MqttHeader.COUNT_FRIEND_REQUEST_REPLY) &&
+                    !mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
+                textViewCountRequest.setText(String.valueOf(mqttHelper.getReceivedResult()));
+                textViewCountRequest.setVisibility(View.VISIBLE);
+            }else {
+                textViewCountRequest.setVisibility(View.GONE);
+            }
         }
 
         @Override

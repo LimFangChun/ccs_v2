@@ -10,6 +10,8 @@ public final class MqttHeader {
     public static final String REGISTER_USER_REPLY = "REGISTER_USER_REPLY";
     public static final String UPDATE_STUDENT = "UPDATE_STUDENT";
     public static final String UPDATE_USER = "UPDATE_USER";
+    public static final String COUNT_FRIEND_REQUEST = "COUNT_FRIEND_REQUEST";
+    public static final String COUNT_FRIEND_REQUEST_REPLY = "COUNT_FRIEND_REQUEST_REPLY";
     public static final String GET_FRIEND_LIST = "GET_FRIEND_LIST";
     public static final String GET_FRIEND_LIST_REPLY = "GET_FRIEND_LIST_REPLY";
     public static final String GET_FRIEND_REQUEST = "GET_FRIEND_REQUEST";

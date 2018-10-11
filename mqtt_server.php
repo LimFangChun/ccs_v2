@@ -137,6 +137,10 @@ function procmsg($topic, $msg){
 				case "FIND_BY_AGE":	{
 					$ack_message = FIND_BY_AGE($msg);
 					publishMessage($topic, $ack_message); break;}
+				case "GET_FRIEND_REQUEST":{
+					$ack_message = GET_FRIEND_REQUEST($msg);
+					publishMessage($topic, $ack_message); break;
+					}
 				case "ADD_FRIEND":	{
 					$ack_message = ADD_FRIEND($msg);
 					publishMessage($topic, $ack_message); break;}
@@ -146,8 +150,8 @@ function procmsg($topic, $msg){
 				case "DELETE_FRIEND":	{
 					$ack_message = DELETE_FRIEND($msg);
 					publishMessage($topic, $ack_message); break;}
-				case "SEARCH_USERNAME":	{
-					$ack_message = SEARCH_USERNAME($msg);
+				case "SEARCH_USER":	{
+					$ack_message = SEARCH_USER($msg);
 					publishMessage($topic, $ack_message); break;}
 				//case "003810":	{$ack_message = fn003810($msg);publishMessage($topic, $ack_message); break;}  				
 				// case "003812":	{$ack_message = fn003812($msg);publishMessage($topic, $ack_message); break;}
@@ -271,18 +275,15 @@ function REGISTER_USER($msg){
 	$ack_message = "REGISTER_USER_REPLY,";
 	
 	$receivedData = explode(',', $msg);		 
-	echo "\nHeader: ".$receivedData[0]."\n"; 
-	echo "\nUsername: ".$receivedData[1]."\n"; 
-	echo "\nPassword: ".$receivedData[2]."\n";
 	$username = $receivedData[1];
 	$password = $receivedData[2];
 	
 	$sql = "SELECT * FROM User WHERE BINARY username = '$username'";
 	$result = dbResult($sql);
-	if(mysqli_fetch_assoc($result) > 0){
+	if(mysqli_num_rows($result) = 0){
 		echo "Registering user:".$username;
 		
-		$sql = "INSERT INTO User (username, password) VALUES ('$username', '$password');";
+		$sql = "INSERT INTO User (username, password, display_name) VALUES ('$username', '$password', '$username');";
 		$result = dbResult($sql);
 		if(mysqli_affected_rows($result) > 0){
 			echo "\nNew user registered:".$username."\n";
@@ -295,7 +296,7 @@ function REGISTER_USER($msg){
 		echo "\nCannot register user:".$username.", username duplicated\n";
 		$ack_message .= "DUPLICATED";
 	}
-	
+	echo $ack_message;
 }
 
 //private use
@@ -327,10 +328,17 @@ function GET_FRIEND_LIST($msg){
 	
 	$receivedData = explode(',', $msg);		 
 	$user_id = $receivedData[1];
-	$sql = "SELECT friend_id, username, User.status, last_online 
+	$sql = "SELECT friend_id, display_name, User.status, last_online 
 			FROM Friendship INNER JOIN User 
 			ON Friendship.user_id = User.user_id
-			WHERE Friendship.user_id = $user_id AND Friendship.Status = 'Friend'";
+			WHERE Friendship.user_id = $user_id AND Friendship.Status = 'Friend'
+			ORDER BY 
+				CASE 
+					WHEN User.status = 'Online' THEN 1
+					ELSE 2
+				END, 
+				User.last_online DESC,
+				User.display_name";
 	$result = dbResult($sql);
 	if(mysqli_num_rows($result) > 0){
 		$temp = array();
@@ -343,7 +351,6 @@ function GET_FRIEND_LIST($msg){
 		echo "\nNo friends, feelsbadman\n";
 		$ack_message .= "NO_RESULT";
 	}
-	echo "\n".$ack_message."\n";//remove this later
 	return $ack_message;
 } 
 
@@ -354,10 +361,13 @@ function FIND_BY_ADDRESS($msg){
 	$receivedData = explode(',', $msg);	
 	$user_id = $receivedData[1];
 	$city_id = $receivedData[2];
-	$sql = "SELECT User.user_id, User.username, User.status, User.last_online
+	$sql = "SELECT
+				User.user_id, User.display_name, User.status, User.last_online, 
+				Student.course, Student.academic_year, Student.tutorial_group
 				FROM User 
 					INNER JOIN City ON User.city_id = City.city_id 
 					INNER JOIN State ON City.state_id = State.state_id 
+					INNER JOIN Student ON User.user_id = Student.user_id 
 				WHERE 
 					State.state_id = (SELECT DISTINCT state_id 
 							FROM City 
@@ -379,7 +389,7 @@ function FIND_BY_ADDRESS($msg){
 						ELSE 2
 					END, 
 					User.city_id, 
-					User.user_id";
+					User.display_name";
 				
 	$result = dbResult($sql);
 	if(mysqli_num_rows($result) > 0){
@@ -407,7 +417,7 @@ function FIND_BY_PROGRAMME($msg){
 	$course = $receivedData[3];
 	$tutorial_group = $receivedData[4];
 	$sql = "SELECT
-				User.user_id, User.username, User.status, User.last_online, 
+				User.user_id, User.display_name, User.status, User.last_online, 
 				Student.course, Student.academic_year, Student.tutorial_group
 			FROM Student INNER JOIN User ON User.user_id = Student.user_id 
 			WHERE 
@@ -415,7 +425,7 @@ function FIND_BY_PROGRAMME($msg){
 				course = '$course' AND
 				User.user_id NOT IN 
 					(
-						SELECT Friendship.friend_id 
+						SELECT Friendship.friend_id AS 'user_id'
 						FROM Friendship INNER JOIN User ON User.user_id = Friendship.user_id 
 						WHERE Friendship.user_id = $user_id
 					) AND
@@ -438,7 +448,7 @@ function FIND_BY_PROGRAMME($msg){
 					ELSE 2
 				END,
 				User.last_online DESC,
-				User.user_id";
+				User.display_name";
 				
 	$result = dbResult($sql);
 	if(mysqli_num_rows($result) > 0){
@@ -468,7 +478,7 @@ function FIND_BY_TUTORIAL_GROUP($msg){
 	$intake = $receivedData[5];
 	$academic_year = $receivedData[6];
 	$sql = "SELECT
-				User.user_id, User.username, User.status, User.last_online, 
+				User.user_id, User.display_name, User.status, User.last_online, 
 				Student.course, Student.academic_year, Student.tutorial_group
 			FROM Student INNER JOIN User ON User.user_id = Student.user_id 
 			WHERE 
@@ -479,7 +489,7 @@ function FIND_BY_TUTORIAL_GROUP($msg){
 				tutorial_group = '$tutorial_group' AND
 				User.user_id NOT IN 
 					(
-						SELECT Friendship.friend_id 
+						SELECT Friendship.friend_id AS 'user_id'
 						FROM Friendship INNER JOIN User ON User.user_id = Friendship.user_id 
 						WHERE Friendship.user_id = $user_id
 					) AND
@@ -490,7 +500,7 @@ function FIND_BY_TUTORIAL_GROUP($msg){
 					ELSE 2
 				END,
 				last_online DESC,
-				User.user_id";
+				User.display_name";
 				
 	$result = dbResult($sql);
 	if(mysqli_num_rows($result) > 0){
@@ -519,14 +529,14 @@ function FIND_BY_AGE($msg){
 	$course = $receivedData[4];
 	
 	$sql = "SELECT
-				User.user_id, User.username, User.status, User.last_online, 
+				User.user_id, User.display_name, User.status, User.last_online, 
 				Student.course, Student.academic_year, Student.tutorial_group
 			FROM Student INNER JOIN User ON User.user_id = Student.user_id 
 			WHERE 
 				CAST(SUBSTRING(nric, 1, 2) AS INTEGER) = '$year' AND 
 				User.user_id NOT IN 
 					(
-						SELECT Friendship.friend_id 
+						SELECT Friendship.friend_id AS 'user_id'
 						FROM Friendship INNER JOIN User ON User.user_id = Friendship.user_id 
 						WHERE Friendship.user_id = $user_id
 					) AND
@@ -563,6 +573,28 @@ function FIND_BY_AGE($msg){
 	return $ack_message;
 }
 
+function COUNT_FRIEND_REQUEST($msg){
+	echo "\nCounting friend requests...\n";
+	$ack_message = "COUNT_FRIEND_REQUEST_REPLY,";
+	
+	$receivedData = explode(',', $msg);	
+	$user_id = $receivedData[1];
+	
+	$sql = "SELECT COUNT(*) AS count_result FROM Friendship WHERE user_id = '$user_id'";
+				
+	$result = dbResult($sql);
+	if(mysqli_num_rows($result) > 0){
+		$row = mysqli_fetch_row($result);
+		echo "\nFound some friend request for user $user_id. feelsgoodman\n";
+		$ack_message .= "$row[count_result]";
+	}else{
+		echo "\nUser $user_id has no friend request\n";
+		$ack_message .= "NO_RESULT";
+	}
+	echo "\n".$ack_message;
+	return $ack_message;
+}
+
 function REQ_ADD_FRIEND($msg){
 	echo "\nRequesting to add friends...\n";
 	$ack_message = "REQ_ADD_FRIEND_REPLY,";
@@ -582,6 +614,32 @@ function REQ_ADD_FRIEND($msg){
 		$ack_message .= "NO_RESULT";
 	}
 	echo "\n".$ack_message;
+	return $ack_message;
+}
+
+function GET_FRIEND_REQUEST($msg){
+	echo "\ngetting friend list...\n";
+	$ack_message = "GET_FRIEND_LIST_REPLY,";
+	
+	$receivedData = explode(',', $msg);		 
+	$user_id = $receivedData[1];
+	$sql = "SELECT friend_id AS 'user_id', display_name, User.status, last_online, 
+				course, academic_year, tutorial_group 
+			FROM Friendship INNER JOIN User 
+			ON Friendship.user_id = User.user_id
+			WHERE Friendship.user_id = $user_id AND Friendship.Status = 'Pending'";
+	$result = dbResult($sql);
+	if(mysqli_num_rows($result) > 0){
+		$temp = array();
+		while($row = mysqli_fetch_assoc($result)){
+			$temp[] = $row;
+		}
+		echo "\nFound friend request for user:".$user_id."\n";
+		$ack_message .= json_encode($temp);
+	}else{
+		echo "\nNo friends, feelsbadman\n";
+		$ack_message .= "NO_RESULT";
+	}
 	return $ack_message;
 }
 
@@ -636,17 +694,17 @@ function DELETE_FRIEND($msg){
 	return $ack_message;
 }
 
-function SEARCH_USERNAME($msg){
+function SEARCH_USER($msg){
 	echo "\nSearching user...\n";
-	$ack_message = "SEARCH_USERNAME_REPLY,";
+	$ack_message = "SEARCH_USER_REPLY,";
 	
 	$receivedData = explode(',', $msg);
 	$user_id = $receivedData[1];
 	$target_username = $receivedData[2];
 	
-	$sql = "SELECT user.user_id, username, student.course, student.tutorial_group
+	$sql = "SELECT user.user_id, display_name, student.course, student.tutorial_group
 			FROM User INNER JOIN Student ON User.user_id = Student.user_id 
-			WHERE username LIKE '%$target_username%'";
+			WHERE display_name LIKE '%$target_username%' OR username LIKE '$target_username'";
 	$result = dbResult($sql);
 	if(mysqli_num_rows($result) > 0){
 		$temp = array();

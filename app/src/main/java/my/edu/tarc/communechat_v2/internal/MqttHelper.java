@@ -236,6 +236,14 @@ public class MqttHelper {
                 result = temp.toString();
                 break;
             }
+            case MqttHeader.GET_FRIEND_REQUEST:{
+                User newUser = (User)data;
+                temp.append(MqttHeader.GET_FRIEND_REQUEST)
+                        .append(",")
+                        .append(newUser.getUser_id());
+                result = temp.toString();
+                break;
+            }
             case MqttHeader.GET_FRIEND_LIST: {
                 User user = (User) data;
                 temp.append(MqttHeader.GET_FRIEND_LIST)
@@ -330,9 +338,9 @@ public class MqttHelper {
                 result = temp.toString();
                 break;
             }
-            case MqttHeader.SEARCH_USERNAME: {
+            case MqttHeader.SEARCH_USER: {
                 User user = (User) data;
-                temp.append(MqttHeader.SEARCH_USERNAME)
+                temp.append(MqttHeader.SEARCH_USER)
                         .append(",")
                         .append(user.getUser_id())
                         .append(",")

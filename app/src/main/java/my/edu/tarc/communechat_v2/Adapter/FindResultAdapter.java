@@ -46,7 +46,7 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         Student student = new Student();
         student.setUser_id(Objects.requireNonNull(getItem(position)).getUser_id());
-        student.setUsername(Objects.requireNonNull(getItem(position)).getUsername());
+        student.setDisplay_name(Objects.requireNonNull(getItem(position)).getDisplay_name());
         student.setStatus(Objects.requireNonNull(getItem(position)).getStatus());
         student.setLast_online(Objects.requireNonNull(getItem(position)).getLast_online());
         student.setCourse(Objects.requireNonNull(getItem(position)).getCourse());
@@ -68,34 +68,15 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
             convertView.setTag(holder);
         }
 
-
-        long lastOnlineAgo = student.getLast_online().getTime() - System.currentTimeMillis();
-        //lastOnlineAgo would result in millisecond
-        //convert to month first
-        //if less than 1 month
-        //display days instead
-        StringBuilder temp2 = new StringBuilder();
-        temp2.append("  ");
-        if (lastOnlineAgo / 1000 / 60 / 60 / 24 / 30 != 0) {
-            temp2.append(lastOnlineAgo / 1000 / 60 / 60 / 24 / 30).append(" month(s) ago");
-        } else if (lastOnlineAgo / 1000 / 60 / 60 / 24 != 0) {
-            temp2.append(lastOnlineAgo / 1000 / 60 / 60 / 24).append(" day(s) ago");
-        } else if (lastOnlineAgo / 1000 / 60 / 60 != 0) {
-            temp2.append(lastOnlineAgo / 1000 / 60 / 60 / 24).append(" hour(s) ago");
-        } else if (lastOnlineAgo / 1000 / 60 / 60 / 24 != 0) {
-            temp2.append(lastOnlineAgo / 1000 / 60).append(" minute(s) ago");
-        } else {
-            temp2.append(lastOnlineAgo / 1000).append(" second(s) ago");
-        }
         holder.textViewUserID.setText(String.valueOf(student.getUser_id()));
-        holder.textViewUsername.setText(student.getUsername());
+        holder.textViewUsername.setText(student.getDisplay_name());
 
         StringBuilder temp = new StringBuilder();
-        holder.textViewDescription.setText(temp.append(" ")
+        holder.textViewDescription.setText(temp
                 .append(student.getCourse())
                 .append(student.getAcademic_year()).append(" ")
                 .append("G").append(student.getTutorial_group())
-                .append(" - ").append(temp2)
+                .append(" - ").append(student.calculateLastOnline())
                 .toString());
 
         return convertView;

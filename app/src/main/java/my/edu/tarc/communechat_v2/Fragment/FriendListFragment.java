@@ -52,7 +52,9 @@ public class FriendListFragment extends Fragment {
 
         listViewFriendList = view.findViewById(R.id.listView_friendList);
         fabAddFriend = view.findViewById(R.id.fab_addFriend);
+        fabAddFriend.setVisibility(View.GONE);
         textViewCountRequest = view.findViewById(R.id.textView_requestCount);
+        textViewCountRequest.setVisibility(View.GONE);
         progressBarFriendList = view.findViewById(R.id.progressBar_FriendList);
 
         if (savedInstanceState == null){
@@ -164,8 +166,10 @@ public class FriendListFragment extends Fragment {
             if (mqttHelper.getReceivedHeader().equals(MqttHeader.COUNT_FRIEND_REQUEST_REPLY) &&
                     !mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
                 textViewCountRequest.setText(String.valueOf(mqttHelper.getReceivedResult()));
+                fabAddFriend.setVisibility(View.VISIBLE);
                 textViewCountRequest.setVisibility(View.VISIBLE);
             }else {
+                fabAddFriend.setVisibility(View.GONE);
                 textViewCountRequest.setVisibility(View.GONE);
             }
         }

@@ -33,18 +33,19 @@
         android:layout_marginEnd="25dp"
         android:clickable="true"
         android:focusable="true"
-        app:srcCompat="@drawable/ic_person_add_black_24dp"
         app:useCompatPadding="true" />
 
     <TextView
+        android:id="@+id/textView_requestCount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:elevation="7dp"
-        android:layout_marginBottom="80dp"
-        android:layout_marginEnd="30dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
-        android:textColor="@color/colorRed"
+        android:layout_marginBottom="56dp"
+        android:layout_marginEnd="53dp"
+        android:elevation="7dp"
+        android:text="3"
+        android:textColor="@color/colorWhite"
         android:textSize="18sp"
         android:visibility="gone"/>
 </RelativeLayout>

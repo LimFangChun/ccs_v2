@@ -74,29 +74,30 @@ public class RegisterUserActivity extends AppCompatActivity {
                     User newUser = new User();
                     newUser.setUsername(username);
                     newUser.setPassword(password);
-                    MainActivity.mqttHelper.connect(getApplicationContext());
-                    MainActivity.mqttHelper.publish(uniqueID, MqttHeader.REGISTER_USER, newUser);
-                    MainActivity.mqttHelper.subscribe(uniqueID);
-                    MainActivity.mqttHelper.getMqttClient().setCallback(new MqttCallback() {
-                        @Override
-                        public void connectionLost(Throwable cause) {
-
-                        }
-
-                        @Override
-                        public void messageArrived(String topic, MqttMessage message) throws Exception {
-                            responseRegister(message);
-                        }
-
-                        @Override
-                        public void deliveryComplete(IMqttDeliveryToken token) {
-
-                        }
-                    });
+                    MainActivity.mqttHelper.connectPublishSubscribe(getApplicationContext(),
+                            uniqueID, MqttHeader.REGISTER_USER, newUser);
+                    MainActivity.mqttHelper.getMqttClient().setCallback(mqttCallback);
                 }
             }
         });
     }
+
+    private MqttCallback mqttCallback = new MqttCallback() {
+        @Override
+        public void connectionLost(Throwable cause) {
+
+        }
+
+        @Override
+        public void messageArrived(String topic, MqttMessage message) throws Exception {
+            responseRegister(message);
+        }
+
+        @Override
+        public void deliveryComplete(IMqttDeliveryToken token) {
+
+        }
+    };
 
     private void responseRegister(MqttMessage message) {
         MainActivity.mqttHelper.decode(message.toString());

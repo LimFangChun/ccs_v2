@@ -1,11 +1,16 @@
 package my.edu.tarc.communechat_v2;
 
+import android.app.AlertDialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -18,6 +23,7 @@ import java.util.Random;
 
 import my.edu.tarc.communechat_v2.Adapter.FindResultAdapter;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
+import my.edu.tarc.communechat_v2.model.Friendship;
 import my.edu.tarc.communechat_v2.model.Student;
 import my.edu.tarc.communechat_v2.model.User;
 
@@ -33,6 +39,8 @@ public class FindFriendResult extends AppCompatActivity {
 
         pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         listViewResult = findViewById(R.id.listView_findResult);
+        listViewResult.setOnItemClickListener(listViewListener);
+
         getFriend();
     }
 
@@ -119,6 +127,74 @@ public class FindFriendResult extends AppCompatActivity {
                         resultList);
                 listViewResult.setAdapter(adapter);
             }
+        }
+
+        @Override
+        public void deliveryComplete(IMqttDeliveryToken token) {
+
+        }
+    };
+
+    private static Student temp = new Student();
+    private ProgressBar progressBarAdd;
+    private TextView textViewFriendID;
+    private ListView.OnItemClickListener listViewListener = new ListView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            textViewFriendID = view.findViewById(R.id.textView_userID);
+            TextView textViewDisplayName = view.findViewById(R.id.textView_username);
+            progressBarAdd = view.findViewById(R.id.progressBar_addFriend);
+            progressBarAdd.setVisibility(View.VISIBLE);
+
+            Friendship friendship = new Friendship();
+            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            friendship.setUser_id(pref.getInt(User.COL_USER_ID, -1));
+            friendship.setFriend_id(Integer.parseInt(textViewFriendID.getText().toString()));
+
+            temp.setUser_id(friendship.getUser_id());
+            temp.setDisplay_name(textViewDisplayName.getText().toString());
+
+            String topic = "addFriend/" + friendship.getUser_id();
+            String header = MqttHeader.REQ_ADD_FRIEND;
+            MainActivity.mqttHelper.connectPublishSubscribe(getApplicationContext(), topic, header, friendship);
+            MainActivity.mqttHelper.getMqttClient().setCallback(addFriendCallback);
+        }
+    };
+
+    private MqttCallback addFriendCallback = new MqttCallback() {
+        @Override
+        public void connectionLost(Throwable cause) {
+
+        }
+
+        @Override
+        public void messageArrived(String topic, MqttMessage message) throws Exception {
+
+            MainActivity.mqttHelper.decode(message.toString());
+            if (MainActivity.mqttHelper.getReceivedHeader().equals(MqttHeader.REQ_ADD_FRIEND_REPLY)) {
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(FindFriendResult.this);
+                if (MainActivity.mqttHelper.getReceivedResult().equals(MqttHeader.SUCCESS)) {
+                    alertDialog.setTitle("Success");
+                    alertDialog.setMessage("Friend request has sent to " + temp.getDisplay_name());
+                    alertDialog.setNeutralButton(R.string.ok, null);
+
+                    //remove added friend from the list
+
+                } else {
+                    alertDialog.setTitle("Failed");
+                    alertDialog.setMessage("Failed to add " + temp.getDisplay_name() + " as friend");
+                    alertDialog.setNeutralButton(R.string.ok, null);
+                }
+                alertDialog.show();
+
+                for(int i=0;i<listViewResult.getCount()-1;i++){
+                    if(Integer.parseInt(textViewFriendID.getText().toString()) == temp.getUser_id()){
+                        listViewResult.removeViewAt(i);
+                    }
+                }
+            }
+            MainActivity.mqttHelper.unsubscribe(topic);
+            progressBarAdd.setVisibility(View.GONE);
         }
 
         @Override

@@ -1,39 +1,27 @@
 package my.edu.tarc.communechat_v2.Adapter;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
-
 import java.util.ArrayList;
 import java.util.Objects;
 
-import my.edu.tarc.communechat_v2.MainActivity;
 import my.edu.tarc.communechat_v2.R;
-import my.edu.tarc.communechat_v2.internal.MqttHeader;
-import my.edu.tarc.communechat_v2.model.Friendship;
 import my.edu.tarc.communechat_v2.model.Student;
-import my.edu.tarc.communechat_v2.model.User;
 
 public class FindResultAdapter extends ArrayAdapter<Student> {
     private Context mContext;
     private int mResource;
-    private Student student = new Student();
+    private Student student;
     private ViewHolder holder;
 
     //holder class for each row
@@ -62,6 +50,7 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+        student  = new Student();
         student.setUser_id(Objects.requireNonNull(getItem(position)).getUser_id());
         student.setDisplay_name(Objects.requireNonNull(getItem(position)).getDisplay_name());
         student.setStatus(Objects.requireNonNull(getItem(position)).getStatus());
@@ -96,56 +85,8 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
                 .append(" - ").append(student.calculateLastOnline())
                 .toString());
 
-        holder.buttonAddFriend.setOnClickListener(buttonListener);
-
         return convertView;
     }
 
-    private Button.OnClickListener buttonListener = new Button.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            holder.progressBarAddFriend.setVisibility(View.VISIBLE);
-            Friendship friendship = new Friendship();
-            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getContext());
-            friendship.setUser_id(pref.getInt(User.COL_USER_ID, -1));
-            friendship.setFriend_id(student.getUser_id());
 
-            String topic = "addFriend/" + friendship.getUser_id();
-            String header = MqttHeader.ADD_FRIEND;
-            MainActivity.mqttHelper.connectPublishSubscribe(getContext(), topic, header, friendship);
-            MainActivity.mqttHelper.getMqttClient().setCallback(mqttCallback);
-        }
-    };
-
-    private MqttCallback mqttCallback = new MqttCallback() {
-        @Override
-        public void connectionLost(Throwable cause) {
-
-        }
-
-        @Override
-        public void messageArrived(String topic, MqttMessage message) throws Exception {
-            holder.progressBarAddFriend.setVisibility(View.GONE);
-            MainActivity.mqttHelper.decode(message.toString());
-            if (MainActivity.mqttHelper.getReceivedHeader().equals(MqttHeader.ADD_FRIEND_REPLY)) {
-                AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
-                if (!MainActivity.mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
-                    alertDialog.setTitle("Success");
-                    alertDialog.setMessage("Added " + student.getDisplay_name() + " as friend");
-                    alertDialog.setNeutralButton(R.string.ok, null);
-                } else {
-                    alertDialog.setTitle("Failed");
-                    alertDialog.setMessage("Failed to add " + student.getDisplay_name() + " as friend");
-                    alertDialog.setNeutralButton(R.string.ok, null);
-                }
-                alertDialog.show();
-            }
-            MainActivity.mqttHelper.unsubscribe(topic);
-        }
-
-        @Override
-        public void deliveryComplete(IMqttDeliveryToken token) {
-
-        }
-    };
 }

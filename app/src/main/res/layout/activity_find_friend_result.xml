@@ -12,5 +12,7 @@
         android:layout_height="match_parent"
         android:divider="@color/colorBlack"
         android:dividerHeight="1dp"
-        android:scrollbars="vertical"/>
+        android:scrollbars="vertical"
+        android:clickable="true"
+        android:focusable="true" />
 </RelativeLayout>

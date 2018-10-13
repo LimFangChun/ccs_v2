@@ -31,6 +31,7 @@ public class FindFriendResult extends AppCompatActivity {
 
     private ListView listViewResult;
     private SharedPreferences pref;
+    private ArrayList<Student> resultList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,7 +103,7 @@ public class FindFriendResult extends AppCompatActivity {
                         android.R.layout.simple_list_item_1, response);
                 listViewResult.setAdapter(adapter);
             } else {
-                ArrayList<Student> resultList = new ArrayList<>();
+                resultList = new ArrayList<>();
                 try {
                     JSONArray result = new JSONArray(MainActivity.mqttHelper.getReceivedResult());
                     for (int i = 0; i < result.length() - 1; i++) {
@@ -178,8 +179,16 @@ public class FindFriendResult extends AppCompatActivity {
                     alertDialog.setMessage("Friend request has sent to " + temp.getDisplay_name());
                     alertDialog.setNeutralButton(R.string.ok, null);
 
-                    //remove added friend from the list
-
+                    //remove the selected user from list if friend request is success
+                    for(int i=0;i<listViewResult.getCount()-1;i++){
+                        if(Integer.parseInt(textViewFriendID.getText().toString()) == temp.getUser_id()){
+                            resultList.remove(i);
+                            FindResultAdapter adapter = new FindResultAdapter(FindFriendResult.this,
+                                    R.layout.adapter_find_result,
+                                    resultList);
+                            listViewResult.setAdapter(adapter);
+                        }
+                    }
                 } else {
                     alertDialog.setTitle("Failed");
                     alertDialog.setMessage("Failed to add " + temp.getDisplay_name() + " as friend");
@@ -187,11 +196,7 @@ public class FindFriendResult extends AppCompatActivity {
                 }
                 alertDialog.show();
 
-                for(int i=0;i<listViewResult.getCount()-1;i++){
-                    if(Integer.parseInt(textViewFriendID.getText().toString()) == temp.getUser_id()){
-                        listViewResult.removeViewAt(i);
-                    }
-                }
+
             }
             MainActivity.mqttHelper.unsubscribe(topic);
             progressBarAdd.setVisibility(View.GONE);

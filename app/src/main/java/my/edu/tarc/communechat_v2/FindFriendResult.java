@@ -180,7 +180,7 @@ public class FindFriendResult extends AppCompatActivity {
                     alertDialog.setNeutralButton(R.string.ok, null);
 
                     //remove the selected user from list if friend request is success
-                    for(int i=0;i<listViewResult.getCount()-1;i++){
+                    for(int i=0;i<=listViewResult.getCount()-1;i++){
                         if(Integer.parseInt(textViewFriendID.getText().toString()) == temp.getUser_id()){
                             resultList.remove(i);
                             FindResultAdapter adapter = new FindResultAdapter(FindFriendResult.this,

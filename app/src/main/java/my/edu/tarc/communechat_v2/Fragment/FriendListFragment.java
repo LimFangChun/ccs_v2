@@ -112,7 +112,7 @@ public class FriendListFragment extends Fragment {
                         JSONArray result = new JSONArray(mqttHelper.getReceivedResult());
 
                         ArrayList<Student> resultList = new ArrayList<>();
-                        for (int i = 0; i < result.length() - 1; i++) {
+                        for (int i = 0; i <= result.length() - 1; i++) {
                             Student friend = new Student();
                             JSONObject temp = result.getJSONObject(i);
                             friend.setUser_id(temp.getInt(User.COL_USER_ID));

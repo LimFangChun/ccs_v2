@@ -68,7 +68,7 @@ public class FriendListAdapter extends ArrayAdapter<Student> {
         holder.textViewDescription.setText(temp
                 .append(user.getCourse()).append(user.getAcademic_year())
                 .append(" ").append("G").append(user.getTutorial_group())
-                .append(user.calculateLastOnline()));
+                .append(" - ").append(user.calculateLastOnline()));
 
         return convertView;
     }

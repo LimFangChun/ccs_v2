@@ -16,16 +16,18 @@ public class Friendship {
     private int friend_id;
     private String status;
     private Date date_created;
+    private int sender_id;
 
     public Friendship(){
 
     }
 
-    public Friendship(int user_id, int friend_id, String status, Date date_created) {
+    public Friendship(int user_id, int friend_id, String status, Date date_created, int sender_id) {
         this.user_id = user_id;
         this.friend_id = friend_id;
         this.status = status;
         this.date_created = date_created;
+        this.sender_id = sender_id;
     }
 
     public int getUser_id() {
@@ -67,5 +69,13 @@ public class Friendship {
         }catch (NullPointerException|ParseException e){
             e.printStackTrace();
         }
+    }
+
+    public int getSender_id() {
+        return sender_id;
+    }
+
+    public void setSender_id(int sender_id) {
+        this.sender_id = sender_id;
     }
 }

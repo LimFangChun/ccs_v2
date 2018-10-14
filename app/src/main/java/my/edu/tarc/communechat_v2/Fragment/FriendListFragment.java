@@ -164,7 +164,8 @@ public class FriendListFragment extends Fragment {
             mqttHelper.decode(message.toString());
             mqttHelper.unsubscribe(topic);
             if (mqttHelper.getReceivedHeader().equals(MqttHeader.COUNT_FRIEND_REQUEST_REPLY) &&
-                    !mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
+                    !mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT) ||
+                    Integer.parseInt(mqttHelper.getReceivedResult()) > 0) {
                 textViewCountRequest.setText(String.valueOf(mqttHelper.getReceivedResult()));
                 fabAddFriend.setVisibility(View.VISIBLE);
                 textViewCountRequest.setVisibility(View.VISIBLE);

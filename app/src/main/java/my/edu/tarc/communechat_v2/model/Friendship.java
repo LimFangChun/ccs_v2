@@ -10,6 +10,7 @@ public class Friendship {
     public static final String COL_FRIEND_ID = "friend_id";
     public static final String COL_STATUS = "status";
     public static final String COL_DATE_CREATED = "date_created";
+    public static final String COL_SENDER_ID = "sender_id";
 
     //variables for encapsulation
     private int user_id;

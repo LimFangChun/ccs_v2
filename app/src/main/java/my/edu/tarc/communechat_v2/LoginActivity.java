@@ -191,9 +191,22 @@ public class LoginActivity extends AppCompatActivity {
                 editor.putString(User.COL_LAST_ONLINE, temp.getString(User.COL_LAST_ONLINE));
                 editor.putString(Student.COL_FACULTY, temp.getString(Student.COL_FACULTY));
                 editor.putString(Student.COL_COURSE, temp.getString(Student.COL_COURSE));
-                editor.putInt(Student.COL_TUTORIAL_GROUP, temp.getInt(Student.COL_TUTORIAL_GROUP));
+
+                String tempTutorial = temp.getString(Student.COL_TUTORIAL_GROUP);
+                if (tempTutorial == null){
+                    editor.putInt(Student.COL_TUTORIAL_GROUP, 0);
+                }else{
+                    editor.putInt(Student.COL_TUTORIAL_GROUP, temp.getInt(Student.COL_TUTORIAL_GROUP));
+                }
+
                 editor.putString(Student.COL_INTAKE, temp.getString(Student.COL_INTAKE));
-                editor.putInt(Student.COL_ACADEMIC_YEAR, temp.getInt(Student.COL_ACADEMIC_YEAR));
+
+                String tempAcademic = temp.getString(Student.COL_TUTORIAL_GROUP);
+                if (tempAcademic == null){
+                    editor.putInt(Student.COL_ACADEMIC_YEAR, 0);
+                }else{
+                    editor.putInt(Student.COL_ACADEMIC_YEAR, temp.getInt(Student.COL_ACADEMIC_YEAR));
+                }
 
                 editor.commit();
                 MainActivity.mqttHelper.unsubscribe(uniqueTopic);

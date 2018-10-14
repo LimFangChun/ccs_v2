@@ -192,8 +192,7 @@ public class LoginActivity extends AppCompatActivity {
                 editor.putString(Student.COL_FACULTY, temp.getString(Student.COL_FACULTY));
                 editor.putString(Student.COL_COURSE, temp.getString(Student.COL_COURSE));
 
-                String tempTutorial = temp.getString(Student.COL_TUTORIAL_GROUP);
-                if (tempTutorial == null){
+                if (temp.isNull(Student.COL_TUTORIAL_GROUP)){
                     editor.putInt(Student.COL_TUTORIAL_GROUP, 0);
                 }else{
                     editor.putInt(Student.COL_TUTORIAL_GROUP, temp.getInt(Student.COL_TUTORIAL_GROUP));
@@ -201,8 +200,7 @@ public class LoginActivity extends AppCompatActivity {
 
                 editor.putString(Student.COL_INTAKE, temp.getString(Student.COL_INTAKE));
 
-                String tempAcademic = temp.getString(Student.COL_TUTORIAL_GROUP);
-                if (tempAcademic == null){
+                if (temp.isNull(Student.COL_TUTORIAL_GROUP)){
                     editor.putInt(Student.COL_ACADEMIC_YEAR, 0);
                 }else{
                     editor.putInt(Student.COL_ACADEMIC_YEAR, temp.getInt(Student.COL_ACADEMIC_YEAR));

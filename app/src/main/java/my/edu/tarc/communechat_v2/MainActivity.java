@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mqttHelper.connect(getApplicationContext());
+        //mqttHelper.connect(getApplicationContext());
 
         bottomNavigationView = (BottomNavigationView) findViewById(R.id.nav_bottom);
         pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());

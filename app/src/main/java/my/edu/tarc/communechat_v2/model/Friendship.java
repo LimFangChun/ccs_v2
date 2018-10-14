@@ -10,22 +10,25 @@ public class Friendship {
     public static final String COL_FRIEND_ID = "friend_id";
     public static final String COL_STATUS = "status";
     public static final String COL_DATE_CREATED = "date_created";
+    public static final String COL_SENDER_ID = "sender_id";
 
     //variables for encapsulation
     private int user_id;
     private int friend_id;
     private String status;
     private Date date_created;
+    private int sender_id;
 
     public Friendship(){
 
     }
 
-    public Friendship(int user_id, int friend_id, String status, Date date_created) {
+    public Friendship(int user_id, int friend_id, String status, Date date_created, int sender_id) {
         this.user_id = user_id;
         this.friend_id = friend_id;
         this.status = status;
         this.date_created = date_created;
+        this.sender_id = sender_id;
     }
 
     public int getUser_id() {
@@ -67,5 +70,13 @@ public class Friendship {
         }catch (NullPointerException|ParseException e){
             e.printStackTrace();
         }
+    }
+
+    public int getSender_id() {
+        return sender_id;
+    }
+
+    public void setSender_id(int sender_id) {
+        this.sender_id = sender_id;
     }
 }

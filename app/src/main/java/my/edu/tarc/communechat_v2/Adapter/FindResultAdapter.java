@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,7 +51,7 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        student  = new Student();
+        student = new Student();
         student.setUser_id(Objects.requireNonNull(getItem(position)).getUser_id());
         student.setDisplay_name(Objects.requireNonNull(getItem(position)).getDisplay_name());
         student.setStatus(Objects.requireNonNull(getItem(position)).getStatus());
@@ -74,8 +75,15 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
             convertView.setTag(holder);
         }
 
+        String status;
+        if (student.getStatus().equals("Offline")) {
+            status = "\uD83D\uDD34";
+        } else {
+            status = "✅";
+        }
+
         holder.textViewUserID.setText(String.valueOf(student.getUser_id()));
-        holder.textViewUsername.setText(student.getDisplay_name());
+        holder.textViewUsername.setText(Html.fromHtml(status + student.getDisplay_name()));
 
         StringBuilder temp = new StringBuilder();
         holder.textViewDescription.setText(temp

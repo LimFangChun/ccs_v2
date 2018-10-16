@@ -3,6 +3,7 @@ package my.edu.tarc.communechat_v2.Adapter;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -26,7 +28,7 @@ public class FriendRequestAdapter extends ArrayAdapter<Student> {
         TextView textViewUserID;
         TextView textViewUsername;
         TextView textViewDescription;
-        Button buttonAdd;
+        Button buttonAccept;
         Button buttonDetail;
     }
 
@@ -39,7 +41,7 @@ public class FriendRequestAdapter extends ArrayAdapter<Student> {
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        ViewHolder holder;
+        final ViewHolder holder;
         LayoutInflater inflater = LayoutInflater.from(mContext);
         if(convertView == null){
             convertView = inflater.inflate(mResource, parent, false);
@@ -49,7 +51,7 @@ public class FriendRequestAdapter extends ArrayAdapter<Student> {
             holder.textViewUserID = convertView.findViewById(R.id.textView_userID);
             holder.textViewDescription = convertView.findViewById(R.id.textView_description);
             holder.textViewUsername = convertView.findViewById(R.id.textView_username);
-            holder.buttonAdd = convertView.findViewById(R.id.button_add);
+            holder.buttonAccept = convertView.findViewById(R.id.button_accept);
             holder.buttonDetail = convertView.findViewById(R.id.button_detail);
 
             convertView.setTag(holder);
@@ -66,14 +68,35 @@ public class FriendRequestAdapter extends ArrayAdapter<Student> {
         user.setAcademic_year(Objects.requireNonNull(getItem(position)).getAcademic_year());
         user.setTutorial_group(Objects.requireNonNull(getItem(position)).getTutorial_group());
 
+        String status;
+        if (user.getStatus().equals("Offline")){
+            status = "\uD83D\uDD34";
+        }else{
+            status = "✅";
+        }
+
         holder.textViewUserID.setText(String.valueOf(user.getUser_id()));
-        holder.textViewUsername.setText(user.getDisplay_name());
+        holder.textViewUsername.setText(Html.fromHtml(String.valueOf(status+ user.getDisplay_name())));
 
         StringBuilder sb = new StringBuilder();
         holder.textViewDescription.setText(sb.append(user.getCourse())
                 .append(user.getAcademic_year()).append(" ")
                 .append("G").append(user.getTutorial_group())
                 .append(" - ").append(user.calculateLastOnline()));
+
+        holder.buttonAccept.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(getContext(), "friend_id: "+ holder.textViewUserID.getText().toString(), Toast.LENGTH_LONG).show();
+            }
+        });
+
+        holder.buttonDetail.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(getContext(), "friend_id2: "+ holder.textViewUserID.getText().toString(), Toast.LENGTH_LONG).show();
+            }
+        });
 
         return convertView;
     }

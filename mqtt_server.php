@@ -302,11 +302,10 @@ function REGISTER_USER($msg){
 	echo $ack_message;
 }
 
-//private use
 function UPDATE_USER_STATUS($user_id, $status){
 	$sql = "UPDATE User SET status = '$status' WHERE user_id = 'user_id'";
 	$result = dbResult($sql);
-	if($result){
+	if(mysqli_affected_rows($result) > 0){
 		echo "\nUpdated user status: $user_id, $status\n";
 	}else{
 		echo "\nFailed to update user status: $user_id, $status\n";
@@ -316,10 +315,57 @@ function UPDATE_USER_STATUS($user_id, $status){
 
 function UPDATE_STUDENT($msg){
 	//TODO: GAN DO this
+	//update student table, everything (except user_id) from null to something
+	$receivedData = explode(',', $msg);	// 1=user_id, 2...=faculty, course, tutorial_group, intake, academic_year
+	$user_id = $receivedData[1];
+	$faculty = $receivedData[2];
+	$course = $receivedData[3];
+	$tutorial_group = $receivedData[4];
+	$intake = $receivedData[5];
+	$academic_year = $receivedData[6];
+
+	$sql = "UPDATE Student SET faculty = 'faculty', course = '$course', tutorial_group = '$tutorial_group', intake = '$intake', academic_year = '$academic_year'
+			WHERE user_id = '$user_id'";
+	$result = dbResult($sql);
+
+	if(mysqli_affected_rows($result) > 0){
+		echo "\nUpdated student: $user_id\n";
+	}else{
+		echo "\nFailed to update student: $user_id, $status\n";
+		echo mysqli_error($result)."\n";
+	}
 }
 
 function UPDATE_USER($msg){
 	//TODO: GAN DO this
+	//update everything except user_id, status, last_online
+	//position = student by default
+	//username, nric, phone_number, email requires validation
+
+	$receivedData = explode(',', $msg);	// 1,...=user_id, username, display_name, position, password, gender, nric, phone_number, email, address, city_id
+	$user_id = $receivedData[1];
+	$username = $receivedData[2];
+	$display_name = $receivedData[3];
+	$position = $receivedData[4];
+	$password = $receivedData[5];
+	$gender = $receivedData[6];
+	$nric = $receivedData[7];
+	$phone_number = $receivedData[8];
+	$email = $receivedData[9];
+	$address = $receivedData[10];
+	$city_id = $receivedData[11];
+	//if position="Student", create student table with user_id=[received user_id]
+	//$sql = "INSERT INTO Student (user_id) VALUES ('$user_id');";
+
+	$sql = "UPDATE User SET username = '$username', display_name = '$display_name', position = '$position', password = '$password',
+	gender = '$gender', nric = '$nric', phone_number = '$phone_number', email = '$email', address = '$address', city_id = '$city_id' WHERE user_id = 'user_id'";
+	$result = dbResult($sql);
+		if(mysqli_affected_rows($result) > 0){
+		echo "\nUpdated user: $user_id\n";
+	}else{
+		echo "\nFailed to user: $user_id, $status\n";
+		echo mysqli_error($result)."\n";
+	}
 }
 
 function SEARCH_USER($msg){

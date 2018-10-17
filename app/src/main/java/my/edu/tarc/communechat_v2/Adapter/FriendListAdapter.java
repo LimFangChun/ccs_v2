@@ -66,7 +66,7 @@ public class FriendListAdapter extends ArrayAdapter<Student> {
         if (user.getStatus().equals("Offline")) {
             status = "\uD83D\uDD34";
         } else {
-            status = "✅";
+            status = "\uD83D\uDD35";
         }
 
         holder.textViewUserID.setText(String.valueOf(user.getUser_id()));

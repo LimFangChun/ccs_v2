@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -19,6 +20,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -55,6 +57,28 @@ public class LoginActivity extends AppCompatActivity {
 //        }
 //    };
 
+
+    private boolean doubleBackTap = false;
+
+    @Override
+    public void onBackPressed() {
+        if (doubleBackTap) {
+            this.finishAffinity();
+            return;
+        }
+
+        Toast.makeText(LoginActivity.this, R.string.exit_login, Toast.LENGTH_LONG).show();
+        doubleBackTap = true;
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                doubleBackTap = false;
+            }
+        }, 2000);
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,7 +91,8 @@ public class LoginActivity extends AppCompatActivity {
 
         uniqueTopic = UUID.randomUUID().toString().substring(0, 8);
         pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        editor = pref.edit();editor.apply();
+        editor = pref.edit();
+        editor.apply();
 
 //        LocalBroadcastManager.getInstance(this).registerReceiver(
 //                mMessageReceiver, new IntentFilter("MessageEvent"));
@@ -76,7 +101,7 @@ public class LoginActivity extends AppCompatActivity {
         etPassword = (EditText) findViewById(R.id.editText_password);
         etUsername = (AutoCompleteTextView) findViewById(R.id.editText_username);
         btnLogin = (Button) findViewById(R.id.button_login);
-        buttonRegister = (Button)findViewById(R.id.button_register);
+        buttonRegister = (Button) findViewById(R.id.button_register);
 
         setTitle(getString(R.string.login));
 
@@ -119,7 +144,7 @@ public class LoginActivity extends AppCompatActivity {
                     alertDialog.setTitle(R.string.notice);
                     alertDialog.setNeutralButton(R.string.ok, null);
                     alertDialog.show();
-                }else{
+                } else {
                     user.setUsername(username);
                     user.setPassword(password);
 
@@ -158,9 +183,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void login(String topic, MqttMessage message) {
-        Log.i("[MqttHelper]", "Topic arrive: " + topic);
-        Log.i("[MqttHelper]", "Message arrive: " + message);
-
         MainActivity.mqttHelper.decode(message.toString());
         progressBar.setVisibility(View.INVISIBLE);
         Log.i("[MqttHelper]", "Received header: " + MainActivity.mqttHelper.getReceivedHeader());
@@ -173,7 +195,7 @@ public class LoginActivity extends AppCompatActivity {
             alertDialog.setNeutralButton(R.string.ok, null);
             alertDialog.show();
         } else {
-            try{
+            try {
                 JSONArray userData = new JSONArray(MainActivity.mqttHelper.getReceivedResult());
                 JSONObject temp = userData.getJSONObject(0);
 
@@ -192,24 +214,24 @@ public class LoginActivity extends AppCompatActivity {
                 editor.putString(Student.COL_FACULTY, temp.getString(Student.COL_FACULTY));
                 editor.putString(Student.COL_COURSE, temp.getString(Student.COL_COURSE));
 
-                if (temp.isNull(Student.COL_TUTORIAL_GROUP)){
+                if (temp.isNull(Student.COL_TUTORIAL_GROUP)) {
                     editor.putInt(Student.COL_TUTORIAL_GROUP, 0);
-                }else{
+                } else {
                     editor.putInt(Student.COL_TUTORIAL_GROUP, temp.getInt(Student.COL_TUTORIAL_GROUP));
                 }
 
                 editor.putString(Student.COL_INTAKE, temp.getString(Student.COL_INTAKE));
 
-                if (temp.isNull(Student.COL_TUTORIAL_GROUP)){
+                if (temp.isNull(Student.COL_TUTORIAL_GROUP)) {
                     editor.putInt(Student.COL_ACADEMIC_YEAR, 0);
-                }else{
+                } else {
                     editor.putInt(Student.COL_ACADEMIC_YEAR, temp.getInt(Student.COL_ACADEMIC_YEAR));
                 }
 
                 editor.commit();
                 MainActivity.mqttHelper.unsubscribe(uniqueTopic);
                 finish();
-            }catch (JSONException |NullPointerException e){
+            } catch (JSONException | NullPointerException e) {
                 e.printStackTrace();
             }
         }

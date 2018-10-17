@@ -1,4 +1,4 @@
-package my.edu.tarc.communechat_v2.ChatEngine;
+package my.edu.tarc.communechat_v2.model.ChatEngine;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;

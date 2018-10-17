@@ -228,6 +228,16 @@ public class MqttHelper {
                 result = temp.toString();
                 break;
             }
+            case MqttHeader.UPDATE_USER_STATUS: {
+                User user = (User) data;
+                temp.append(MqttHeader.UPDATE_USER_STATUS)
+                        .append(",")
+                        .append(user.getUser_id())
+                        .append(",")
+                        .append(user.getStatus());
+                result = temp.toString();
+                break;
+            }
             case MqttHeader.COUNT_FRIEND_REQUEST: {
                 User newUser = (User) data;
                 temp.append(MqttHeader.COUNT_FRIEND_REQUEST)

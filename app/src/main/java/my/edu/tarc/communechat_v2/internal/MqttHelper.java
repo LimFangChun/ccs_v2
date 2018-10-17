@@ -32,7 +32,7 @@ public class MqttHelper {
     private String receivedResult;
 
     //change MQTT broker IP address here
-    private static final String serverUri = "tcp://192.168.0.106:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
+    private static final String serverUri = "tcp://192.168.0.19:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
     private static String mqttUsername = "";
     private static String mqttPassword = "";
 
@@ -278,7 +278,7 @@ public class MqttHelper {
             }
             case MqttHeader.FIND_BY_TUTORIAL_GROUP: {
                 Student student = (Student) data;
-                temp.append(MqttHeader.FIND_BY_PROGRAMME)
+                temp.append(MqttHeader.FIND_BY_TUTORIAL_GROUP)
                         .append(",")
                         .append(student.getUser_id())
                         .append(",")

@@ -8,6 +8,7 @@ public final class MqttHeader {
     public static final String LOGIN_REPLY = "LOGIN_REPLY";
     public static final String REGISTER_USER = "REGISTER_USER";
     public static final String REGISTER_USER_REPLY = "REGISTER_USER_REPLY";
+    public static final String UPDATE_USER_STATUS = "UPDATE_USER_STATUS";
     public static final String UPDATE_STUDENT = "UPDATE_STUDENT";
     public static final String UPDATE_USER = "UPDATE_USER";
     public static final String COUNT_FRIEND_REQUEST = "COUNT_FRIEND_REQUEST";

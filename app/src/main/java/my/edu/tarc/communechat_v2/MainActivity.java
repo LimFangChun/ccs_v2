@@ -11,11 +11,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import my.edu.tarc.communechat_v2.Fragment.FriendListFragment;
+import java.util.UUID;
+
 import my.edu.tarc.communechat_v2.Fragment.ChatFragment;
 import my.edu.tarc.communechat_v2.Fragment.FindFriendFragment;
-import my.edu.tarc.communechat_v2.Fragment.ProfileFragment;
+import my.edu.tarc.communechat_v2.Fragment.FriendListFragment;
+import my.edu.tarc.communechat_v2.internal.MqttHeader;
 import my.edu.tarc.communechat_v2.internal.MqttHelper;
+import my.edu.tarc.communechat_v2.model.User;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.nav_log_out:
                 //clear shared preference then navigate user to login activity
+                updateUserStatus("Offline");
                 pref.edit().clear().apply();
                 startActivity(new Intent(MainActivity.this, LoginActivity.class));
                 break;
@@ -52,8 +56,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //mqttHelper.connect(getApplicationContext());
-
         bottomNavigationView = (BottomNavigationView) findViewById(R.id.nav_bottom);
         pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
@@ -64,6 +66,12 @@ public class MainActivity extends AppCompatActivity {
                     .beginTransaction()
                     .replace(R.id.fragment_container, new ChatFragment())
                     .commit();
+        }
+
+        //check user login status
+        //if not logged in, redirect user to login activity
+        if (pref == null || pref.getInt(User.COL_USER_ID, -1) == -1) {
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
         }
     }
 
@@ -83,7 +91,6 @@ public class MainActivity extends AppCompatActivity {
                             selectedFragment = new FriendListFragment();
                             break;
                         case R.id.nav_profile:
-                            selectedFragment = new ProfileFragment();
                             break;
                     }
                     getSupportFragmentManager()
@@ -97,12 +104,25 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        updateUserStatus("Offline");
         mqttHelper.disconnect();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        mqttHelper.connect(getApplicationContext());
+        updateUserStatus("Online");
+    }
+
+    private void updateUserStatus(String status) {
+        String topic = UUID.randomUUID().toString().substring(0, 8);
+        String header = MqttHeader.UPDATE_USER_STATUS;
+        User user = new User();
+        user.setUser_id(pref.getInt(User.COL_USER_ID, -1));
+        user.setStatus(status);
+        if (user.getUser_id() != -1) {
+            mqttHelper.connectPublishSubscribe(getApplicationContext(), topic, header, user);
+        }
     }
 }

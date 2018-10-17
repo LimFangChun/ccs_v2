@@ -164,12 +164,14 @@ public class FriendListFragment extends Fragment {
             mqttHelper.decode(message.toString());
             mqttHelper.unsubscribe(topic);
             if (mqttHelper.getReceivedHeader().equals(MqttHeader.COUNT_FRIEND_REQUEST_REPLY) &&
-                    !mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT) ||
-                    Integer.parseInt(mqttHelper.getReceivedResult()) > 0) {
+                    !mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
                 textViewCountRequest.setText(String.valueOf(mqttHelper.getReceivedResult()));
                 fabAddFriend.setVisibility(View.VISIBLE);
                 textViewCountRequest.setVisibility(View.VISIBLE);
-            }else {
+            } else if (Integer.parseInt(mqttHelper.getReceivedResult()) == 0) {
+                fabAddFriend.setVisibility(View.GONE);
+                textViewCountRequest.setVisibility(View.GONE);
+            } else {
                 fabAddFriend.setVisibility(View.GONE);
                 textViewCountRequest.setVisibility(View.GONE);
             }

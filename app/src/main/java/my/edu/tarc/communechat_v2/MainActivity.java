@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import my.edu.tarc.communechat_v2.Fragment.FriendListFragment;
 import my.edu.tarc.communechat_v2.Fragment.ChatFragment;
 import my.edu.tarc.communechat_v2.Fragment.FindFriendFragment;
+import my.edu.tarc.communechat_v2.Fragment.ProfileFragment;
 import my.edu.tarc.communechat_v2.internal.MqttHelper;
 
 public class MainActivity extends AppCompatActivity {
@@ -82,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
                             selectedFragment = new FriendListFragment();
                             break;
                         case R.id.nav_profile:
+                            selectedFragment = new ProfileFragment();
                             break;
                     }
                     getSupportFragmentManager()

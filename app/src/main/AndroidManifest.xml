@@ -28,7 +28,7 @@
 
         <activity android:name=".RegisterUserActivity" />
         <activity android:name=".FindFriendResult" />
-        <activity android:name=".FriendRequestActivity"></activity>
+        <activity android:name=".FriendRequestActivity" />
     </application>
 
 </manifest>

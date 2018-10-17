@@ -1,4 +1,4 @@
-package my.edu.tarc.communechat_v2.model.ChatEngine;
+package my.edu.tarc.communechat_v2.ChatEngine;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -29,12 +29,12 @@ public class E2EE_RSA {
         privateKey = keyPair.getPrivate(); //kennot be shared, seeleos problem if shared
     }
     
-    public E2EE_RSA(PublicKey pubKey) throws Exception{
+    public E2EE_RSA(PublicKey pubKey){
         this.pubKey = pubKey; //received public key
     }
     
-    public E2EE_RSA(PrivateKey privateKey) throws Exception{
-        this.pubKey = pubKey;
+    public E2EE_RSA(PrivateKey privateKey){
+        this.privateKey = privateKey;
     }
     
     

@@ -60,7 +60,7 @@ public class FriendRequestActivity extends AppCompatActivity {
                 if (MainActivity.mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
                     setTitle("No result");
                     String[] response = new String[1];
-                    response[0] = "Hmmm...Something went wrong\nWe couldn't find any users";
+                    response[0] = "We couldn't find any users";
                     ArrayAdapter adapter = new ArrayAdapter<String>(FriendRequestActivity.this,
                             android.R.layout.simple_list_item_1, response);
                     listViewFriendRequest.setAdapter(adapter);
@@ -90,7 +90,7 @@ public class FriendRequestActivity extends AppCompatActivity {
                     }
                 }
             }
-            progressBarFriendRequest.setVisibility(View.INVISIBLE);
+            progressBarFriendRequest.setVisibility(View.GONE);
         }
 
         @Override

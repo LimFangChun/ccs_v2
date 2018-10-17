@@ -68,5 +68,6 @@
     <string name="account">Account</string>
     <string name="add">Add</string>
     <string name="detail">Detail</string>
+    <string name="exit_login">Tap again to exit</string>
 
 </resources>

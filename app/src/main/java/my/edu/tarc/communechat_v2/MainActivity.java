@@ -62,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView.setOnNavigationItemSelectedListener(bottomNavListener);
 
         if (savedInstanceState == null) {
+            //if no fragment has been inserted before
+            //put a default fragment
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.fragment_container, new ChatFragment())

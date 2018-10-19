@@ -48,7 +48,6 @@ public class FriendListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_friend_list, container, false);
-
         pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         listViewFriendList = view.findViewById(R.id.listView_friendList);

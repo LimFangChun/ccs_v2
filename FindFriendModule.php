@@ -48,7 +48,6 @@ function FIND_BY_ADDRESS($msg){
 		echo "\nNo one live in same place with this user, feelsbadman\n";
 		$ack_message .= "NO_RESULT";
 	}
-	echo "\n".$ack_message;
 	return $ack_message;
 }
 
@@ -107,7 +106,6 @@ function FIND_BY_PROGRAMME($msg){
 		echo "\nNo one live in same place with this user, feelsbadman\n";
 		$ack_message .= "NO_RESULT";
 	}
-	echo "\n".$ack_message;
 	return $ack_message;
 }
 
@@ -136,7 +134,7 @@ function FIND_BY_TUTORIAL_GROUP($msg){
 					(
 						SELECT Friendship.friend_id AS 'user_id'
 						FROM Friendship INNER JOIN User ON User.user_id = Friendship.user_id 
-						WHERE Friendship.user_id = $user_id
+						WHERE Friendship.user_id = $user_id AND Friendship.Status = 'Friend'
 					) AND
 				User.user_id <> $user_id
 			ORDER BY 
@@ -144,7 +142,7 @@ function FIND_BY_TUTORIAL_GROUP($msg){
 					WHEN User.status = 'Online' THEN 1
 					ELSE 2
 				END,
-				DATE(last_online) DESC,
+				last_online DESC,
 				User.display_name";
 				
 	$result = dbResult($sql);
@@ -159,7 +157,6 @@ function FIND_BY_TUTORIAL_GROUP($msg){
 		echo "\nNo one live in same place with this user, feelsbadman\n";
 		$ack_message .= "NO_RESULT";
 	}
-	echo "\n".$ack_message;
 	return $ack_message;
 }
 
@@ -214,7 +211,82 @@ function FIND_BY_AGE($msg){
 		echo "\nNo one is same age with this user, feelsbadman\n";
 		$ack_message .= "NO_RESULT";
 	}
-	echo "\n".$ack_message;
+	return $ack_message;
+}
+
+//source for formula to calculate distance between 2 longitude and latitude
+//NOTE: the one in below link is using longitude and latitude in radian
+//		and in our database is not radian value, so we need to convert to radian
+//https://gist.github.com/Usse/4086343
+function FIND_BY_LOCATION($msg){
+	echo "\nFinding nearest friends by longitude and latitude...\n";
+	$ack_message = "FIND_BY_LOCATION_REPLY, ";
+	
+	$receivedData = explode(',', $msg);
+	$user_id = $receivedData[1];
+	$longitude = $receivedData[2];
+	$latitude = $receivedData[3];
+	
+	$sql = "SELECT 
+				User.user_id, User.display_name, User.status, User.last_online, 
+				Student.course, Student.academic_year, Student.tutorial_group, 
+				(((acos(sin((RADIANS($latitude) * pi()/180)) 
+					* sin((RADIANS(last_latitude) * pi()/180))
+					+ cos((RADIANS($latitude) * pi()/180)) 
+					* cos((RADIANS(last_latitude) * pi()/180))
+					* cos(((RADIANS($longitude) - RADIANS(last_longitude)) * pi()/180)))) * 180/pi())*60*1.1515) AS distance
+			FROM Student INNER JOIN User ON User.user_id = Student.user_id  
+			WHERE
+				User.user_id <> $user_id AND 
+				User.user_id NOT IN 
+					(
+						SELECT Friendship.friend_id AS 'user_id'
+						FROM Friendship INNER JOIN User ON User.user_id = Friendship.user_id 
+						WHERE Friendship.user_id = $user_id
+					)
+			ORDER BY 
+				CASE 
+					WHEN User.status = 'Online' THEN 1
+					ELSE 2
+				END,
+				distance
+			LIMIT 20";
+	
+	$result = dbResult($sql);
+	if(mysqli_num_rows($result) > 0){
+		$temp = array();
+		while($row = mysqli_fetch_assoc($result)){
+			$temp[] = $row;
+		}
+		echo "\nNearest possible user found\n";
+		$ack_message .= json_encode($temp);
+	}else{
+		echo "\nNo one is nearby this user, feelsbadman\n";
+		$ack_message .= "NO_RESULT";
+	}
+	return $ack_message;
+}
+
+function UPDATE_LOCATION($msg){
+	echo "\nUpdating user's longitude and latitude...\n";
+	
+	$ack_message = "UPDATE_LOCATION_REPLY, ";
+	
+	$receivedData = explode(',', $msg);
+	$user_id = $receivedData[1];
+	$longitude = $receivedData[2];
+	$latitude = $receivedData[3];
+	
+	$sql = "UPDATE User SET last_longitude = '$longitude', last_latitude = '$latitude' WHERE user_id = '$user_id'";
+	
+	$result = dbResult($sql);
+	if($result){
+		echo "\nUser $user_id longitude and latitude has been updated\n";
+		$ack_message .= "SUCCESS";
+	}else{
+		echo "\nCould not update longitude and latitude for user $user_id\n";
+		$ack_message .= "NO_RESULT";
+	}
 	return $ack_message;
 }
 

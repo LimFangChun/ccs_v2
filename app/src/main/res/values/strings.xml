@@ -70,5 +70,8 @@
     <string name="add">Add</string>
     <string name="detail">Detail</string>
     <string name="exit_login">Tap again to exit</string>
+    <string name="no">No</string>
+    <string name="find_by_location">Find by GPS</string>
+    <string name="find_by_location_desc">Find anyone who may be around you. Require GPS</string>
 
 </resources>

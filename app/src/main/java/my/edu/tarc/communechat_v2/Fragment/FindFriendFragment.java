@@ -38,6 +38,9 @@ public class FindFriendFragment extends Fragment {
                 getString(R.string.find_by_age),
                 getString(R.string.find_by_age_desc)));
         list.add(new FindFriendAdapterClass(5,
+                getString(R.string.find_by_location),
+                getString(R.string.find_by_location_desc)));
+        list.add(new FindFriendAdapterClass(6,
                 getString(R.string.suggest_friend),
                 getString(R.string.suggest_friend_desc)));
 

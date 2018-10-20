@@ -74,6 +74,7 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
         student.setCourse(Objects.requireNonNull(getItem(position)).getCourse());
         student.setAcademic_year(Objects.requireNonNull(getItem(position)).getAcademic_year());
         student.setTutorial_group(Objects.requireNonNull(getItem(position)).getTutorial_group());
+        student.setDistance(Objects.requireNonNull(getItem(position)).getDistance());
 
         final ViewHolder holder;
         if (convertView != null) {
@@ -101,7 +102,12 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
         }
 
         holder.textViewUserID.setText(String.valueOf(student.getUser_id()));
-        holder.textViewUsername.setText(Html.fromHtml(status + student.getDisplay_name()));
+
+        String distance = "";
+        if (student.getDistance() != 0) {
+            distance = " - " + Math.round(student.getDistance()) + "km away";
+        }
+        holder.textViewUsername.setText(Html.fromHtml(status + student.getDisplay_name() + distance));
 
         StringBuilder temp = new StringBuilder();
         holder.textViewDescription.setText(temp

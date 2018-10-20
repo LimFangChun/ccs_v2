@@ -25,6 +25,9 @@ public class User {
     public static final String COL_CITY_ID = "city_id";
     public static final String COL_STATUS = "status";
     public static final String COL_LAST_ONLINE = "last_online";
+    public static final String COL_LAST_LONGITUDE = "last_longitude";
+    public static final String COL_LAST_LATITUDE = "last_latitude";
+    public static final String COL_DISTANCE = "distance";
 
     //variables for encapsulation
     private int user_id;
@@ -40,6 +43,9 @@ public class User {
     private String city_id;
     private String status;
     private Date last_online;
+    private double last_longitude;
+    private double last_latitude;
+    private double distance;
 
     public  User(){
 
@@ -47,7 +53,7 @@ public class User {
 
     public User(int user_id, String username, String display_name, String password, String position,
                 String gender, String nric, String phone_number, String email, String address,
-                String city_id, String status, Date last_online) {
+                String city_id, String status, Date last_online, double last_longitude, double last_latitude) {
         this.user_id = user_id;
         this.username = username;
         this.display_name = display_name;
@@ -61,6 +67,8 @@ public class User {
         this.city_id = city_id;
         this.status = status;
         this.last_online = last_online;
+        this.last_longitude = last_longitude;
+        this.last_latitude = last_latitude;
     }
 
     public int getUser_id() {
@@ -177,6 +185,30 @@ public class User {
 
     public void setDisplay_name(String display_name) {
         this.display_name = display_name;
+    }
+
+    public double getLast_longitude() {
+        return last_longitude;
+    }
+
+    public void setLast_longitude(double last_longitude) {
+        this.last_longitude = last_longitude;
+    }
+
+    public double getLast_latitude() {
+        return last_latitude;
+    }
+
+    public void setLast_latitude(double last_latitude) {
+        this.last_latitude = last_latitude;
+    }
+
+    public double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(double distance) {
+        this.distance = distance;
     }
 
     public String calculateLastOnline(){

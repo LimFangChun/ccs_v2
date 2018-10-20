@@ -12,6 +12,7 @@ import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -51,8 +52,11 @@ public class FindFriendResult extends AppCompatActivity {
         student.setAcademic_year(pref.getInt(Student.COL_ACADEMIC_YEAR, -1));
         student.setNric(pref.getString(User.COL_NRIC, ""));
         student.setCity_id(pref.getString(User.COL_CITY_ID, ""));
+        student.setLast_longitude(pref.getLong(User.COL_LAST_LONGITUDE, -1));
+        student.setLast_latitude(pref.getLong(User.COL_LAST_LATITUDE, -1));
+
         int type = getIntent().getIntExtra("Type", -1);
-        if (type > 3 || type < 0) {
+        if (type > 4 || type < 0) {
             type = new Random().nextInt(3);
         }
         switch (type) {
@@ -72,6 +76,10 @@ public class FindFriendResult extends AppCompatActivity {
                 header = MqttHeader.FIND_BY_AGE;
                 setTitle("Find by age");
                 break;
+            case 4://location
+                header = MqttHeader.FIND_BY_LOCATION;
+                setTitle("Find by location");
+                break;
         }
         MainActivity.mqttHelper.connectPublishSubscribe(getApplicationContext(),
                 publishTopic, header, student);
@@ -89,9 +97,8 @@ public class FindFriendResult extends AppCompatActivity {
             MainActivity.mqttHelper.decode(message.toString());
 
             if (MainActivity.mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
-                setTitle("No result");
                 String[] response = new String[1];
-                response[0] = "Hmmm...Something went wrong\nWe couldn't find any users";
+                response[0] = "We couldn't find any users";
                 ArrayAdapter adapter = new ArrayAdapter<String>(FindFriendResult.this,
                         android.R.layout.simple_list_item_1, response);
                 listViewResult.setAdapter(adapter);
@@ -99,16 +106,20 @@ public class FindFriendResult extends AppCompatActivity {
                 resultList = new ArrayList<>();
                 try {
                     JSONArray result = new JSONArray(MainActivity.mqttHelper.getReceivedResult());
-                    for (int i = 0; i < result.length() - 1; i++) {
+                    for (int i = 0; i <= result.length() - 1; i++) {
+                        JSONObject temp = result.getJSONObject(i);
                         Student friend = new Student();
-                        friend.setUser_id(result.getJSONObject(i).getInt(Student.COL_USER_ID));
-                        friend.setDisplay_name(result.getJSONObject(i).getString(Student.COL_DISPLAY_NAME));
-                        friend.setStatus(result.getJSONObject(i).getString(Student.COL_STATUS));
-                        friend.setLast_online(result.getJSONObject(i).getString(Student.COL_LAST_ONLINE));
-                        friend.setCourse(result.getJSONObject(i).getString(Student.COL_COURSE));
-                        friend.setAcademic_year(result.getJSONObject(i).getInt(Student.COL_ACADEMIC_YEAR));
-                        friend.setTutorial_group(result.getJSONObject(i).getInt(Student.COL_TUTORIAL_GROUP));
+                        friend.setUser_id(temp.getInt(Student.COL_USER_ID));
+                        friend.setDisplay_name(temp.getString(Student.COL_DISPLAY_NAME));
+                        friend.setStatus(temp.getString(Student.COL_STATUS));
+                        friend.setLast_online(temp.getString(Student.COL_LAST_ONLINE));
+                        friend.setCourse(temp.getString(Student.COL_COURSE));
+                        friend.setAcademic_year(temp.getInt(Student.COL_ACADEMIC_YEAR));
+                        friend.setTutorial_group(temp.getInt(Student.COL_TUTORIAL_GROUP));
 
+                        if (!temp.isNull(User.COL_DISTANCE)) {
+                            friend.setDistance(Double.parseDouble(temp.getString(User.COL_DISTANCE)));
+                        }
                         resultList.add(friend);
                     }
                 } catch (JSONException | NullPointerException e) {

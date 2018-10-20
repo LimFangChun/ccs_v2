@@ -27,6 +27,7 @@ public class User {
     public static final String COL_LAST_ONLINE = "last_online";
     public static final String COL_LAST_LONGITUDE = "last_longitude";
     public static final String COL_LAST_LATITUDE = "last_latitude";
+    public static final String COL_DISTANCE = "distance";
 
     //variables for encapsulation
     private int user_id;
@@ -44,6 +45,7 @@ public class User {
     private Date last_online;
     private double last_longitude;
     private double last_latitude;
+    private double distance;
 
     public  User(){
 
@@ -199,6 +201,14 @@ public class User {
 
     public void setLast_latitude(double last_latitude) {
         this.last_latitude = last_latitude;
+    }
+
+    public double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(double distance) {
+        this.distance = distance;
     }
 
     public String calculateLastOnline(){

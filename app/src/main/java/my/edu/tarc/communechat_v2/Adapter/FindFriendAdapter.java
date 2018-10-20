@@ -48,12 +48,15 @@ public class FindFriendAdapter extends ArrayAdapter<FindFriendAdapterClass> {
                 image.setImageResource(R.drawable.ic_class_black_24dp);
                 break;
             case 3:
-                image.setImageResource(R.drawable.ic_location_on_black_24dp);
+                image.setImageResource(R.drawable.ic_home_black_24dp);
                 break;
             case 4:
                 image.setImageResource(R.drawable.ic_cake_black_24dp);
                 break;
             case 5:
+                image.setImageResource(R.drawable.ic_location_on_black_24dp);
+                break;
+            case 6:
                 image.setImageResource(R.drawable.ic_shuffle_black_24dp);
                 break;
         }

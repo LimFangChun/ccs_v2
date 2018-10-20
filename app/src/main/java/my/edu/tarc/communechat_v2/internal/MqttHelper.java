@@ -32,7 +32,7 @@ public class MqttHelper {
     private String receivedResult;
 
     //change MQTT broker IP address here
-    private static final String serverUri = "tcp://192.168.0.19:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
+    private static final String serverUri = "tcp://192.168.0.106:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
     private static String mqttUsername = "";
     private static String mqttPassword = "";
 
@@ -246,8 +246,8 @@ public class MqttHelper {
                 result = temp.toString();
                 break;
             }
-            case MqttHeader.GET_FRIEND_REQUEST:{
-                User newUser = (User)data;
+            case MqttHeader.GET_FRIEND_REQUEST: {
+                User newUser = (User) data;
                 temp.append(MqttHeader.GET_FRIEND_REQUEST)
                         .append(",")
                         .append(newUser.getUser_id());
@@ -315,6 +315,30 @@ public class MqttHelper {
                         .append(student.getFaculty())
                         .append(",")
                         .append(student.getCourse());
+                result = temp.toString();
+                break;
+            }
+            case MqttHeader.FIND_BY_LOCATION: {
+                User user = (User) data;
+                temp.append(MqttHeader.FIND_BY_LOCATION)
+                        .append(",")
+                        .append(user.getUser_id())
+                        .append(",")
+                        .append(user.getLast_longitude())
+                        .append(",")
+                        .append(user.getLast_latitude());
+                result = temp.toString();
+                break;
+            }
+            case MqttHeader.UPDATE_LOCATION: {
+                User user = (User) data;
+                temp.append(MqttHeader.UPDATE_LOCATION)
+                        .append(",")
+                        .append(user.getUser_id())
+                        .append(",")
+                        .append(user.getLast_longitude())
+                        .append(",")
+                        .append(user.getLast_latitude());
                 result = temp.toString();
                 break;
             }

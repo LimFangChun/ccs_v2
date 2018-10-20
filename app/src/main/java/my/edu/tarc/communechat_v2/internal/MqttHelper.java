@@ -97,6 +97,31 @@ public class MqttHelper {
         }
     }
 
+    public void connectPublish(Context context, final String topic, final String header, final Object data) {
+        if (mqttAndroidClient == null || !mqttAndroidClient.isConnected()) {
+
+            mqttAndroidClient = new MqttAndroidClient(context, serverUri, clientId);
+            try {
+                IMqttToken token = mqttAndroidClient.connect();
+                token.setActionCallback(new IMqttActionListener() {
+                    @Override
+                    public void onSuccess(IMqttToken asyncActionToken) {
+                        publish(topic, header, data);
+                    }
+
+                    @Override
+                    public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                        Log.i(TAG, mqttAndroidClient.getClientId() + " failed to connect");
+                    }
+                });
+            } catch (MqttException e) {
+                e.printStackTrace();
+            }
+        } else {
+            publish(topic, header, data);
+        }
+    }
+
     //done by 1st generation seniors
     //2nd generation has no idea what is this
     //will leave it here if you figure out how to use it

@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -26,9 +26,15 @@
 
         <service android:name="org.eclipse.paho.android.service.MqttService" />
 
-        <activity android:name=".RegisterUserActivity" />
-        <activity android:name=".FindFriendResult" />
-        <activity android:name=".FriendRequestActivity"></activity>
+        <activity
+            android:name=".RegisterUserActivity"
+            android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".FindFriendResult"
+            android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".FriendRequestActivity"
+            android:parentActivityName=".MainActivity" />
     </application>
 
 </manifest>

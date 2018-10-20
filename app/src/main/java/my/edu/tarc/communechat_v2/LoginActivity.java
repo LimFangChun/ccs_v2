@@ -213,6 +213,8 @@ public class LoginActivity extends AppCompatActivity {
                 editor.putString(User.COL_LAST_ONLINE, temp.getString(User.COL_LAST_ONLINE));
                 editor.putString(Student.COL_FACULTY, temp.getString(Student.COL_FACULTY));
                 editor.putString(Student.COL_COURSE, temp.getString(Student.COL_COURSE));
+                editor.putLong(User.COL_LAST_LONGITUDE, temp.getLong(User.COL_LAST_LONGITUDE));
+                editor.putLong(User.COL_LAST_LATITUDE, temp.getLong(User.COL_LAST_LATITUDE));
 
                 if (temp.isNull(Student.COL_TUTORIAL_GROUP)) {
                     editor.putInt(Student.COL_TUTORIAL_GROUP, 0);

@@ -11,6 +11,8 @@ import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
@@ -92,6 +94,9 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
             holder.progressBarAddFriend.setVisibility(View.GONE);
             holder.layoutFindResult = convertView.findViewById(R.id.layout_findResult);
             convertView.setTag(holder);
+            Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.list_item_load);
+            animation.setStartOffset(position * 100);
+            convertView.setAnimation(animation);
         }
 
         String status;

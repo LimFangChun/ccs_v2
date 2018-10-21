@@ -1,11 +1,15 @@
 package my.edu.tarc.communechat_v2;
 
 import android.content.SharedPreferences;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -27,6 +31,7 @@ public class FindFriendResult extends AppCompatActivity {
     private ListView listViewResult;
     private SharedPreferences pref;
     private ArrayList<Student> resultList;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +40,9 @@ public class FindFriendResult extends AppCompatActivity {
 
         pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         listViewResult = findViewById(R.id.listView_findResult);
+        progressBar = findViewById(R.id.progressBar_findResult);
+        progressBar.setVisibility(View.VISIBLE);
+        progressBar.getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
 
         getFriend();
     }
@@ -132,6 +140,8 @@ public class FindFriendResult extends AppCompatActivity {
                         resultList);
                 listViewResult.setAdapter(adapter);
             }
+            //remove progress bar
+            progressBar.setVisibility(View.GONE);
         }
 
         @Override

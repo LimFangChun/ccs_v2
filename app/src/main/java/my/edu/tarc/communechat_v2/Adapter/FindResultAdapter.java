@@ -150,7 +150,7 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
                             AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
                             if (MainActivity.mqttHelper.getReceivedResult().equals(MqttHeader.SUCCESS)) {
                                 alertDialog.setTitle("Success");
-                                alertDialog.setMessage("Friend request sent has to " + student.getDisplay_name());
+                                alertDialog.setMessage("Friend request has sent to " + student.getDisplay_name());
                                 alertDialog.setNeutralButton(R.string.ok, null);
 
                                 //update list view

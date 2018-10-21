@@ -75,8 +75,8 @@ public class MainActivity extends AppCompatActivity {
             LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             if (locationManager != null && !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
-                alertDialog.setTitle("GPS not found");
-                alertDialog.setMessage("Do you want to enable GPS to enjoy the best feature?");
+                alertDialog.setTitle(R.string.gps_not_found);
+                alertDialog.setMessage(R.string.gps_not_found_desc1);
                 alertDialog.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {

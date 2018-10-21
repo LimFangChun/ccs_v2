@@ -1,8 +1,10 @@
 package my.edu.tarc.communechat_v2;
 
 import android.content.SharedPreferences;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -37,6 +39,8 @@ public class FriendRequestActivity extends AppCompatActivity {
         listViewFriendRequest = findViewById(R.id.listView_friendRequest);
         progressBarFriendRequest = findViewById(R.id.progressBar_FriendRequest);
         progressBarFriendRequest.setVisibility(View.VISIBLE);
+        progressBarFriendRequest.getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
+
         pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
         String topic = "friendRequest/" + pref.getInt(User.COL_USER_ID, -1);

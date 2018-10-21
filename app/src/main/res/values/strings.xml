@@ -73,5 +73,8 @@
     <string name="no">No</string>
     <string name="find_by_location">Find by GPS</string>
     <string name="find_by_location_desc">Find anyone who may be around you. Require GPS</string>
+    <string name="gps_not_found">GPS not found</string>
+    <string name="gps_not_found_desc1">Do you want to enable GPS to enjoy the best feature?</string>
+    <string name="gps_not_found_desc2">This feature require GPS. Do you want to turn on your GPS?</string>
 
 </resources>

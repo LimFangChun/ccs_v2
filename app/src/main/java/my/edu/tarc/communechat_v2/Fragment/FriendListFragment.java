@@ -2,11 +2,13 @@ package my.edu.tarc.communechat_v2.Fragment;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,6 +56,8 @@ public class FriendListFragment extends Fragment {
         fabAddFriend = view.findViewById(R.id.fab_addFriend);
         fabAddFriend.setVisibility(View.GONE);
         progressBarFriendList = view.findViewById(R.id.progressBar_FriendList);
+        progressBarFriendList.getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(getContext(), R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
+
 
         if (savedInstanceState == null){
             User user = new User();

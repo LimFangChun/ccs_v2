@@ -154,8 +154,26 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
                                 alertDialog.setNeutralButton(R.string.ok, null);
 
                                 //update list view
-                                mObject.remove(position);
-                                notifyDataSetChanged();
+                                //Update: added animation fade out
+                                Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.fade_out);
+                                animation.setAnimationListener(new Animation.AnimationListener() {
+                                    @Override
+                                    public void onAnimationStart(Animation animation) {
+
+                                    }
+
+                                    @Override
+                                    public void onAnimationEnd(Animation animation) {
+                                        mObject.remove(position);
+                                        notifyDataSetChanged();
+                                    }
+
+                                    @Override
+                                    public void onAnimationRepeat(Animation animation) {
+
+                                    }
+                                });
+                                holder.layoutFindResult.setAnimation(animation);
                             } else {
                                 alertDialog.setTitle("Failed");
                                 alertDialog.setMessage("Could not send friend request to " + student.getDisplay_name());

@@ -9,10 +9,13 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
@@ -46,10 +49,13 @@ public class LoginActivity extends AppCompatActivity {
     private AutoCompleteTextView etUsername;
     private Button btnLogin;
     private Button buttonRegister;
+    private ConstraintLayout layoutLogin;
+
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
     private User user = new User();
     private String uniqueTopic;
+
 //    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
 //        @Override
 //        public void onReceive(Context context, Intent intent) {
@@ -75,9 +81,8 @@ public class LoginActivity extends AppCompatActivity {
             public void run() {
                 doubleBackTap = false;
             }
-        }, 2000);
+        }, 3000);
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +91,12 @@ public class LoginActivity extends AppCompatActivity {
 
         progressBar = findViewById(R.id.progressBar_login);
         alertDialog = new AlertDialog.Builder(LoginActivity.this);
+        layoutLogin = findViewById(R.id.layout_login);
+
+        //animations for layoutLogin
+        //slide in on initial load
+        Animation slideIn = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_in_down);
+        layoutLogin.startAnimation(slideIn);
 
         MainActivity.mqttHelper.connect(getApplicationContext());
 
@@ -100,6 +111,7 @@ public class LoginActivity extends AppCompatActivity {
         //Initialize view
         etPassword = (EditText) findViewById(R.id.editText_password);
         etUsername = (AutoCompleteTextView) findViewById(R.id.editText_username);
+
         btnLogin = (Button) findViewById(R.id.button_login);
         buttonRegister = (Button) findViewById(R.id.button_register);
 
@@ -238,6 +250,14 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
         MainActivity.mqttHelper.unsubscribe(uniqueTopic);
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        if (isFinishing()) {
+            overridePendingTransition(R.anim.slide_in_down, R.anim.slide_out_up);
+        }
     }
 
     private boolean isNetworkAvailable() {

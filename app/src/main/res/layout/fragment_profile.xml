@@ -1,5 +1,221 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-</RelativeLayout>
+
+    <ScrollView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <ImageView
+                    android:id="@+id/imageView_profilePic"
+                    android:layout_width="80dp"
+                    android:layout_height="100dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:contentDescription="@string/default_image"
+                    app:srcCompat="@drawable/ic_person" />
+                <TextView
+                    android:id="@+id/textView_displayName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_toEndOf="@+id/imageView_profilePic"
+                    android:textSize="18sp"
+                    android:text="Gan Nar Psy"/>
+                <TextView
+                    android:id="@+id/textView_userID"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/textView_displayName"
+                    android:layout_toEndOf="@+id/imageView_profilePic"
+                    android:textSize="14sp"
+                    android:text="1" />
+                <TextView
+                    android:id="@+id/textView_gender"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/textView_userID"
+                    android:layout_toEndOf="@+id/imageView_profilePic"
+                    android:textSize="14sp"
+                    android:text="Not female" />
+            </RelativeLayout>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView android:id="@+id/textView_personalInfo"
+                    android:layout_height="50dp"
+                    android:layout_width="match_parent"
+                    android:textSize="25sp"
+                    android:text="@string/personal_information">
+                </TextView>
+
+                <TextView
+                    android:id="@+id/textView_nric"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/textView_personalInfo"
+                    android:layout_marginStart="15dp"
+                    android:text="@string/nric"
+                    android:textSize="15sp">
+                </TextView>
+
+                <EditText
+                    android:id="@+id/editText_nric"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/textView_nric"
+                    android:text="112233-44-5566"
+                    android:focusable="false"
+                    />
+
+                <TextView
+                    android:id="@+id/textView_contactNum"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/editText_nric"
+                    android:layout_marginStart="15dp"
+                    android:text="@string/contact_number"
+                    android:textSize="15sp">
+                </TextView>
+
+                <EditText
+                    android:id="@+id/editText_contactNum"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/textView_contactNum"
+                    android:text="011-2233444"
+                    android:focusable="false"
+                    />
+
+                <TextView
+                    android:id="@+id/textView_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/editText_contactNum"
+                    android:layout_marginStart="15dp"
+                    android:text="@string/email"
+                    android:textSize="15sp">
+                </TextView>
+
+                <EditText
+                    android:id="@+id/editText_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/textView_email"
+                    android:text="samplEmail@sample.email.com"
+                    android:focusable="false"
+                    />
+
+                <TextView
+                    android:id="@+id/textView_address"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/editText_email"
+                    android:layout_marginStart="15dp"
+                    android:text="@string/address"
+                    android:textSize="15sp">
+                </TextView>
+
+                <EditText
+                    android:id="@+id/editText_address"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minLines="2"
+                    android:lines="3"
+                    android:maxLines="4"
+                    android:layout_below="@id/textView_address"
+                    android:inputType="textPostalAddress|textMultiLine"
+                    android:text="3, Taman Sri Jempol, 72100 Bahau, Negeri Sembilan"
+                    android:focusable="false"
+                    />
+
+            </RelativeLayout>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView android:id="@+id/textView_studentDetails"
+                    android:layout_height="50dp"
+                    android:layout_width="match_parent"
+                    android:textSize="25sp"
+                    android:text="@string/student_details">
+                </TextView>
+
+                <TextView
+                    android:id="@+id/textView_studentID"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/textView_studentDetails"
+                    android:layout_marginStart="15dp"
+                    android:text="@string/student_id"
+                    android:textSize="15sp">
+                </TextView>
+
+                <EditText
+                    android:id="@+id/editText_studentID"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/textView_studentID"
+                    android:text="1709411"
+                    android:focusable="false"
+                    />
+
+                <TextView
+                    android:id="@+id/textView_faculty"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/editText_studentID"
+                    android:layout_marginStart="15dp"
+                    android:text="@string/faculty"
+                    android:textSize="15sp">
+                </TextView>
+
+                <EditText
+                    android:id="@+id/editText_faculty"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/textView_faculty"
+                    android:text="FOCS"
+                    android:focusable="false"
+                    />
+
+                <TextView
+                    android:id="@+id/textView_courseYearGroupIntake"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/editText_faculty"
+                    android:layout_marginStart="15dp"
+                    android:text="@string/tutorial_group"
+                    android:textSize="15sp">
+                </TextView>
+
+                <EditText
+                    android:id="@+id/editText_courseYearGroupIntake"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/textView_courseYearGroupIntake"
+                    android:text="RSD3 Group 2 May"
+                    android:focusable="false"
+                    />
+
+            </RelativeLayout>
+        <Button
+            android:id="@+id/button_activity"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:text="start profile activity" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

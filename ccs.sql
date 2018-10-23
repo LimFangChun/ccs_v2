@@ -494,6 +494,7 @@ insert into Message (message_id, message, sender_id, date_created, room_id) valu
 
 -- Setup necessary triggers
 
+
 DROP TRIGGER IF EXISTS Trg_Insert_New_Supply;
 
 DELIMITER //
@@ -501,7 +502,7 @@ CREATE TRIGGER Trg_Insert_New_Supply
 AFTER INSERT ON User
 FOR EACH ROW
 BEGIN
-	INSERT INTO Student (student_id, user_id) values (CONCAT('1701', NEW.user_id), NEW.user_id);
+	INSERT INTO Student (student_id, user_id) values NEW.user_id, NEW.user_id;
 END;
 //
 

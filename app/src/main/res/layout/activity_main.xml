@@ -22,4 +22,5 @@
         app:itemIconTint="@color/bottom_nav_selector"
         app:itemTextColor="@color/bottom_nav_selector"/>
 
+
 </RelativeLayout>

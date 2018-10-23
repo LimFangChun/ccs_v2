@@ -29,11 +29,11 @@ import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.UUID;
 
+import my.edu.tarc.communechat_v2.ChatEngine.E2EE_RSA;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
 import my.edu.tarc.communechat_v2.model.Student;
 import my.edu.tarc.communechat_v2.model.User;
@@ -56,6 +56,8 @@ public class LoginActivity extends AppCompatActivity {
     private User user = new User();
     private String uniqueTopic;
 
+    private final E2EE_RSA e2ee = new E2EE_RSA();
+
 //    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
 //        @Override
 //        public void onReceive(Context context, Intent intent) {
@@ -65,6 +67,9 @@ public class LoginActivity extends AppCompatActivity {
 
 
     private boolean doubleBackTap = false;
+
+    public LoginActivity() throws Exception {
+    }
 
     @Override
     public void onBackPressed() {
@@ -213,7 +218,11 @@ public class LoginActivity extends AppCompatActivity {
 
                 editor.putInt(User.COL_USER_ID, temp.getInt(User.COL_USER_ID));
                 editor.putString(User.COL_USERNAME, temp.getString(User.COL_USERNAME));
-                editor.putString(User.COL_PASSWORD, temp.getString(User.COL_PASSWORD));
+
+                String password = temp.getString(User.COL_PASSWORD);
+                password = new String(e2ee.encrypt(e2ee.getPubKey(), password));
+                editor.putString(User.COL_PASSWORD, password);
+
                 editor.putString(User.COL_POSITION, temp.getString(User.COL_POSITION));
                 editor.putString(User.COL_GENDER, temp.getString(User.COL_GENDER));
                 editor.putString(User.COL_NRIC, temp.getString(User.COL_NRIC));
@@ -245,7 +254,7 @@ public class LoginActivity extends AppCompatActivity {
                 editor.commit();
                 MainActivity.mqttHelper.unsubscribe(uniqueTopic);
                 finish();
-            } catch (JSONException | NullPointerException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

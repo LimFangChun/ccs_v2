@@ -25,8 +25,8 @@ public class E2EE_RSA {
     public E2EE_RSA(PublicKey pubKey, PrivateKey privateKey) throws Exception{
         // generate public and private keys
         keyPair = new KeyPair(pubKey, privateKey);
-        pubKey = keyPair.getPublic(); //share dis so others can send to u
-        privateKey = keyPair.getPrivate(); //kennot be shared, seeleos problem if shared
+        this.pubKey = keyPair.getPublic();
+        this.privateKey = keyPair.getPrivate();
     }
     
     public E2EE_RSA(PublicKey pubKey){

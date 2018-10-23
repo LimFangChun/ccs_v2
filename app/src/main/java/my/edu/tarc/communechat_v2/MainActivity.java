@@ -16,6 +16,7 @@ import java.util.UUID;
 import my.edu.tarc.communechat_v2.Fragment.ChatFragment;
 import my.edu.tarc.communechat_v2.Fragment.FindFriendFragment;
 import my.edu.tarc.communechat_v2.Fragment.FriendListFragment;
+import my.edu.tarc.communechat_v2.Fragment.ProfileFragment;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
 import my.edu.tarc.communechat_v2.internal.MqttHelper;
 import my.edu.tarc.communechat_v2.model.User;
@@ -38,7 +39,8 @@ public class MainActivity extends AppCompatActivity {
         int itemId = item.getItemId();
         switch (itemId) {
             case R.id.nav_settings:
-                //TODO: intent to setting activity
+                Intent intent = new Intent(this, SettingsActivity.class );
+                startActivity(intent);
                 break;
             case R.id.nav_log_out:
                 //clear shared preference then navigate user to login activity
@@ -91,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
                             selectedFragment = new FriendListFragment();
                             break;
                         case R.id.nav_profile:
+                            selectedFragment = new ProfileFragment();
                             break;
                     }
                     getSupportFragmentManager()

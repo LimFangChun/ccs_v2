@@ -29,6 +29,10 @@
         <activity android:name=".RegisterUserActivity" />
         <activity android:name=".FindFriendResult" />
         <activity android:name=".FriendRequestActivity" />
+        <activity android:name=".ProfileActivity" />
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings"></activity>
     </application>
 
 </manifest>

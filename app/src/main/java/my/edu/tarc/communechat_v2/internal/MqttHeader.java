@@ -25,6 +25,9 @@ public final class MqttHeader {
     public static final String FIND_BY_TUTORIAL_GROUP_REPLY = "FIND_BY_TUTORIAL_GROUP_REPLY";
     public static final String FIND_BY_AGE = "FIND_BY_AGE";
     public static final String FIND_BY_AGE_REPLY = "FIND_BY_AGE_REPLY";
+    public static final String FIND_BY_LOCATION = "FIND_BY_LOCATION";
+    public static final String FIND_BY_LOCATION_REPLY = "FIND_BY_LOCATION_REPLY";
+    public static final String UPDATE_LOCATION = "UPDATE_LOCATION";
     public static final String REQ_ADD_FRIEND = "REQ_ADD_FRIEND";
     public static final String REQ_ADD_FRIEND_REPLY = "REQ_ADD_FRIEND_REPLY";
     public static final String ADD_FRIEND = "ADD_FRIEND";

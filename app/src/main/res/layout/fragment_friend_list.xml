@@ -8,11 +8,8 @@
 
     <ProgressBar
         android:id="@+id/progressBar_FriendList"
-        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:indeterminate="true"
-        android:visibility="invisible" />
+        android:layout_height="wrap_content" />
 
     <ListView
         android:id="@+id/listView_friendList"
@@ -31,16 +28,6 @@
         android:layout_marginEnd="25dp"
         android:clickable="true"
         android:focusable="true"
-        app:elevation="0dp" />
-
-    <TextView
-        android:id="@+id/textView_requestCount"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginBottom="55dp"
-        android:layout_marginEnd="55dp"
-        android:text="3"
-        android:textColor="@color/colorBlack"
-        android:textSize="18sp" />
+        app:elevation="0dp"
+        app:srcCompat="@drawable/ic_info_outline_black_24dp" />
 </FrameLayout>

@@ -2,14 +2,18 @@ package my.edu.tarc.communechat_v2.Fragment;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -37,7 +41,6 @@ import static my.edu.tarc.communechat_v2.MainActivity.mqttHelper;
 public class FriendListFragment extends Fragment {
 
     private ListView listViewFriendList;
-    private TextView textViewCountRequest;
     private FloatingActionButton fabAddFriend;
     private ProgressBar progressBarFriendList;
     private SharedPreferences pref;
@@ -47,15 +50,14 @@ public class FriendListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_friend_list, container, false);
-
         pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         listViewFriendList = view.findViewById(R.id.listView_friendList);
         fabAddFriend = view.findViewById(R.id.fab_addFriend);
         fabAddFriend.setVisibility(View.GONE);
-        textViewCountRequest = view.findViewById(R.id.textView_requestCount);
-        textViewCountRequest.setVisibility(View.GONE);
         progressBarFriendList = view.findViewById(R.id.progressBar_FriendList);
+        progressBarFriendList.getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(getContext(), R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
+
 
         if (savedInstanceState == null){
             User user = new User();
@@ -163,17 +165,17 @@ public class FriendListFragment extends Fragment {
         public void messageArrived(String topic, MqttMessage message) throws Exception {
             mqttHelper.decode(message.toString());
             mqttHelper.unsubscribe(topic);
-            if (mqttHelper.getReceivedHeader().equals(MqttHeader.COUNT_FRIEND_REQUEST_REPLY) &&
-                    !mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
-                textViewCountRequest.setText(String.valueOf(mqttHelper.getReceivedResult()));
-                fabAddFriend.setVisibility(View.VISIBLE);
-                textViewCountRequest.setVisibility(View.VISIBLE);
-            } else if (Integer.parseInt(mqttHelper.getReceivedResult()) == 0) {
-                fabAddFriend.setVisibility(View.GONE);
-                textViewCountRequest.setVisibility(View.GONE);
-            } else {
-                fabAddFriend.setVisibility(View.GONE);
-                textViewCountRequest.setVisibility(View.GONE);
+            if (mqttHelper.getReceivedHeader().equals(MqttHeader.COUNT_FRIEND_REQUEST_REPLY)) {
+                if (mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT) ||
+                        Integer.parseInt(mqttHelper.getReceivedResult()) == 0) {
+                    fabAddFriend.setVisibility(View.GONE);
+                } else {
+                    fabAddFriend.setVisibility(View.VISIBLE);
+
+                    //some fancy animation for FAB
+                    final Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.shake_effect_fab);
+                    fabAddFriend.startAnimation(animation);
+                }
             }
         }
 

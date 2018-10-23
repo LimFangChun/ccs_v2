@@ -131,14 +131,14 @@ function procmsg($topic, $msg){
 					$ack_message = LOGIN($msg); break;}
 				case "REGISTER_USER":	{
 					$ack_message = REGISTER_USER($msg); break;}
+				case "UPDATE_USER_STATUS": {
+					$ack_message = UPDATE_USER_STATUS($msg); break;}
 				case "GET_FRIEND_LIST":	{
 					$ack_message = GET_FRIEND_LIST($msg); break;}
 				case "FIND_BY_ADDRESS":	{
 					$ack_message = FIND_BY_ADDRESS($msg); break;}
 				case "FIND_BY_PROGRAMME":	{
 					$ack_message = FIND_BY_PROGRAMME($msg); break;}
-				case "FIND_BY_TUTORIAL_GROUP":	{
-					$ack_message = FIND_BY_TUTORIAL_GROUP($msg); break;}
 				case "FIND_BY_TUTORIAL_GROUP":	{
 					$ack_message = FIND_BY_TUTORIAL_GROUP($msg); break;}
 				case "FIND_BY_AGE":	{
@@ -155,6 +155,10 @@ function procmsg($topic, $msg){
 					$ack_message = DELETE_FRIEND($msg); break;}
 				case "SEARCH_USER":	{
 					$ack_message = SEARCH_USER($msg); break;}
+				case "UPDATE_LOCATION": {
+					$ack_message = UPDATE_LOCATION($msg); break;}
+				case "FIND_BY_LOCATION": {
+					$ack_message = FIND_BY_LOCATION($msg); break;}
 				//case "003810":	{$ack_message = fn003810($msg);publishMessage($topic, $ack_message); break;}  				
 				// case "003812":	{$ack_message = fn003812($msg);publishMessage($topic, $ack_message); break;}
 				// case "003814":	{$ack_message = fn003814($msg);publishMessage($topic, $ack_message); break;}
@@ -245,7 +249,7 @@ function LOGIN($msg){
 	$username = $receivedData[1];
 	$password = $receivedData[2];
 
-	$ack_message.="LOGIN_REPLY,";
+	$ack_message = "LOGIN_REPLY,";
 	$sql ="SELECT *
 			FROM `user` 
 			INNER JOIN `student` ON `user`.`user_id` = `student`.`user_id`
@@ -261,7 +265,8 @@ function LOGIN($msg){
 			$temp[] = $row;
 			//echo "\nUser $row['user_id'], $row['username'] has logged in\n";
 			//update user login status
-			UPDATE_USER_STATUS($row['user_id'], 'Online');
+			$temp1 = "1,".$row['user_id'].",".'Online';
+			UPDATE_USER_STATUS($temp1);
 		}
 		$ack_message .= json_encode($temp);
 	} else{
@@ -288,7 +293,7 @@ function REGISTER_USER($msg){
 		
 		$sql = "INSERT INTO User (username, password, display_name) VALUES ('$username', '$password', '$username');";
 		$result = dbResult($sql);
-		if(mysqli_affected_rows($result) > 0){
+		if($result){
 			echo "\nNew user registered:".$username."\n";
 			$ack_message .= "SUCCESS";		
 		}else{
@@ -299,18 +304,28 @@ function REGISTER_USER($msg){
 		echo "\nCannot register user:".$username.", username duplicated\n";
 		$ack_message .= "DUPLICATED";
 	}
-	echo $ack_message;
+	return $ack_message;
 }
 
-function UPDATE_USER_STATUS($user_id, $status){
-	$sql = "UPDATE User SET status = '$status' WHERE user_id = 'user_id'";
+function UPDATE_USER_STATUS(){
+	$temp = func_get_arg(0);
+	$ack_message = "UPDATE_USER_STATUS_REPLY, ";
+	
+	$temp = explode(',', $temp);
+	$user_id = $temp[1];
+	$status = $temp[2];
+	
+	$sql = "UPDATE User SET status = '$status', last_online = CURRENT_TIMESTAMP WHERE user_id = '$user_id'";
 	$result = dbResult($sql);
-	if(mysqli_affected_rows($result) > 0){
+	if($result){
 		echo "\nUpdated user status: $user_id, $status\n";
+		$ack_message .= "SUCCESS";
 	}else{
 		echo "\nFailed to update user status: $user_id, $status\n";
 		echo mysqli_error($result)."\n";
+		$ack_message .= "FAILED";
 	}
+	return $ack_message;
 }
 
 function UPDATE_STUDENT($msg){

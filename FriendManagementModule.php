@@ -5,11 +5,13 @@ function GET_FRIEND_LIST($msg){
 	
 	$receivedData = explode(',', $msg);		 
 	$user_id = $receivedData[1];
-	$sql = "SELECT friend_id as 'user_id', display_name, User.status, last_online,
+	$sql = "SELECT User.user_id, display_name, User.status, last_online,
 				course, academic_year, tutorial_group
-			FROM Friendship INNER JOIN User ON Friendship.user_id = User.user_id
-			INNER JOIN Student ON Student.user_id = User.user_id
-			WHERE Friendship.user_id = $user_id AND Friendship.Status = 'Friend'
+			FROM User INNER JOIN Student ON Student.user_id = User.user_id 
+			WHERE User.user_id IN (
+				SELECT friend_id as 'user_id'
+				FROM Friendship
+				WHERE Friendship.user_id = $user_id AND Friendship.Status = 'Friend')
 			ORDER BY 
 				CASE 
 					WHEN User.status = 'Online' THEN 1
@@ -17,6 +19,7 @@ function GET_FRIEND_LIST($msg){
 				END, 
 				User.last_online DESC,
 				User.display_name";
+	
 	$result = dbResult($sql);
 	if(mysqli_num_rows($result) > 0){
 		$temp = array();
@@ -39,7 +42,7 @@ function COUNT_FRIEND_REQUEST($msg){
 	$receivedData = explode(',', $msg);	
 	$user_id = $receivedData[1];
 	
-	$sql = "SELECT COUNT(*) AS count_result FROM Friendship WHERE user_id = '$user_id' AND status = 'Pending'";
+	$sql = "SELECT COUNT(*) AS count_result FROM Friendship WHERE user_id = '$user_id' AND status = 'Pending' AND sender_id <> $user_id";
 				
 	$result = dbResult($sql);
 	if(mysqli_num_rows($result) > 0){
@@ -62,7 +65,7 @@ function REQ_ADD_FRIEND($msg){
 	$user_id = $receivedData[1];
 	$friend_id = $receivedData[2];
 	
-	$sql = "INSERT INTO Friendship (user_id, friend_id) VALUES ($user_id, $friend_id),($friend_id, $user_id)";
+	$sql = "INSERT INTO Friendship (user_id, friend_id, sender_id) VALUES ($user_id, $friend_id, $user_id),($friend_id, $user_id, $user_id)";
 				
 	$result = dbResult($sql);
 	if($result){
@@ -72,7 +75,6 @@ function REQ_ADD_FRIEND($msg){
 		echo "\n$user_id cannot request $friend_id, feelsbadman\n";
 		$ack_message .= "NO_RESULT";
 	}
-	echo "\n".$ack_message;
 	return $ack_message;
 }
 
@@ -82,11 +84,22 @@ function GET_FRIEND_REQUEST($msg){
 	
 	$receivedData = explode(',', $msg);		 
 	$user_id = $receivedData[1];
-	$sql = "SELECT friend_id AS 'user_id', display_name, User.status, last_online, 
+	$sql = "SELECT User.user_id, display_name, User.status, last_online, 
 				course, academic_year, tutorial_group 
-			FROM Friendship INNER JOIN User ON Friendship.user_id = User.user_id 
-			INNER JOIN Student ON Student.user_id = User.user_id 
-			WHERE Friendship.user_id = $user_id AND Friendship.Status = 'Pending'";
+			FROM Student INNER JOIN User ON User.user_id = Student.user_id 
+			WHERE User.user_id IN (
+				SELECT friend_id
+				FROM Friendship INNER JOIN User ON Friendship.user_id = User.user_id 
+				INNER JOIN Student ON Student.user_id = User.user_id 
+				WHERE Friendship.user_id = $user_id AND Friendship.Status = 'Pending' AND Friendship.sender_id <> $user_id
+			)
+			ORDER BY 
+				CASE 
+					WHEN User.status = 'Online' THEN 1
+					ELSE 2
+				END,
+				last_online DESC,
+				User.display_name";
 	$result = dbResult($sql);
 	if(mysqli_num_rows($result) > 0){
 		$temp = array();
@@ -117,14 +130,13 @@ function ADD_FRIEND($msg){
 				(user_id = '$friend_id' AND friend_id = '$user_id')";
 				
 	$result = dbResult($sql);
-	if(mysqli_affected_rows($result) > 0){
+	if($result){
 		echo "\n$user_id sent friend request to $friend_id. feelsgoodman\n";
 		$ack_message .= "SUCCESS";
 	}else{
 		echo "\n$user_id cannot request $friend_id, feelsbadman\n";
 		$ack_message .= "NO_RESULT";
 	}
-	echo "\n".$ack_message;
 	return $ack_message;
 }
 
@@ -142,14 +154,13 @@ function DELETE_FRIEND($msg){
 				(user_id = '$friend_id' AND friend_id = '$user_id')";
 				
 	$result = dbResult($sql);
-	if(mysqli_affected_rows($result) > 0){
+	if($result){
 		echo "\n$user_id and $friend_id are no more friends now. feelssadman\n";
 		$ack_message .= "SUCCESS";
 	}else{
 		echo "\n$user_id cannot delete $friend_id, feelsokayman\n";
 		$ack_message .= "NO_RESULT";
 	}
-	echo "\n".$ack_message;
 	return $ack_message;
 }
 

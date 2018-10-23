@@ -11,6 +11,8 @@ import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
@@ -74,6 +76,7 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
         student.setCourse(Objects.requireNonNull(getItem(position)).getCourse());
         student.setAcademic_year(Objects.requireNonNull(getItem(position)).getAcademic_year());
         student.setTutorial_group(Objects.requireNonNull(getItem(position)).getTutorial_group());
+        student.setDistance(Objects.requireNonNull(getItem(position)).getDistance());
 
         final ViewHolder holder;
         if (convertView != null) {
@@ -91,6 +94,9 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
             holder.progressBarAddFriend.setVisibility(View.GONE);
             holder.layoutFindResult = convertView.findViewById(R.id.layout_findResult);
             convertView.setTag(holder);
+            Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.list_item_load);
+            animation.setStartOffset(position * 100);
+            convertView.setAnimation(animation);
         }
 
         String status;
@@ -101,7 +107,12 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
         }
 
         holder.textViewUserID.setText(String.valueOf(student.getUser_id()));
-        holder.textViewUsername.setText(Html.fromHtml(status + student.getDisplay_name()));
+
+        String distance = "";
+        if (student.getDistance() != 0) {
+            distance = " - " + Math.round(student.getDistance()) + "km away";
+        }
+        holder.textViewUsername.setText(Html.fromHtml(status + student.getDisplay_name() + distance));
 
         StringBuilder temp = new StringBuilder();
         holder.textViewDescription.setText(temp
@@ -139,7 +150,7 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
                             AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
                             if (MainActivity.mqttHelper.getReceivedResult().equals(MqttHeader.SUCCESS)) {
                                 alertDialog.setTitle("Success");
-                                alertDialog.setMessage("Friend request sent has to " + student.getDisplay_name());
+                                alertDialog.setMessage("Friend request has sent to " + student.getDisplay_name());
                                 alertDialog.setNeutralButton(R.string.ok, null);
 
                                 //update list view

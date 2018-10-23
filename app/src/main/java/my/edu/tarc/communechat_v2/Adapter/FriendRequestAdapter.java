@@ -10,6 +10,8 @@ import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -141,8 +143,25 @@ public class FriendRequestAdapter extends ArrayAdapter<Student> {
                                 alertDialog.setNeutralButton(R.string.ok, null);
 
                                 //update list view
-                                mObject.remove(position);
-                                notifyDataSetChanged();
+                                Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.fade_out);
+                                animation.setAnimationListener(new Animation.AnimationListener() {
+                                    @Override
+                                    public void onAnimationStart(Animation animation) {
+
+                                    }
+
+                                    @Override
+                                    public void onAnimationEnd(Animation animation) {
+                                        mObject.remove(position);
+                                        notifyDataSetChanged();
+                                    }
+
+                                    @Override
+                                    public void onAnimationRepeat(Animation animation) {
+
+                                    }
+                                });
+                                holder.layoutMain.setAnimation(animation);
                             } else {
                                 alertDialog.setTitle("Failed");
                                 alertDialog.setMessage("Could not add " + user.getDisplay_name() + " as friend");
@@ -220,10 +239,29 @@ public class FriendRequestAdapter extends ArrayAdapter<Student> {
                                 alertDialog.setNeutralButton(R.string.ok, null);
 
                                 //if success, then remove the selected item from list view
-                                mObject.remove(position);
-                                notifyDataSetChanged();
+                                //Update: added animation effect that slide from left to out
+                                Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_left_to_right);
+                                animation.setAnimationListener(new Animation.AnimationListener() {
+                                    @Override
+                                    public void onAnimationStart(Animation animation) {
+
+                                    }
+
+                                    @Override
+                                    public void onAnimationEnd(Animation animation) {
+                                        //remove the item upon animation finished
+                                        mObject.remove(position);
+                                        notifyDataSetChanged();
+                                    }
+
+                                    @Override
+                                    public void onAnimationRepeat(Animation animation) {
+
+                                    }
+                                });
+                                holder.layoutMain.setAnimation(animation);
                             } else {
-                                alertDialog.setTitle("Failed");
+                                alertDialog.setTitle(R.string.failed);
                                 alertDialog.setMessage("Failed to cancel friend request from " + user.getDisplay_name());
                                 alertDialog.setNeutralButton(R.string.ok, null);
                             }

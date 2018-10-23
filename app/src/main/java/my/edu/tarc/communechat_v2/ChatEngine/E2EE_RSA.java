@@ -25,8 +25,8 @@ public class E2EE_RSA {
     public E2EE_RSA(PublicKey pubKey, PrivateKey privateKey) throws Exception{
         // generate public and private keys
         keyPair = new KeyPair(pubKey, privateKey);
-        pubKey = keyPair.getPublic(); //share dis so others can send to u
-        privateKey = keyPair.getPrivate(); //kennot be shared, seeleos problem if shared
+        this.pubKey = keyPair.getPublic(); //share dis so others can send to u
+        this.privateKey = keyPair.getPrivate(); //kennot be shared, seeleos problem if shared
     }
     
     public E2EE_RSA(PublicKey pubKey){
@@ -39,7 +39,7 @@ public class E2EE_RSA {
     
     
     private KeyPair buildKeyPair() throws NoSuchAlgorithmException {
-        final int keySize = 1024;
+        final int keySize = 512;
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
         keyPairGenerator.initialize(keySize);      
         return keyPairGenerator.genKeyPair();

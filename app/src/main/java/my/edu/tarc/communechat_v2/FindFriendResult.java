@@ -38,6 +38,9 @@ public class FindFriendResult extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_find_friend_result);
 
+        assert getSupportActionBar() != null;
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         listViewResult = findViewById(R.id.listView_findResult);
         progressBar = findViewById(R.id.progressBar_findResult);

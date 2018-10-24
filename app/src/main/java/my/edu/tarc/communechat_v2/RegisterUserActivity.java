@@ -34,6 +34,9 @@ public class RegisterUserActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register_user);
 
+        assert getSupportActionBar() != null;
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         setTitle(getString(R.string.register_title));
 
         progressBar = findViewById(R.id.progressBar_register);

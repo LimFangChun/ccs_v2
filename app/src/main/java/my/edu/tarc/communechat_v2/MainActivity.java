@@ -165,8 +165,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         updateUserStatus("Online");
-
-        runLocationService();
     }
 
     private void updateUserStatus(String status) {

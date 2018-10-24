@@ -7,7 +7,7 @@ package my.edu.tarc.communechat_v2.ADT;
 
 /**
  *
- * @author Leo
+ * @author Lim Fang Chun
  */
 public interface ListInterface<T> {
     public void add(T newEntry);

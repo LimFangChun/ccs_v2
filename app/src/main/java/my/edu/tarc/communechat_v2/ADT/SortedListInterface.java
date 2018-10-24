@@ -7,7 +7,7 @@ package my.edu.tarc.communechat_v2.ADT;
 
 /**
  *
- * @author Leo
+ * @author Lim Fang Chun
  * @param <T>
  */
 public interface SortedListInterface<T extends Comparable<? super T>> {

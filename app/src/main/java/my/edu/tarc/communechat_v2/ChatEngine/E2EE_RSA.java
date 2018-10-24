@@ -9,9 +9,13 @@ import java.security.Key;
 
 import javax.crypto.Cipher;
 
+/**
+ * @author Gan Zhen Jie
+ */
+
 public class E2EE_RSA {
 //TODO: merge with chat engine
-    private KeyPair keyPair;
+private KeyPair keyPair;
     private PublicKey pubKey;
     private PrivateKey privateKey;
 
@@ -21,44 +25,44 @@ public class E2EE_RSA {
         pubKey = keyPair.getPublic(); //share dis so others can send to u
         privateKey = keyPair.getPrivate(); //kennot be shared, seeleos problem if shared
     }
-    
+
     public E2EE_RSA(PublicKey pubKey, PrivateKey privateKey) throws Exception{
         // generate public and private keys
         keyPair = new KeyPair(pubKey, privateKey);
         this.pubKey = keyPair.getPublic(); //share dis so others can send to u
         this.privateKey = keyPair.getPrivate(); //kennot be shared, seeleos problem if shared
     }
-    
+
     public E2EE_RSA(PublicKey pubKey){
         this.pubKey = pubKey; //received public key
     }
-    
+
     public E2EE_RSA(PrivateKey privateKey){
         this.privateKey = privateKey;
     }
-    
-    
+
+
     private KeyPair buildKeyPair() throws NoSuchAlgorithmException {
         final int keySize = 512;
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-        keyPairGenerator.initialize(keySize);      
+        keyPairGenerator.initialize(keySize);
         return keyPairGenerator.genKeyPair();
     }
 
     public byte[] encrypt(Key key, String message) throws Exception {
-        Cipher cipher = Cipher.getInstance("RSA");  
-        cipher.init(Cipher.ENCRYPT_MODE, key);  
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.ENCRYPT_MODE, key);
 
-        return cipher.doFinal(message.getBytes());  
+        return cipher.doFinal(message.getBytes());
     }
-    
+
     public byte[] decrypt(Key key, byte [] encrypted) throws Exception {
-        Cipher cipher = Cipher.getInstance("RSA");  
+        Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.DECRYPT_MODE, key);
-        
+
         return cipher.doFinal(encrypted);
     }
-    
+
 //    public static void main(String[] args) throws Exception {
 //         //test function
 //        E2EE_RSA rsa = new E2EE_RSA();

@@ -9,10 +9,13 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
@@ -26,11 +29,11 @@ import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.UUID;
 
+import my.edu.tarc.communechat_v2.ChatEngine.E2EE_RSA;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
 import my.edu.tarc.communechat_v2.model.Student;
 import my.edu.tarc.communechat_v2.model.User;
@@ -46,10 +49,15 @@ public class LoginActivity extends AppCompatActivity {
     private AutoCompleteTextView etUsername;
     private Button btnLogin;
     private Button buttonRegister;
+    private ConstraintLayout layoutLogin;
+
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
     private User user = new User();
     private String uniqueTopic;
+
+    private final E2EE_RSA e2ee = new E2EE_RSA();
+
 //    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
 //        @Override
 //        public void onReceive(Context context, Intent intent) {
@@ -59,6 +67,9 @@ public class LoginActivity extends AppCompatActivity {
 
 
     private boolean doubleBackTap = false;
+
+    public LoginActivity() throws Exception {
+    }
 
     @Override
     public void onBackPressed() {
@@ -75,9 +86,8 @@ public class LoginActivity extends AppCompatActivity {
             public void run() {
                 doubleBackTap = false;
             }
-        }, 2000);
+        }, 3000);
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,7 +95,14 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         progressBar = findViewById(R.id.progressBar_login);
+        progressBar.setVisibility(View.INVISIBLE);
         alertDialog = new AlertDialog.Builder(LoginActivity.this);
+        layoutLogin = findViewById(R.id.layout_login);
+
+        //animations for layoutLogin
+        //slide in on initial load
+        Animation slideIn = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_in_down);
+        layoutLogin.startAnimation(slideIn);
 
         MainActivity.mqttHelper.connect(getApplicationContext());
 
@@ -100,6 +117,7 @@ public class LoginActivity extends AppCompatActivity {
         //Initialize view
         etPassword = (EditText) findViewById(R.id.editText_password);
         etUsername = (AutoCompleteTextView) findViewById(R.id.editText_username);
+
         btnLogin = (Button) findViewById(R.id.button_login);
         buttonRegister = (Button) findViewById(R.id.button_register);
 
@@ -201,7 +219,11 @@ public class LoginActivity extends AppCompatActivity {
 
                 editor.putInt(User.COL_USER_ID, temp.getInt(User.COL_USER_ID));
                 editor.putString(User.COL_USERNAME, temp.getString(User.COL_USERNAME));
-                editor.putString(User.COL_PASSWORD, temp.getString(User.COL_PASSWORD));
+
+                String password = temp.getString(User.COL_PASSWORD);
+                password = new String(e2ee.encrypt(e2ee.getPubKey(), password));
+                editor.putString(User.COL_PASSWORD, password);
+
                 editor.putString(User.COL_POSITION, temp.getString(User.COL_POSITION));
                 editor.putString(User.COL_GENDER, temp.getString(User.COL_GENDER));
                 editor.putString(User.COL_NRIC, temp.getString(User.COL_NRIC));
@@ -233,11 +255,19 @@ public class LoginActivity extends AppCompatActivity {
                 editor.commit();
                 MainActivity.mqttHelper.unsubscribe(uniqueTopic);
                 finish();
-            } catch (JSONException | NullPointerException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
         MainActivity.mqttHelper.unsubscribe(uniqueTopic);
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        if (isFinishing()) {
+            overridePendingTransition(R.anim.slide_in_down, R.anim.slide_out_up);
+        }
     }
 
     private boolean isNetworkAvailable() {

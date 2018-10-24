@@ -25,4 +25,6 @@
     <dimen name="send_message_frame_maxHeight">96dp</dimen>
     <dimen name="send_message_button_height">42dp</dimen>
     <dimen name="xtra_large_button">128dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="appbar_padding_top">8dp</dimen>
 </resources>

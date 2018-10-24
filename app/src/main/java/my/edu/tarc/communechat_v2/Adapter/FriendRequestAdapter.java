@@ -143,6 +143,7 @@ public class FriendRequestAdapter extends ArrayAdapter<Student> {
                                 alertDialog.setNeutralButton(R.string.ok, null);
 
                                 //update list view
+                                //with some animation
                                 Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.fade_out);
                                 animation.setAnimationListener(new Animation.AnimationListener() {
                                     @Override

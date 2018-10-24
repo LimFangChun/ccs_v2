@@ -9,31 +9,24 @@ import java.security.Key;
 
 import javax.crypto.Cipher;
 
-public class E2EE_RSA {
+public class RSA {
 //TODO: merge with chat engine
     private KeyPair keyPair;
     private PublicKey pubKey;
     private PrivateKey privateKey;
 
-    public E2EE_RSA() throws Exception{
+    public RSA() throws Exception{
         // generate public and private keys
         keyPair = buildKeyPair();
         pubKey = keyPair.getPublic(); //share dis so others can send to u
         privateKey = keyPair.getPrivate(); //kennot be shared, seeleos problem if shared
     }
     
-    public E2EE_RSA(PublicKey pubKey, PrivateKey privateKey) throws Exception{
-        // generate public and private keys
-        keyPair = new KeyPair(pubKey, privateKey);
-        this.pubKey = keyPair.getPublic();
-        this.privateKey = keyPair.getPrivate();
-    }
-    
-    public E2EE_RSA(PublicKey pubKey){
+    public RSA(PublicKey pubKey){
         this.pubKey = pubKey; //received public key
     }
     
-    public E2EE_RSA(PrivateKey privateKey){
+    public RSA(PrivateKey privateKey){
         this.privateKey = privateKey;
     }
     
@@ -45,28 +38,29 @@ public class E2EE_RSA {
         return keyPairGenerator.genKeyPair();
     }
 
-    public byte[] encrypt(Key key, String message) throws Exception {
-        Cipher cipher = Cipher.getInstance("RSA");  
-        cipher.init(Cipher.ENCRYPT_MODE, key);  
 
-        return cipher.doFinal(message.getBytes());  
+    public byte[] encrypt(byte[] message) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.ENCRYPT_MODE, pubKey);
+
+        return cipher.doFinal(message);
     }
-    
-    public byte[] decrypt(Key key, byte [] encrypted) throws Exception {
-        Cipher cipher = Cipher.getInstance("RSA");  
-        cipher.init(Cipher.DECRYPT_MODE, key);
-        
+
+    public byte[] decrypt(byte [] encrypted) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.DECRYPT_MODE, privateKey);
+
         return cipher.doFinal(encrypted);
     }
     
 //    public static void main(String[] args) throws Exception {
 //         //test function
-//        E2EE_RSA rsa = new E2EE_RSA();
+//        RSA rsa = new E2EE_RSA();
 //        PublicKey publicKey = rsa.getPubKey(); //for key negotiation
 //        PrivateKey privateKey = rsa.getPrivateKey(); //save in local for creating instance in future
 //
 //        // sign the message with another instance
-//        E2EE_RSA rsa1 = new E2EE_RSA(publicKey);
+//        RSA rsa1 = new RSA(publicKey);
 //        byte [] signed;
 //        signed = rsa1.encrypt(rsa1.getPubKey(), "六六六");
 //        System.out.println(new String(signed));  // <<signed message>>
@@ -77,11 +71,21 @@ public class E2EE_RSA {
 //        System.out.println(new String(verified));     // This is a secret message
 //    }
 
+//  public static void main(String[] args) throws Exception {
+//        //testing integration with AES
+//        RSA rsa1 = new E2EE_RSA();
+//        RSA rsa = new E2EE_RSA(rsa1.getPubKey());
+//        AdvancedEncryptionStandard aes = new AdvancedEncryptionStandard();
+//        byte[] message = aes.encrypt(new String("666666").getBytes());
+//        byte[] secret = aes.getKey(); //get aes key
+//        byte[] encryptedSecret = rsa.encrypt(secret); //encrypt aes key with rsa
+//        String encryptedSecretString = new String(encryptedSecret); //converted to String for MQTT message
+//        //-----another device
+//        byte[] secret1 = rsa1.decrypt(encryptedSecret);
+//        AdvancedEncryptionStandard aes1 = new AdvancedEncryptionStandard(secret1);
+//        System.out.println(new String(aes1.decrypt(message)));
+//    }
     public PublicKey getPubKey() {
         return pubKey;
-    }
-
-    public PrivateKey getPrivateKey() {
-        return privateKey;
     }
 }

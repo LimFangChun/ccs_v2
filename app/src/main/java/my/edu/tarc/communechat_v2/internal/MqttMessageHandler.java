@@ -23,6 +23,13 @@ import my.edu.tarc.communechat_v2.model.User;
  *      Update encode() for input to upload to server and design your handler for input data
  *      Update decode() and isReceiving() for handling received message
  *
+ *
+ * Update from 2nd generation seniors:
+ * these things are done by 1st generation
+ * we have no idea what are these
+ * and, to be honest, its very crappy
+ * we will leave it here
+ * maybe a talented one can find any value in these
  */
 
 public class MqttMessageHandler {

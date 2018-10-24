@@ -12,6 +12,9 @@ import java.util.Iterator;
  *
  * @author Lim Fang Chun
  * @param <T>
+ *
+ *     Update: this is my custom list that will sort the items
+ *     you should know what is this if you have learn Data structure and algorithm subject before
  */
 public class SortedList<T extends Comparable<? super T>> implements SortedListInterface<T>,
         SortedListWithIteratorInterface<T>, Serializable {

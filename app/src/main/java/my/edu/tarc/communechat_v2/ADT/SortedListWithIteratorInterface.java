@@ -9,7 +9,7 @@ import java.util.Iterator;
 
 /**
  *
- * @author Leo
+ * @author Lim Fang Chun
  */
 public interface SortedListWithIteratorInterface<T extends Comparable<? super T>> extends SortedListInterface<T> {
     Iterator getIterator();

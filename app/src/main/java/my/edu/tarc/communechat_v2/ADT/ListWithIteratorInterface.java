@@ -9,7 +9,7 @@ import java.util.Iterator;
 
 /**
  *
- * @author Leo
+ * @author Lim Fang Chun
  */
 public interface ListWithIteratorInterface<T> extends ListInterface<T> {
     Iterator<T> getIterator();

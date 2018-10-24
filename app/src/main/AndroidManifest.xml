@@ -51,9 +51,15 @@
                 android:value=".MainActivity" />
         </activity>
         <activity
-            android:name=".fragment_friend_list"
-            android:label="@string/title_activity_fragment_friend_list"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:name=".ProfileActivity"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings"></activity>
     </application>
 
 </manifest>

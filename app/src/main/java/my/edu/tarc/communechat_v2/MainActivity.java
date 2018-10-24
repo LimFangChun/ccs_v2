@@ -49,7 +49,8 @@ public class MainActivity extends AppCompatActivity {
         int itemId = item.getItemId();
         switch (itemId) {
             case R.id.nav_settings:
-                //TODO: intent to setting activity
+                Intent intent = new Intent(this, SettingsActivity.class );
+                startActivity(intent);
                 break;
             case R.id.nav_log_out:
                 //clear shared preference then navigate user to login activity

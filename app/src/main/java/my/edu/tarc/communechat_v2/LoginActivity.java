@@ -95,6 +95,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         progressBar = findViewById(R.id.progressBar_login);
+        progressBar.setVisibility(View.INVISIBLE);
         alertDialog = new AlertDialog.Builder(LoginActivity.this);
         layoutLogin = findViewById(R.id.layout_login);
 

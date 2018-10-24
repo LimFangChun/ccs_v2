@@ -72,6 +72,27 @@ public class MainActivity extends AppCompatActivity {
 
         //check if user has GPS turn on
         //if not ask user if they want to turn on
+        runLocationService();
+
+        bottomNavigationView.setOnNavigationItemSelectedListener(bottomNavListener);
+
+        if (savedInstanceState == null) {
+            //if no fragment has been inserted before
+            //put a default fragment
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, new ChatFragment())
+                    .commit();
+        }
+
+        //check user login status
+        //if not logged in, redirect user to login activity
+        if (pref == null || pref.getInt(User.COL_USER_ID, -1) == -1) {
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+        }
+    }
+
+    private void runLocationService() {
         try {
             LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             if (locationManager != null && !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -91,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                     ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                     locationManager != null) {
-                String[] permission = {android.Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION};
+                String[] permission = {Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION};
                 ActivityCompat.requestPermissions(this, permission, 112);
             } else if (locationManager != null) {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 20000, 10, locationListener);
@@ -101,23 +122,6 @@ public class MainActivity extends AppCompatActivity {
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }
-
-        bottomNavigationView.setOnNavigationItemSelectedListener(bottomNavListener);
-
-        if (savedInstanceState == null) {
-            //if no fragment has been inserted before
-            //put a default fragment
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragment_container, new ChatFragment())
-                    .commit();
-        }
-
-        //check user login status
-        //if not logged in, redirect user to login activity
-        if (pref == null || pref.getInt(User.COL_USER_ID, -1) == -1) {
-            startActivity(new Intent(MainActivity.this, LoginActivity.class));
         }
     }
 
@@ -161,10 +165,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         updateUserStatus("Online");
+
+        runLocationService();
     }
 
     private void updateUserStatus(String status) {
-        String topic = "userLogin/" + pref.getInt(User.COL_USER_ID, -1);
+        String topic = "updateUserStatus/" + pref.getInt(User.COL_USER_ID, -1);
         String header = MqttHeader.UPDATE_USER_STATUS;
         User user = new User();
         user.setUser_id(pref.getInt(User.COL_USER_ID, -1));

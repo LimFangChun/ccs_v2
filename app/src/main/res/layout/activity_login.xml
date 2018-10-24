@@ -10,7 +10,7 @@
     <AutoCompleteTextView
         android:id="@+id/editText_username"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:hint="@string/prompt_username"
@@ -19,37 +19,47 @@
         android:singleLine="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/progressBar_login" />
+        app:layout_constraintTop_toBottomOf="@+id/progressBar_login"
+        android:background="@drawable/edittext_round_frame"
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp" />
 
     <Button
         android:id="@+id/button_login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
+        android:layout_marginEnd="70dp"
+        android:layout_marginStart="70dp"
         android:layout_marginTop="8dp"
         android:imeOptions="actionGo"
         android:text="@string/action_sign_in"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText_password" />
+        app:layout_constraintTop_toBottomOf="@+id/editText_password"
+        android:background="@drawable/rounded_rectangle"
+        android:textColor="@color/colorWhite"
+        android:textSize="16sp" />
 
     <Button
         android:id="@+id/button_register"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
+        android:layout_marginEnd="70dp"
+        android:layout_marginStart="70dp"
         android:layout_marginTop="8dp"
+        android:background="@drawable/rounded_rectangle"
         android:text="@string/register_account"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_login" />
+        app:layout_constraintTop_toBottomOf="@+id/button_login"
+        android:textStyle="bold"
+        android:textColor="@color/colorWhite"
+        android:textSize="14sp" />
 
     <EditText
         android:id="@+id/editText_password"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
@@ -60,7 +70,10 @@
         android:singleLine="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText_username" />
+        app:layout_constraintTop_toBottomOf="@+id/editText_username"
+        android:background="@drawable/edittext_round_frame"
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp" />
 
     <ProgressBar
         android:id="@+id/progressBar_login"
@@ -68,7 +81,6 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:indeterminate="true"
-        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

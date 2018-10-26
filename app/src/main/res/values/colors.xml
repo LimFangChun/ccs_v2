@@ -8,6 +8,7 @@
     <color name="colorCombination3">#cab9ca</color>
     <color name="colorCombination4">#994f99</color>
     <color name="colorCombination5">#44116e</color>
+    <color name="transparent">#000000</color>
     <color name="colorBackground">#f6f3fa</color>
     <color name="colorListItemBackground">#f5f1ff</color>
     <color name="tab_disable">#979797</color>

@@ -10,7 +10,7 @@
     <EditText
         android:id="@+id/editText_username"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:ems="10"
@@ -18,21 +18,27 @@
         android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/progressBar_register" />
+        app:layout_constraintTop_toBottomOf="@+id/progressBar_register"
+        android:background="@drawable/edittext_round_frame"
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp" />
 
     <EditText
         android:id="@+id/editText_password"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:ems="10"
-        android:hint="@string/prompt_password"
+        android:hint="@string/password_register"
         android:inputType="textPassword"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText_username" />
+        app:layout_constraintTop_toBottomOf="@+id/editText_username"
+        android:background="@drawable/edittext_round_frame"
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp" />
 
     <Button
         android:id="@+id/button_register"
@@ -40,7 +46,9 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginTop="8dp"
+        android:background="@drawable/rounded_rectangle"
         android:text="@string/register"
+        android:textColor="@color/colorWhite"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editText_password" />
 
@@ -50,7 +58,9 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginTop="8dp"
+        android:background="@drawable/rounded_rectangle"
         android:text="@android:string/cancel"
+        android:textColor="@color/colorWhite"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button_register" />
 

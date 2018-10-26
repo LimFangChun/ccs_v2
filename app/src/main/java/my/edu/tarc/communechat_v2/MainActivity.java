@@ -33,18 +33,23 @@ import my.edu.tarc.communechat_v2.model.User;
 
 public class MainActivity extends AppCompatActivity {
 
+    //don't change this
+    //since a device can only be a client
+    //so only a single MqttHelper object can exist at the same time
     public static final MqttHelper mqttHelper = new MqttHelper();
 
     private SharedPreferences pref;
     private BottomNavigationView bottomNavigationView;
 
     @Override
+    //inflate top right menu bar items
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.navi_top_menu_bar, menu);
         return true;
     }
 
     @Override
+    //override method for top right menu bar
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
         switch (itemId) {
@@ -68,41 +73,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //initialize view
         bottomNavigationView = (BottomNavigationView) findViewById(R.id.nav_bottom);
         pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
         //check if user has GPS turn on
         //if not ask user if they want to turn on
-        try {
-            LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            if (locationManager != null && !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
-                alertDialog.setTitle(R.string.gps_not_found);
-                alertDialog.setMessage(R.string.gps_not_found_desc1);
-                alertDialog.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                    }
-                });
-                alertDialog.setNegativeButton(R.string.no, null);
-                alertDialog.create().show();
-            }
-
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                    ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                    locationManager != null) {
-                String[] permission = {android.Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION};
-                ActivityCompat.requestPermissions(this, permission, 112);
-            } else if (locationManager != null) {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 20000, 10, locationListener);
-                Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                pref.edit().putLong(User.COL_LAST_LONGITUDE, (long) location.getLongitude()).apply();
-                pref.edit().putLong(User.COL_LAST_LATITUDE, (long) location.getLatitude()).apply();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        runLocationService();
 
         bottomNavigationView.setOnNavigationItemSelectedListener(bottomNavListener);
 
@@ -119,6 +96,45 @@ public class MainActivity extends AppCompatActivity {
         //if not logged in, redirect user to login activity
         if (pref == null || pref.getInt(User.COL_USER_ID, -1) == -1) {
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
+        }
+    }
+
+    //method to get user's current longitude and latitude
+    private void runLocationService() {
+        try {
+            LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            //check if user has enable GPS
+            if (locationManager != null && !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                //if GPS not enabled, notice user turning on GPS has impact in using the app
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+                alertDialog.setTitle(R.string.gps_not_found);
+                alertDialog.setMessage(R.string.gps_not_found_desc1);
+                alertDialog.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    }
+                });
+                alertDialog.setNegativeButton(R.string.no, null);
+                alertDialog.create().show();
+            }
+
+            //check if user has granted permission to the app to access to GPS service
+            //if no request permission from user
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                    ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                    locationManager != null) {
+                String[] permission = {Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION};
+                ActivityCompat.requestPermissions(this, permission, 112);
+            } else if (locationManager != null) {
+                //else get user's current longitude and latitude
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 20000, 10, locationListener);
+                Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                pref.edit().putLong(User.COL_LAST_LONGITUDE, (long) location.getLongitude()).apply();
+                pref.edit().putLong(User.COL_LAST_LATITUDE, (long) location.getLatitude()).apply();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -154,7 +170,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
+        //update user status
         updateUserStatus("Offline");
+
+        //disconnect mqtt helper
         mqttHelper.disconnect();
     }
 
@@ -165,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateUserStatus(String status) {
-        String topic = "userLogin/" + pref.getInt(User.COL_USER_ID, -1);
+        String topic = "updateUserStatus/" + pref.getInt(User.COL_USER_ID, -1);
         String header = MqttHeader.UPDATE_USER_STATUS;
         User user = new User();
         user.setUser_id(pref.getInt(User.COL_USER_ID, -1));

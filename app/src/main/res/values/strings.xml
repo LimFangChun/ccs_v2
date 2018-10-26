@@ -41,7 +41,7 @@
 
     <string name="no_internet">No internet connection</string>
     <string name="wrong_username_pass">Wrong username or password</string>
-    <string name="register_account">Register an account</string>
+    <string name="register_account"><u>Register an account</u></string>
     <string name="login">Login</string>
     <string name="register">Register</string>
     <string name="register_title">Register new user account</string>
@@ -164,5 +164,12 @@
     <string name="gps_not_found">GPS not found</string>
     <string name="gps_not_found_desc1">Do you want to enable GPS to enjoy the best feature?</string>
     <string name="gps_not_found_desc2">This feature require GPS. Do you want to turn on your GPS?</string>
+    <string name="password_register">Password (Minimum 5 characters)</string>
+    <string name="title_activity_fragment_friend_list">fragment_friend_list</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
+    <string name="tab_text_3">Tab 3</string>
+    <string name="action_settings">Settings</string>
+    <string name="section_format">Hello World from section: %1$d</string>
 
 </resources>

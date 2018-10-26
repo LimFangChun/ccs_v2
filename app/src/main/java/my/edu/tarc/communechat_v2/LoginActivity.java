@@ -9,10 +9,12 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
@@ -26,7 +28,6 @@ import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.UUID;
@@ -34,6 +35,8 @@ import java.util.UUID;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
 import my.edu.tarc.communechat_v2.model.Student;
 import my.edu.tarc.communechat_v2.model.User;
+
+import static my.edu.tarc.communechat_v2.MainActivity.mqttHelper;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -46,10 +49,13 @@ public class LoginActivity extends AppCompatActivity {
     private AutoCompleteTextView etUsername;
     private Button btnLogin;
     private Button buttonRegister;
+    private ConstraintLayout layoutLogin;
+
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
     private User user = new User();
     private String uniqueTopic;
+
 //    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
 //        @Override
 //        public void onReceive(Context context, Intent intent) {
@@ -60,35 +66,54 @@ public class LoginActivity extends AppCompatActivity {
 
     private boolean doubleBackTap = false;
 
+    public LoginActivity() throws Exception {
+    }
+
     @Override
     public void onBackPressed() {
+        //override this method to prevent user from going back to Main activity without login
+
+        //if user has clicked back button twice, finish the application
         if (doubleBackTap) {
             this.finishAffinity();
             return;
         }
 
+        //feedback to user
         Toast.makeText(LoginActivity.this, R.string.exit_login, Toast.LENGTH_LONG).show();
+
+        //set the double tap to true on first click
         doubleBackTap = true;
 
+        //a delay that will set double tap back to false after 3 seconds
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 doubleBackTap = false;
             }
-        }, 2000);
+        }, 3000);
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        //initialize
         progressBar = findViewById(R.id.progressBar_login);
+        progressBar.setVisibility(View.INVISIBLE);
         alertDialog = new AlertDialog.Builder(LoginActivity.this);
+        layoutLogin = findViewById(R.id.layout_login);
 
-        MainActivity.mqttHelper.connect(getApplicationContext());
+        //animations for layoutLogin
+        //slide in on initial load
+        Animation slideIn = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_in_down);
+        layoutLogin.startAnimation(slideIn);
 
+        //establish connection for future use
+        mqttHelper.connect(getApplicationContext());
+
+        //generate a random topic
         uniqueTopic = UUID.randomUUID().toString().substring(0, 8);
         pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         editor = pref.edit();
@@ -105,6 +130,8 @@ public class LoginActivity extends AppCompatActivity {
 
         setTitle(getString(R.string.login));
 
+        //done by 1st generation
+        //again, we don't what is this
         etPassword.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
@@ -133,13 +160,14 @@ public class LoginActivity extends AppCompatActivity {
                 String username = etUsername.getText().toString();
                 String password = etPassword.getText().toString();
 
-
                 if (username.isEmpty() || password.isEmpty()) {
+                    //check for empty input
                     alertDialog.setMessage(R.string.empty_username_password);
                     alertDialog.setTitle(R.string.notice);
                     alertDialog.setNeutralButton(R.string.ok, null);
                     alertDialog.show();
                 } else if (!isNetworkAvailable()) {
+                    //check internet connection
                     alertDialog.setMessage(R.string.no_internet_connection);
                     alertDialog.setTitle(R.string.notice);
                     alertDialog.setNeutralButton(R.string.ok, null);
@@ -148,12 +176,13 @@ public class LoginActivity extends AppCompatActivity {
                     user.setUsername(username);
                     user.setPassword(password);
 
+                    //make progress bar visible for user feedback
                     progressBar.setVisibility(View.VISIBLE);
-                    MainActivity.mqttHelper.connectPublishSubscribe(getApplicationContext(),
+                    mqttHelper.connectPublishSubscribe(getApplicationContext(),
                             uniqueTopic,
                             MqttHeader.LOGIN,
                             user);
-                    MainActivity.mqttHelper.getMqttClient().setCallback(new MqttCallback() {
+                    mqttHelper.getMqttClient().setCallback(new MqttCallback() {
                         @Override
                         public void connectionLost(Throwable cause) {
 
@@ -183,12 +212,12 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void login(String topic, MqttMessage message) {
-        MainActivity.mqttHelper.decode(message.toString());
+        mqttHelper.decode(message.toString());
         progressBar.setVisibility(View.INVISIBLE);
-        Log.i("[MqttHelper]", "Received header: " + MainActivity.mqttHelper.getReceivedHeader());
-        Log.i("[MqttHelper]", "Received result: " + MainActivity.mqttHelper.getReceivedResult());
-        if (MainActivity.mqttHelper.getReceivedHeader().equals(MqttHeader.LOGIN_REPLY) &&
-                MainActivity.mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
+        //Log.i("[MqttHelper]", "Received header: " + mqttHelper.getReceivedHeader());
+        //Log.i("[MqttHelper]", "Received result: " + mqttHelper.getReceivedResult());
+        if (mqttHelper.getReceivedHeader().equals(MqttHeader.LOGIN_REPLY) &&
+                mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
 
             alertDialog.setTitle(R.string.wrong_username_password);
             alertDialog.setMessage(R.string.check_username_password);
@@ -196,9 +225,10 @@ public class LoginActivity extends AppCompatActivity {
             alertDialog.show();
         } else {
             try {
-                JSONArray userData = new JSONArray(MainActivity.mqttHelper.getReceivedResult());
+                JSONArray userData = new JSONArray(mqttHelper.getReceivedResult());
                 JSONObject temp = userData.getJSONObject(0);
 
+                //put user data into shared preference
                 editor.putInt(User.COL_USER_ID, temp.getInt(User.COL_USER_ID));
                 editor.putString(User.COL_USERNAME, temp.getString(User.COL_USERNAME));
                 editor.putString(User.COL_PASSWORD, temp.getString(User.COL_PASSWORD));
@@ -216,6 +246,8 @@ public class LoginActivity extends AppCompatActivity {
                 editor.putLong(User.COL_LAST_LONGITUDE, temp.getLong(User.COL_LAST_LONGITUDE));
                 editor.putLong(User.COL_LAST_LATITUDE, temp.getLong(User.COL_LAST_LATITUDE));
 
+                //getting a non-string value in JSON object can cause crash
+                //an extra validation is required
                 if (temp.isNull(Student.COL_TUTORIAL_GROUP)) {
                     editor.putInt(Student.COL_TUTORIAL_GROUP, 0);
                 } else {
@@ -231,16 +263,29 @@ public class LoginActivity extends AppCompatActivity {
                 }
 
                 editor.commit();
-                MainActivity.mqttHelper.unsubscribe(uniqueTopic);
+
+                //unsub from the topic
+                mqttHelper.unsubscribe(uniqueTopic);
                 finish();
-            } catch (JSONException | NullPointerException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        MainActivity.mqttHelper.unsubscribe(uniqueTopic);
+        mqttHelper.unsubscribe(uniqueTopic);
+    }
+
+    @Override
+    public void finish() {
+        //nothing big deal here
+        //just animation for leaving Login activity
+        super.finish();
+        if (isFinishing()) {
+            overridePendingTransition(R.anim.slide_in_down, R.anim.slide_out_up);
+        }
     }
 
     private boolean isNetworkAvailable() {
+        //method to check internet connection
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = null;

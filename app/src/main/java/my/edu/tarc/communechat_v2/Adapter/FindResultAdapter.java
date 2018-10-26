@@ -68,6 +68,7 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
     @NonNull
     @Override
     public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+        //initialize student object as final variable
         final Student student = new Student();
         student.setUser_id(Objects.requireNonNull(getItem(position)).getUser_id());
         student.setDisplay_name(Objects.requireNonNull(getItem(position)).getDisplay_name());
@@ -80,12 +81,16 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
 
         final ViewHolder holder;
         if (convertView != null) {
+            //if the view holder's item has been initialized before
+            //get from tag, make your program more efficient
             holder = (ViewHolder) convertView.getTag();
         } else {
+            //else, initialize everything
             LayoutInflater inflater = LayoutInflater.from(mContext);
             convertView = inflater.inflate(mResource, parent, false);
             holder = new ViewHolder();
 
+            //link to UI objects
             holder.textViewUserID = convertView.findViewById(R.id.textView_userID);
             holder.textViewUsername = convertView.findViewById(R.id.textView_username);
             holder.textViewDescription = convertView.findViewById(R.id.textView_description);
@@ -94,15 +99,23 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
             holder.progressBarAddFriend.setVisibility(View.GONE);
             holder.layoutFindResult = convertView.findViewById(R.id.layout_findResult);
             convertView.setTag(holder);
+
+            //a simple animation to load the items in list view
             Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.list_item_load);
             animation.setStartOffset(position * 100);
             convertView.setAnimation(animation);
         }
 
+        //transform user status to unicode
+        //Note: if in future the unicode for green button released
+        //      change the online unicode to green button
+        //      because it is more suitable
         String status;
         if (student.getStatus().equals("Offline")) {
+            //red button
             status = "\uD83D\uDD34";
         } else {
+            //blue button
             status = "\uD83D\uDD35";
         }
 
@@ -125,16 +138,27 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
         holder.buttonAddFriend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //temporarily disable the selected item, prevent user click it again and again
                 holder.progressBarAddFriend.setVisibility(View.VISIBLE);
                 holder.layoutFindResult.setClickable(false);
 
+                //create an object to hold the required data and pass to MqttHelper class
                 Friendship friendship = new Friendship();
                 friendship.setUser_id(pref.getInt(User.COL_USER_ID, -1));
                 friendship.setFriend_id(student.getUser_id());
 
+                //give the topic a readable name
                 String topic = "requestAddFriend/" + friendship.getUser_id();
+
+                //header for encoding
+                //see MqttHeader and MqttHelper.encode()
                 String header = MqttHeader.REQ_ADD_FRIEND;
+
+                //method that establish connection with Mqtt broker
+                //shortcut: ctrl + click any method you want to see
                 MainActivity.mqttHelper.connectPublishSubscribe(getContext(), topic, header, friendship);
+
+                //setup a callback to receive message from broker
                 MainActivity.mqttHelper.getMqttClient().setCallback(new MqttCallback() {
                     @Override
                     public void connectionLost(Throwable cause) {
@@ -143,20 +167,51 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
 
                     @Override
                     public void messageArrived(String topic, MqttMessage message) throws Exception {
+                        //on message arrived, decode the message
+                        //Note: message always come with a fixed format
+                        //message starts with a header, follow by either a JSON object array or a constant string
+                        //see MqttHeader.SUCCESS, MqttHeader.NO_RESULT
                         MainActivity.mqttHelper.decode(message.toString());
+
+                        //unsub from the topic, so we stop getting unnecessary message from broker
                         MainActivity.mqttHelper.unsubscribe(topic);
 
+                        //check the header, whether the message is what we want
                         if (MainActivity.mqttHelper.getReceivedHeader().equals(MqttHeader.REQ_ADD_FRIEND_REPLY)) {
+                            //initialize a alert dialog for user feedback
                             AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
+
+                            //check result, whether the add friend action was success
                             if (MainActivity.mqttHelper.getReceivedResult().equals(MqttHeader.SUCCESS)) {
+                                //put proper user feedback message to dialog box
                                 alertDialog.setTitle("Success");
                                 alertDialog.setMessage("Friend request has sent to " + student.getDisplay_name());
                                 alertDialog.setNeutralButton(R.string.ok, null);
 
                                 //update list view
-                                mObject.remove(position);
-                                notifyDataSetChanged();
+                                //Update: added animation fade out
+                                Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.fade_out);
+                                animation.setAnimationListener(new Animation.AnimationListener() {
+                                    @Override
+                                    public void onAnimationStart(Animation animation) {
+
+                                    }
+
+                                    //remove the item when animation has finished
+                                    @Override
+                                    public void onAnimationEnd(Animation animation) {
+                                        mObject.remove(position);
+                                        notifyDataSetChanged();
+                                    }
+
+                                    @Override
+                                    public void onAnimationRepeat(Animation animation) {
+
+                                    }
+                                });
+                                holder.layoutFindResult.setAnimation(animation);
                             } else {
+                                //result is failed
                                 alertDialog.setTitle("Failed");
                                 alertDialog.setMessage("Could not send friend request to " + student.getDisplay_name());
                                 alertDialog.setNeutralButton(R.string.ok, null);
@@ -164,6 +219,7 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
                             alertDialog.show();
                         }
 
+                        //allow user to interact with the item again
                         holder.layoutFindResult.setClickable(true);
                         holder.progressBarAddFriend.setVisibility(View.GONE);
                     }

@@ -1,11 +1,17 @@
 package my.edu.tarc.communechat_v2.ChatEngine;
 
+import java.security.NoSuchAlgorithmException;
+
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
-public class AdvancedEncryptionStandard {
+import my.edu.tarc.communechat_v2.ADT.CryptoDecryptInterface;
+import my.edu.tarc.communechat_v2.ADT.CryptoEncryptInterface;
+
+public class AdvancedEncryptionStandard implements CryptoEncryptInterface, CryptoDecryptInterface {
 	private byte[] key;
 
 	private static final String ALGORITHM = "AES";
@@ -15,27 +21,41 @@ public class AdvancedEncryptionStandard {
 		this.key = key;
 	}
 
-	public AdvancedEncryptionStandard() throws Exception
+	public AdvancedEncryptionStandard()
 	{
-		KeyGenerator keyGen = KeyGenerator.getInstance(ALGORITHM);
-		keyGen.init(128); // for example
-		SecretKey secretKey = keyGen.generateKey();
-		SecretKeySpec secret = new SecretKeySpec(secretKey.getEncoded(),ALGORITHM);
-		this.key = secret.getEncoded();
+		//getting an instance of "AES" will never result in an exception
+		//the try/catch block is just to deny the exception warning
+		try {
+			KeyGenerator keyGen = KeyGenerator.getInstance(ALGORITHM);
+			keyGen.init(128); // for example
+			SecretKey secretKey = keyGen.generateKey();
+			SecretKeySpec secret = new SecretKeySpec(secretKey.getEncoded(), ALGORITHM);
+			this.key = secret.getEncoded();
+		} catch (Exception e){
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * Encrypts the given plain text
 	 *
-	 * @param plainText The plain text to encrypt
+	 * @param text The plain text to encrypt
 	 */
-	public byte[] encrypt(byte[] plainText) throws Exception
+	public byte[] encrypt(byte[] text) //byte[] str.getBytes() to convert from String to byte array
 	{
-		SecretKeySpec secretKey = new SecretKeySpec(key, ALGORITHM);
-		Cipher cipher = Cipher.getInstance(ALGORITHM);
-		cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+		//getting an instance of "AES" will never result in an exception
+		//the try/catch block is just to deny the exception warning
+		byte[] encrypted = null;
+		try {
+			SecretKeySpec secretKey = new SecretKeySpec(key, ALGORITHM);
+			Cipher cipher = Cipher.getInstance(ALGORITHM);
+			cipher.init(Cipher.ENCRYPT_MODE, secretKey);
 
-		return cipher.doFinal(plainText);
+			encrypted = cipher.doFinal(text);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return encrypted;
 	}
 
 	/**
@@ -43,13 +63,21 @@ public class AdvancedEncryptionStandard {
 	 *
 	 * @param cipherText The data to decrypt
 	 */
-	public byte[] decrypt(byte[] cipherText) throws Exception //remember to cast to String using new String(byte[]) for messages
+	public byte[] decrypt(byte[] cipherText) //remember to cast to String using new String(byte[]) for messages
 	{
-		SecretKeySpec secretKey = new SecretKeySpec(key, ALGORITHM);
-		Cipher cipher = Cipher.getInstance(ALGORITHM);
-		cipher.init(Cipher.DECRYPT_MODE, secretKey);
+		//getting an instance of "AES" will never result in an exception
+		//the try/catch block is just to deny the exception warning
+		byte[] decrypted = null;
+		try{
+			SecretKeySpec secretKey = new SecretKeySpec(key, ALGORITHM);
+			Cipher cipher = Cipher.getInstance(ALGORITHM);
+			cipher.init(Cipher.DECRYPT_MODE, secretKey);
 
-		return cipher.doFinal(cipherText);
+			decrypted = cipher.doFinal(cipherText);
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+		return decrypted;
 	}
 
 	public byte[] getKey() {

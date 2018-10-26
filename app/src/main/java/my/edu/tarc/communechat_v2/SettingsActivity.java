@@ -293,6 +293,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 				editor.commit();
 			}
 		}
+
 		@Override
 		public boolean onOptionsItemSelected(MenuItem item) {
 			int id = item.getItemId();

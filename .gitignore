@@ -8,3 +8,4 @@
 /build
 /captures
 .externalNativeBuild
+app/src/main/java/my/edu/tarc/communechat_v2/ChatEngine/E2EE_RSA.java

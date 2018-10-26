@@ -243,11 +243,21 @@ public class LoginActivity extends AppCompatActivity {
                 editor.putString(User.COL_LAST_ONLINE, temp.getString(User.COL_LAST_ONLINE));
                 editor.putString(Student.COL_FACULTY, temp.getString(Student.COL_FACULTY));
                 editor.putString(Student.COL_COURSE, temp.getString(Student.COL_COURSE));
-                editor.putLong(User.COL_LAST_LONGITUDE, temp.getLong(User.COL_LAST_LONGITUDE));
-                editor.putLong(User.COL_LAST_LATITUDE, temp.getLong(User.COL_LAST_LATITUDE));
 
                 //getting a non-string value in JSON object can cause crash
                 //an extra validation is required
+                if (temp.isNull(User.COL_LAST_LONGITUDE)) {
+                    editor.putFloat(User.COL_LAST_LONGITUDE, 0);
+                } else {
+                    editor.putFloat(User.COL_LAST_LONGITUDE, (float) temp.getDouble(User.COL_LAST_LONGITUDE));
+                }
+
+                if (temp.isNull(User.COL_LAST_LATITUDE)) {
+                    editor.putFloat(User.COL_LAST_LATITUDE, 0);
+                } else {
+                    editor.putFloat(User.COL_LAST_LATITUDE, (float) temp.getDouble(User.COL_LAST_LATITUDE));
+                }
+
                 if (temp.isNull(Student.COL_TUTORIAL_GROUP)) {
                     editor.putInt(Student.COL_TUTORIAL_GROUP, 0);
                 } else {

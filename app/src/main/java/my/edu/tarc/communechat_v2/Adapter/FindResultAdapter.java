@@ -3,6 +3,7 @@ package my.edu.tarc.communechat_v2.Adapter;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import my.edu.tarc.communechat_v2.MainActivity;
+import my.edu.tarc.communechat_v2.MapsActivity;
 import my.edu.tarc.communechat_v2.R;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
 import my.edu.tarc.communechat_v2.model.Friendship;
@@ -52,6 +54,7 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
         TextView textViewUsername;
         TextView textViewDescription;
         ImageButton buttonAddFriend;
+        ImageButton buttonDirection;
         ProgressBar progressBarAddFriend;
         RelativeLayout layoutFindResult;
     }
@@ -78,11 +81,13 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
         student.setAcademic_year(Objects.requireNonNull(getItem(position)).getAcademic_year());
         student.setTutorial_group(Objects.requireNonNull(getItem(position)).getTutorial_group());
         student.setDistance(Objects.requireNonNull(getItem(position)).getDistance());
+        student.setLast_longitude(Objects.requireNonNull(getItem(position)).getLast_longitude());
+        student.setLast_latitude(Objects.requireNonNull(getItem(position)).getLast_latitude());
 
         final ViewHolder holder;
         if (convertView != null) {
             //if the view holder's item has been initialized before
-            //get from tag, make your program more efficient
+            //get from tag, reuse the holder
             holder = (ViewHolder) convertView.getTag();
         } else {
             //else, initialize everything
@@ -95,6 +100,7 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
             holder.textViewUsername = convertView.findViewById(R.id.textView_username);
             holder.textViewDescription = convertView.findViewById(R.id.textView_description);
             holder.buttonAddFriend = convertView.findViewById(R.id.button_addFriend);
+            holder.buttonDirection = convertView.findViewById(R.id.button_direction);
             holder.progressBarAddFriend = convertView.findViewById(R.id.progressBar_addFriend);
             holder.progressBarAddFriend.setVisibility(View.GONE);
             holder.layoutFindResult = convertView.findViewById(R.id.layout_findResult);
@@ -229,6 +235,19 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
 
                     }
                 });
+            }
+        });
+
+        holder.buttonDirection.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //TODO check gps status
+                Intent intent = new Intent(getContext(), MapsActivity.class);
+                intent.putExtra(User.COL_LAST_LONGITUDE, student.getLast_longitude());
+                intent.putExtra(User.COL_LAST_LONGITUDE, student.getLast_latitude());
+                intent.putExtra(User.COL_DISPLAY_NAME, student.getDisplay_name());
+
+                getContext().startActivity(intent);
             }
         });
 

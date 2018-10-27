@@ -62,12 +62,12 @@ public class FindFriendFragment extends Fragment {
     private ListView.OnItemClickListener listener = new ListView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-            if (i == 5) {//find by location/GPS
+            if (i == 4) {//find by location/GPS
                 //check GPS status
                 SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getContext());
                 LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
                 if ((locationManager != null && !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) ||
-                        (pref.getLong(User.COL_LAST_LONGITUDE, -1) == -1 && pref.getLong(User.COL_LAST_LATITUDE, -1) == -1)) {
+                        (pref.getFloat(User.COL_LAST_LONGITUDE, -1) == -1 && pref.getFloat(User.COL_LAST_LATITUDE, -1) == -1)) {
                     AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
                     alertDialog.setTitle(R.string.gps_not_found);
                     alertDialog.setMessage(R.string.gps_not_found_desc2);
@@ -83,6 +83,10 @@ public class FindFriendFragment extends Fragment {
                     });
                     alertDialog.setNegativeButton(R.string.no, null);
                     alertDialog.create().show();
+                } else {
+                    Intent intent = new Intent(getActivity(), FindFriendResult.class);
+                    intent.putExtra("Type", i);
+                    startActivity(intent);
                 }
             } else {
                 Intent intent = new Intent(getActivity(), FindFriendResult.class);

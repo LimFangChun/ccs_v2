@@ -32,7 +32,7 @@ public class MqttHelper {
     private String receivedResult;
 
     //change MQTT broker IP address here
-    private static final String serverUri = "tcp://192.168.0.19:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
+    private static final String serverUri = "tcp://192.168.0.110:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
     private static String mqttUsername = "";
     private static String mqttPassword = "";
 
@@ -60,7 +60,7 @@ public class MqttHelper {
 
                     @Override
                     public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                        Log.i(TAG, mqttAndroidClient.getClientId() + " failed to connect");
+                        Log.i(TAG, mqttAndroidClient.getClientId() + " failed to connect. " + exception);
                     }
                 });
                 //mqttAndroidClient.connect().waitForCompletion();
@@ -85,7 +85,7 @@ public class MqttHelper {
 
                     @Override
                     public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                        Log.i(TAG, mqttAndroidClient.getClientId() + " failed to connect");
+                        Log.i(TAG, mqttAndroidClient.getClientId() + " failed to connect. " + exception);
                     }
                 });
             } catch (MqttException e) {
@@ -111,7 +111,7 @@ public class MqttHelper {
 
                     @Override
                     public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                        Log.i(TAG, mqttAndroidClient.getClientId() + " failed to connect");
+                        Log.i(TAG, mqttAndroidClient.getClientId() + " failed to connect. " + exception);
                     }
                 });
             } catch (MqttException e) {

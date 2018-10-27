@@ -63,11 +63,11 @@ public class FindFriendResult extends AppCompatActivity {
         student.setAcademic_year(pref.getInt(Student.COL_ACADEMIC_YEAR, -1));
         student.setNric(pref.getString(User.COL_NRIC, ""));
         student.setCity_id(pref.getString(User.COL_CITY_ID, ""));
-        student.setLast_longitude(pref.getLong(User.COL_LAST_LONGITUDE, -1));
-        student.setLast_latitude(pref.getLong(User.COL_LAST_LATITUDE, -1));
+        student.setLast_longitude((double) pref.getFloat(User.COL_LAST_LONGITUDE, -1));
+        student.setLast_latitude((double) pref.getFloat(User.COL_LAST_LATITUDE, -1));
 
         int type = getIntent().getIntExtra("Type", -1);
-        if (type > 4 || type < 0) {
+        if (type == 5) {
             type = new Random().nextInt(3);
         }
         switch (type) {
@@ -87,7 +87,7 @@ public class FindFriendResult extends AppCompatActivity {
                 header = MqttHeader.FIND_BY_AGE;
                 setTitle("Find by age");
                 break;
-            case 4://location
+            case 4://location/gps
                 header = MqttHeader.FIND_BY_LOCATION;
                 setTitle("Find by location");
                 break;

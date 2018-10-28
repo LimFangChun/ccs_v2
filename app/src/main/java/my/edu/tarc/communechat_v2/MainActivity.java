@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
         int itemId = item.getItemId();
         switch (itemId) {
             case R.id.nav_settings:
-                Intent intent = new Intent(this, SettingsActivity.class );
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivity(intent);
                 break;
             case R.id.nav_log_out:
@@ -130,8 +130,8 @@ public class MainActivity extends AppCompatActivity {
                 //else get user's current longitude and latitude
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 20000, 10, locationListener);
                 Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                pref.edit().putLong(User.COL_LAST_LONGITUDE, (long) location.getLongitude()).apply();
-                pref.edit().putLong(User.COL_LAST_LATITUDE, (long) location.getLatitude()).apply();
+                pref.edit().putFloat(User.COL_LAST_LONGITUDE, (float) location.getLongitude()).apply();
+                pref.edit().putFloat(User.COL_LAST_LATITUDE, (float) location.getLatitude()).apply();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -197,8 +197,8 @@ public class MainActivity extends AppCompatActivity {
     private final LocationListener locationListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
-            pref.edit().putLong(User.COL_LAST_LONGITUDE, (long) location.getLongitude()).apply();
-            pref.edit().putLong(User.COL_LAST_LATITUDE, (long) location.getLatitude()).apply();
+            pref.edit().putFloat(User.COL_LAST_LONGITUDE, (float) location.getLongitude()).apply();
+            pref.edit().putFloat(User.COL_LAST_LATITUDE, (float) location.getLatitude()).apply();
             Log.d("[LocationService]", "Location changed, lgt: " + location.getLongitude() + " ltd: " + location.getLatitude());
             updateUserLocation(location.getLongitude(), location.getLatitude());
         }

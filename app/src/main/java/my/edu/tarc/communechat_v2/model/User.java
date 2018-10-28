@@ -219,7 +219,7 @@ public class User {
             return  Math.abs(lastOnlineAgo / 1000 / 60 / 60 / 24) + " day(s) ago";
         } else if (lastOnlineAgo / 1000 / 60 / 60 != 0) {
             return  Math.abs(lastOnlineAgo / 1000 / 60 / 60) + " hour(s) ago";
-        } else if (lastOnlineAgo / 1000 / 60 / 60 / 24 != 0) {
+        } else if (lastOnlineAgo / 1000 / 60 != 0) {
             return Math.abs(lastOnlineAgo / 1000 / 60) + " minute(s) ago";
         } else {
             return Math.abs(lastOnlineAgo / 1000) + " second(s) ago";

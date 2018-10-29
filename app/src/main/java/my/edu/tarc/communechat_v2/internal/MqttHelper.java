@@ -32,7 +32,7 @@ public class MqttHelper {
     private String receivedResult;
 
     //change MQTT broker IP address here
-    private static final String serverUri = "tcp://192.168.0.110:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
+    private static final String serverUri = "tcp://192.168.0.6:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
     private static String mqttUsername = "";
     private static String mqttPassword = "";
 
@@ -404,6 +404,16 @@ public class MqttHelper {
                         .append(user.getUser_id())
                         .append(",")
                         .append(user.getUsername());
+                result = temp.toString();
+                break;
+            }
+            case MqttHeader.UPDATE_PUBLIC_KEY: {
+                User user = (User) data;
+                temp.append(MqttHeader.UPDATE_PUBLIC_KEY)
+                        .append(",")
+                        .append(user.getUser_id())
+                        .append(",")
+                        .append(user.getPublic_key());
                 result = temp.toString();
                 break;
             }

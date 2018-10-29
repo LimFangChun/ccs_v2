@@ -58,6 +58,7 @@ CREATE TABLE User(
 	last_online datetime,
 	last_longitude 	decimal(18, 9),
 	last_latitude 	decimal(18, 9),
+	public_key	varchar(256),
 	PRIMARY KEY (user_id),
 	FOREIGN KEY (city_id) REFERENCES City(city_id)
 );
@@ -502,7 +503,7 @@ CREATE TRIGGER Trg_Insert_New_Supply
 AFTER INSERT ON User
 FOR EACH ROW
 BEGIN
-	INSERT INTO Student (student_id, user_id) values NEW.user_id, NEW.user_id;
+	INSERT INTO Student (student_id, user_id) values (NEW.user_id, NEW.user_id);
 END;
 //
 

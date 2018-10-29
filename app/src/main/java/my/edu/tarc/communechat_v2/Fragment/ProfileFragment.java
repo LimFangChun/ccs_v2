@@ -11,6 +11,7 @@ import android.widget.Button;
 
 import my.edu.tarc.communechat_v2.ProfileActivity;
 import my.edu.tarc.communechat_v2.R;
+import my.edu.tarc.communechat_v2.TestEncryptionActivity;
 
 public class ProfileFragment extends Fragment {
 
@@ -20,6 +21,14 @@ public class ProfileFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
         Button button_activity = view.findViewById(R.id.button_activity);
         button_activity.setOnClickListener(buttonListener);
+        Button button_activiy1 = view.findViewById(R.id.button_activity1);
+        button_activiy1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(view.getContext(), TestEncryptionActivity.class);
+                startActivity(intent);
+            }
+        });
         return view;
     }
 

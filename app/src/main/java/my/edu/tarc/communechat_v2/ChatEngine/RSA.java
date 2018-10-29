@@ -1,40 +1,43 @@
 package my.edu.tarc.communechat_v2.ChatEngine;
 
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 
 import javax.crypto.Cipher;
-import javax.crypto.NoSuchPaddingException;
 
 import my.edu.tarc.communechat_v2.ADT.CryptoDecryptInterface;
 import my.edu.tarc.communechat_v2.ADT.CryptoEncryptInterface;
 
 public class RSA implements CryptoEncryptInterface, CryptoDecryptInterface {
 	//TODO: merge with chat engine
-	private static final String ALGORITHM = "AES";
+	private static final String ALGORITHM = "RSA";
+	public static final int RSA_CONSTRUCT_WITH_PUBLIC = 101;
+	public static final int RSA_CONSTRUCT_WITH_PRIVATE = 102;
 	private KeyPair keyPair;
-	private PublicKey pubKey;
-	private PrivateKey privateKey;
+	private byte[] pubKey;
+	private byte[] privateKey;
 
-	public RSA() throws Exception {
+	public RSA(){
 		// generate new public and private keys, only when key expired/ new device
-		keyPair = buildKeyPair();
-		pubKey = keyPair.getPublic(); //share dis so others can send to u
-		privateKey = keyPair.getPrivate(); //kennot be shared, seeleos problem if shared
+		this.keyPair = buildKeyPair();
+		this.pubKey = keyPair.getPublic().getEncoded(); //share dis so others can send to u
+		this.privateKey = keyPair.getPrivate().getEncoded(); //kennot be shared, seeleos problem if shared
 	}
 
-	public RSA(PublicKey pubKey) {
-		//instance for encryption of key(AES in this project) only
-		//key is to be get from others
-		this.pubKey = pubKey; //received public key
-	}
-
-	public RSA(PrivateKey privateKey) {
-		//instance for decrypting message sent to this device
-		this.privateKey = privateKey;
+	public RSA(byte[] key, int constructWith){
+		switch(constructWith){
+			case RSA_CONSTRUCT_WITH_PUBLIC:
+				this.pubKey = key;break;
+			case RSA_CONSTRUCT_WITH_PRIVATE:
+				this.privateKey=key;break;
+			default:
+				System.out.println("Invalid parameter!");
+		}
 	}
 
 
@@ -62,6 +65,7 @@ public class RSA implements CryptoEncryptInterface, CryptoDecryptInterface {
 		//the try/catch block is just to deny the exception warning
 		byte[] encrypted = null;
 		try {
+			PublicKey pubKey = KeyFactory.getInstance(ALGORITHM).generatePublic(new X509EncodedKeySpec(this.pubKey));
 			Cipher cipher = Cipher.getInstance(ALGORITHM);
 			cipher.init(Cipher.ENCRYPT_MODE, pubKey);
 
@@ -78,6 +82,7 @@ public class RSA implements CryptoEncryptInterface, CryptoDecryptInterface {
 		//the try/catch block is just to deny the exception warning
 		byte[] decrypted = null;
 		try {
+			PrivateKey privateKey = KeyFactory.getInstance(ALGORITHM).generatePrivate(new PKCS8EncodedKeySpec(this.privateKey));
 			Cipher cipher = Cipher.getInstance(ALGORITHM);
 			cipher.init(Cipher.DECRYPT_MODE, privateKey);
 
@@ -90,26 +95,26 @@ public class RSA implements CryptoEncryptInterface, CryptoDecryptInterface {
 
 //    public static void main(String[] args) throws Exception {
 //         //test function
-//        RSA rsa = new E2EE_RSA();
-//        PublicKey publicKey = rsa.getPubKey(); //for key negotiation
-//        PrivateKey privateKey = rsa.getPrivateKey(); //save in local for creating instance in future
+//        RSA rsa = new RSA();
+//        byte[] publicKey = rsa.getPubKey(); //for key negotiation
+//        byte[] privateKey = rsa.getPrivateKey(); //save in local for creating instance in future
 //
 //        // sign the message with another instance
-//        RSA rsa1 = new RSA(publicKey);
+//        RSA rsa1 = new RSA(publicKey, RSA_CONSTRUCT_WITH_PUBLIC);
 //        byte [] signed;
-//        signed = rsa1.encrypt(rsa1.getPubKey(), "六六六");
+//        signed = rsa1.encrypt(new String("六六六").getBytes());
 //        System.out.println(new String(signed));  // <<signed message>>
 //
 //        // verify the message using another instance
 //        byte[] verified;
-//        verified = rsa.decrypt(rsa.getPrivateKey(), signed);
+//        verified = rsa.decrypt(signed);
 //        System.out.println(new String(verified));     // This is a secret message
 //    }
 
-	//  public static void main(String[] args) throws Exception {
+	//    public static void main(String[] args) throws Exception {
 //        //testing integration with AES
-//        RSA rsa1 = new E2EE_RSA();
-//        RSA rsa = new E2EE_RSA(rsa1.getPubKey());
+//        RSA rsa1 = new RSA();
+//        RSA rsa = new RSA(rsa1.getPubKey(), RSA_CONSTRUCT_WITH_PUBLIC);
 //        AdvancedEncryptionStandard aes = new AdvancedEncryptionStandard();
 //        byte[] message = aes.encrypt(new String("666666").getBytes());
 //        byte[] secret = aes.getKey(); //get aes key
@@ -120,7 +125,12 @@ public class RSA implements CryptoEncryptInterface, CryptoDecryptInterface {
 //        AdvancedEncryptionStandard aes1 = new AdvancedEncryptionStandard(secret1);
 //        System.out.println(new String(aes1.decrypt(message)));
 //    }
-	public PublicKey getPubKey() {
+
+	public byte[] getPubKey() {
 		return pubKey;
+	}
+
+	public byte[] getPrivateKey() {
+		return privateKey;
 	}
 }

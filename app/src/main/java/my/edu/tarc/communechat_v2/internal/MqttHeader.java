@@ -37,4 +37,6 @@ public final class MqttHeader {
     public static final String SEARCH_USER = "SEARCH_USER";
     public static final String SERACH_USER_REPLY = "SERACH_USER_REPLY";
     public static final String NO_REPLY = "NO_REPLY";
+    public static final String UPDATE_PUBLIC_KEY = "UPDATE_PUBLIC_KEY";
+    public static final String UPDATE_PUBLIC_KEY_REPLY = "UPDATE_PUBLIC_KEY_REPLY";
 }

@@ -220,7 +220,7 @@ function dbResult($sql){
 			}
 }	
 
-function dbResult_stmt($sql, $types, $params, $param_count){
+function dbResult_stmt($sql, $types, $params){
 	$hostname_localhost = "localhost";
 	$database_localhost = "ccs_master";//change to your database name
 	$username_localhost = "ccs_main";//change to your database username, it is recommended to add a new user with password
@@ -460,7 +460,7 @@ function UPDATE_PUBLIC_KEY(){
 	$types = "si";
 	$params = array($public_key, $user_id);
 	$param_count = count($params);
-	$result = dbResult_stmt($sql, $types, $params, $param_count);
+	$result = dbResult_stmt($sql, $types, $params);
 	if($result){
 		echo "\nUpdated user public_key: $user_id\n";
 		$ack_message .= "SUCCESS";

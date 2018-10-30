@@ -6,8 +6,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import my.edu.tarc.communechat_v2.ChatEngine.RSA;
-
 /**
  * Created by Xeosz on 26-Sep-17.
  */

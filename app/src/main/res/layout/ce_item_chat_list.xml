@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+
+    <ImageView
+        android:id="@+id/imageView_itemChatList_icon"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/textView_itemChatList_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:padding="10sp"
+        tools:text="Name"
+        android:ellipsize="end"
+        android:maxLines="1"
+        app:layout_constraintBottom_toTopOf="@+id/textView_itemChatList_message"
+        app:layout_constraintEnd_toStartOf="@+id/textView_itemChatList_time"
+        app:layout_constraintStart_toEndOf="@+id/imageView_itemChatList_icon"
+        app:layout_constraintTop_toTopOf="@+id/imageView_itemChatList_icon" />
+
+    <TextView
+        android:id="@+id/textView_itemChatList_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:padding="10sp"
+        app:layout_constraintBottom_toBottomOf="@+id/textView_itemChatList_name"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/imageView_itemChatList_icon"
+        tools:text="10-10-2018" />
+
+    <TextView
+        android:id="@+id/textView_itemChatList_message"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:padding="10sp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        tools:text="Message"
+        app:layout_constraintBottom_toBottomOf="@+id/imageView_itemChatList_icon"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/imageView_itemChatList_icon" />
+
+
+</android.support.constraint.ConstraintLayout>

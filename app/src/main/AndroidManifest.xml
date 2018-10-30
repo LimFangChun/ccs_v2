@@ -17,6 +17,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
@@ -36,35 +37,35 @@
 
         <activity
             android:name=".RegisterUserActivity"
-            android:parentActivityName=".RegisterUserActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity"/>
-        </activity>
+            android:parentActivityName=".RegisterUserActivity" />
         <activity
             android:name=".FindFriendResult"
-            android:parentActivityName=".FindFriendResult" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity"/>
-        </activity>
+            android:parentActivityName=".FindFriendResult" />
         <activity
             android:name=".FriendRequestActivity"
-            android:parentActivityName=".FriendRequestActivity"  >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity"/>
-        </activity>
-        <activity
-            android:name=".ProfileActivity"
-            android:parentActivityName=".MainActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
-        </activity>
+            android:parentActivityName=".FriendRequestActivity" />
+
         <activity
             android:name=".SettingsActivity"
-            android:label="@string/title_activity_settings"/>
+            android:parentActivityName=".SettingsActivity" />
+
+        <activity
+            android:name=".chatEngine.ChatRoomActivity"
+            android:label="@string/title_activity_chat_room"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".chatEngine.SelectContactActivity"
+            android:label="@string/title_activity_select_contact"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".chatEngine.AddGroupActivity"
+            android:label="@string/title_activity_add_group"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+
+        <receiver
+            android:name=".NotificationBroadcastReceiver"
+            android:enabled="true"
+            android:exported="false" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -77,11 +78,6 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity
-            android:name=".MapsActivity"
-            android:label="@string/title_activity_maps"
-            android:parentActivityName=".MapsActivity" />
-        <activity android:name=".TestEncryptionActivity"></activity>
     </application>
 
 </manifest>

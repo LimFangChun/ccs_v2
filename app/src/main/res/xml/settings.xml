@@ -1,16 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <SwitchPreference
-        android:defaultValue="true"
-        android:key="privacyControl"
-        android:title="@string/privacy_control"
-        android:summary="@string/privacy_control_info">
-    </SwitchPreference>
+    <PreferenceCategory
+        android:title="@string/title_first_section">
 
-    <Preference
-        android:defaultValue="Not set"
-        android:key="storagePath"
-        android:title="@string/media_path" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="@string/notification_key"
+            android:title="@string/chat_notification" />
+
+        <RingtonePreference
+            android:defaultValue="content://settings/system/notification_sound"
+            android:key="@string/ring_tone_pref"
+            android:dependency="notification_key"
+            android:summary="@string/summary_choose_ringtone"
+            android:ringtoneType="notification"
+            android:showDefault="true"
+            android:showSilent="false"
+            android:title="@string/sound"
+            android:enabled="true" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="@string/message_preview_key"
+            android:summary="@string/summary_message_preview"
+            android:title="Message Preview" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/mute_key"
+            android:title="@string/mute" />
+
+
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/title_second_section">
+
+        <Preference
+            android:defaultValue="Not set"
+            android:key="storagePath"
+            android:title="@string/media_path" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="privacyControl"
+            android:title="@string/privacy_control"
+            android:summary="@string/privacy_control_info">
+        </SwitchPreference>
+
+
+
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@string/key_auto_download"
+            android:summary="@string/summary_upload_over_wifi"
+            android:title="@string/title_auto_download" />
+
+    </PreferenceCategory>
+
 
 </PreferenceScreen>

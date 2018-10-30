@@ -1,30 +1,19 @@
 package my.edu.tarc.communechat_v2;
 
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
-import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
-import android.support.v7.app.ActionBar;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.text.TextUtils;
 import android.view.MenuItem;
-import android.widget.Toast;
-
-import java.util.List;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -38,15 +27,71 @@ import java.util.List;
  * API Guide</a> for more information on developing a Settings UI.
  */
 public class SettingsActivity extends AppCompatPreferenceActivity {
+	private static final String TAG = SettingsActivity.class.getSimpleName();
+	public static final int CHOOSE_FILE_REQUESTCODE = 1001;
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+		// load settings fragment
+		getFragmentManager().beginTransaction().replace(android.R.id.content, new MainPreferenceFragment()).commit();
+	}
+
+
+
+	public static class MainPreferenceFragment extends PreferenceFragment {
+		@Override
+		public void onCreate(final Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			addPreferencesFromResource(R.xml.settings);
+
+
+			// notification preference change listener
+			bindPreferenceSummaryToValue(findPreference(getString(R.string.ring_tone_pref)));
+			Preference storagePath = findPreference("storagePath");
+			storagePath.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+				@Override
+				public boolean onPreferenceClick(Preference preference) {
+					Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+					Intent i = Intent.createChooser(intent, "File");
+					startActivityForResult(i, CHOOSE_FILE_REQUESTCODE);
+					return false;
+				}
+			});
+			setHasOptionsMenu(true);
+			bindPreferenceSummaryToValue(findPreference("storagePath"));
+
+		}
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == android.R.id.home) {
+			onBackPressed();
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	private static void bindPreferenceSummaryToValue(Preference preference) {
+		preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
+
+
+		sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
+				PreferenceManager
+						.getDefaultSharedPreferences(preference.getContext())
+						.getString(preference.getKey(), ""));
+
+	}
 
 	/**
 	 * A preference value change listener that updates the preference's summary
 	 * to reflect its new value.
 	 */
 	private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
-		@Override
-		public boolean onPreferenceChange(Preference preference, Object value) {
-			String stringValue = value.toString();
+
+		public boolean onPreferenceChange(Preference preference, Object newValue) {
+			String stringValue = newValue.toString();
 
 			if (preference instanceof ListPreference) {
 				// For list preferences, look up the correct display value in
@@ -73,240 +118,34 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
 					if (ringtone == null) {
 						// Clear the summary if there was a lookup error.
-						preference.setSummary(null);
+						preference.setSummary(R.string.summary_choose_ringtone);
 					} else {
 						// Set the summary to reflect the new ringtone display
 						// name.
+
 						String name = ringtone.getTitle(preference.getContext());
 						preference.setSummary(name);
 					}
-				}
 
-			} else {
-				// For all other preferences, set the summary to the value's
-				// simple string representation.
+				}
+			}  else {
 				preference.setSummary(stringValue);
 			}
 			return true;
 		}
 	};
 
-	/**
-	 * Helper method to determine if the device has an extra-large screen. For
-	 * example, 10" tablets are extra-large.
-	 */
-	private static boolean isXLargeTablet(Context context) {
-		return (context.getResources().getConfiguration().screenLayout
-				& Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
-	}
 
-	/**
-	 * Binds a preference's summary to its value. More specifically, when the
-	 * preference's value is changed, its summary (line of text below the
-	 * preference title) is updated to reflect the value. The summary is also
-	 * immediately updated upon calling this method. The exact display format is
-	 * dependent on the type of preference.
-	 *
-	 * @see #sBindPreferenceSummaryToValueListener
-	 */
-	private static void bindPreferenceSummaryToValue(Preference preference) {
-		// Set the listener to watch for value changes.
-		preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
 
-		// Trigger the listener immediately with the preference's
-		// current value.
-		sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
-				PreferenceManager
-						.getDefaultSharedPreferences(preference.getContext())
-						.getString(preference.getKey(), ""));
-	}
-
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setupActionBar();
-	}
-
-	/**
-	 * Set up the {@link android.app.ActionBar}, if the API is available.
-	 */
-	private void setupActionBar() {
-		ActionBar actionBar = getSupportActionBar();
-		if (actionBar != null) {
-			// Show the Up button in the action bar.
-			actionBar.setDisplayHomeAsUpEnabled(true);
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean onIsMultiPane() {
-		return isXLargeTablet(this);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	public void onBuildHeaders(List<Header> target) {
-		loadHeadersFromResource(R.xml.pref_headers, target);
-	}
-
-	/**
-	 * This method stops fragment injection in malicious applications.
-	 * Make sure to deny any unknown fragments here.
-	 */
-	@SuppressLint("NewApi")
-	protected boolean isValidFragment(String fragmentName) {
-		return PreferenceFragment.class.getName().equals(fragmentName)
-				|| GeneralPreferenceFragment.class.getName().equals(fragmentName)
-				|| DataSyncPreferenceFragment.class.getName().equals(fragmentName)
-				|| NotificationPreferenceFragment.class.getName().equals(fragmentName)
-				|| AppPreferenceFragment.class.getName().equals(fragmentName);
-	}
-
-	/**
-	 * This fragment shows general preferences only. It is used when the
-	 * activity is showing a two-pane settings UI.
-	 */
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	public static class GeneralPreferenceFragment extends PreferenceFragment {
-		@Override
-		public void onCreate(Bundle savedInstanceState) {
-			super.onCreate(savedInstanceState);
-			addPreferencesFromResource(R.xml.pref_general);
-			setHasOptionsMenu(true);
-
-			// Bind the summaries of EditText/List/Dialog/Ringtone preferences
-			// to their values. When their values change, their summaries are
-			// updated to reflect the new value, per the Android Design
-			// guidelines.
-			bindPreferenceSummaryToValue(findPreference("example_text"));
-			bindPreferenceSummaryToValue(findPreference("example_list"));
-		}
-
-		@Override
-		public boolean onOptionsItemSelected(MenuItem item) {
-			int id = item.getItemId();
-			if (id == android.R.id.home) {
-				startActivity(new Intent(getActivity(), SettingsActivity.class));
-				return true;
-			}
-			return super.onOptionsItemSelected(item);
-		}
-	}
-
-	/**
-	 * This fragment shows notification preferences only. It is used when the
-	 * activity is showing a two-pane settings UI.
-	 */
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	public static class NotificationPreferenceFragment extends PreferenceFragment {
-		@Override
-		public void onCreate(Bundle savedInstanceState) {
-			super.onCreate(savedInstanceState);
-			addPreferencesFromResource(R.xml.pref_notification);
-			setHasOptionsMenu(true);
-
-			// Bind the summaries of EditText/List/Dialog/Ringtone preferences
-			// to their values. When their values change, their summaries are
-			// updated to reflect the new value, per the Android Design
-			// guidelines.
-			bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
-		}
-
-		@Override
-		public boolean onOptionsItemSelected(MenuItem item) {
-			int id = item.getItemId();
-			if (id == android.R.id.home) {
-				startActivity(new Intent(getActivity(), SettingsActivity.class));
-				return true;
-			}
-			return super.onOptionsItemSelected(item);
-		}
-	}
-
-	/**
-	 * This fragment shows data and sync preferences only. It is used when the
-	 * activity is showing a two-pane settings UI.
-	 */
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	public static class DataSyncPreferenceFragment extends PreferenceFragment {
-		@Override
-		public void onCreate(Bundle savedInstanceState) {
-			super.onCreate(savedInstanceState);
-			addPreferencesFromResource(R.xml.pref_data_sync);
-			setHasOptionsMenu(true);
-
-			// Bind the summaries of EditText/List/Dialog/Ringtone preferences
-			// to their values. When their values change, their summaries are
-			// updated to reflect the new value, per the Android Design
-			// guidelines.
-			bindPreferenceSummaryToValue(findPreference("sync_frequency"));
-		}
-
-		@Override
-		public boolean onOptionsItemSelected(MenuItem item) {
-			int id = item.getItemId();
-			if (id == android.R.id.home) {
-				startActivity(new Intent(getActivity(), SettingsActivity.class));
-				return true;
-			}
-			return super.onOptionsItemSelected(item);
-		}
-	}
-
-	public static class AppPreferenceFragment extends PreferenceFragment{
-		public static final int CHOOSE_FILE_REQUESTCODE = 1001;
-
-		@Override
-		public void onCreate(@Nullable Bundle savedInstanceState) {
-			super.onCreate(savedInstanceState);
-			addPreferencesFromResource(R.xml.settings);
-			setHasOptionsMenu(true);
-			bindPreferenceSummaryToValue(findPreference("storagePath"));
-
-			Preference storagePath = findPreference("storagePath");
-			storagePath.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-				@Override
-				public boolean onPreferenceClick(Preference preference) {
-					Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-					Intent i = Intent.createChooser(intent, "File");
-					startActivityForResult(i, CHOOSE_FILE_REQUESTCODE);
-					return false;
-				}
-			});
-		}
-
-		@Override
-		public void onActivityResult(int requestCode, int resultCode, Intent data) {
-			super.onActivityResult(requestCode, resultCode, data);
-			if (requestCode == CHOOSE_FILE_REQUESTCODE && resultCode == RESULT_OK){
-				Uri selectedPath = data.getData();
-				String path = selectedPath.getLastPathSegment(); //path format matters, change if related methods are not working.
-				SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-				SharedPreferences.Editor editor = preferences.edit();
-				editor.putString("storagePath", path);
-				editor.commit();
-			}
-		}
-
-		@Override
-		public boolean onOptionsItemSelected(MenuItem item) {
-			int id = item.getItemId();
-			if (id == android.R.id.home) {
-				startActivity(new Intent(getActivity(), SettingsActivity.class));
-				return true;
-			}
-			return super.onOptionsItemSelected(item);
-		}
-		@Override
-		public void onResume() {
-			super.onResume();
-			this.onCreate(null);
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (requestCode == CHOOSE_FILE_REQUESTCODE && resultCode == RESULT_OK){
+			Uri selectedPath = data.getData();
+			String path = selectedPath.getLastPathSegment(); //path format matters, change if related methods are not working.
+			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+			SharedPreferences.Editor editor = preferences.edit();
+			editor.putString("storagePath", path);
+			editor.commit();
 		}
 	}
 }

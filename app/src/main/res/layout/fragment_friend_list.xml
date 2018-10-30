@@ -24,10 +24,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_marginBottom="30dp"
-        android:layout_marginEnd="25dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginEnd="10dp"
         android:clickable="true"
         android:focusable="true"
         app:elevation="0dp"
-        app:srcCompat="@drawable/ic_info_outline_black_24dp" />
+        app:srcCompat="@drawable/ic_person_add_white_24dp" />
 </FrameLayout>

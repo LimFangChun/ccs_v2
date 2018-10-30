@@ -17,7 +17,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
@@ -37,17 +36,35 @@
 
         <activity
             android:name=".RegisterUserActivity"
-            android:parentActivityName=".RegisterUserActivity" />
+            android:parentActivityName=".RegisterUserActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity"/>
+        </activity>
         <activity
             android:name=".FindFriendResult"
-            android:parentActivityName=".FindFriendResult" />
+            android:parentActivityName=".FindFriendResult" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity"/>
+        </activity>
         <activity
             android:name=".FriendRequestActivity"
-            android:parentActivityName=".FriendRequestActivity" />
-
+            android:parentActivityName=".FriendRequestActivity"  >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity"/>
+        </activity>
+        <activity
+            android:name=".ProfileActivity"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
         <activity
             android:name=".SettingsActivity"
-            android:parentActivityName=".SettingsActivity" />
+            android:label="@string/title_activity_settings"/>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -64,6 +81,7 @@
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps"
             android:parentActivityName=".MapsActivity" />
+        <activity android:name=".TestEncryptionActivity"></activity>
     </application>
 
 </manifest>

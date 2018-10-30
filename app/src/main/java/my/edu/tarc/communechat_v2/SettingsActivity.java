@@ -49,6 +49,16 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
 			// notification preference change listener
 			bindPreferenceSummaryToValue(findPreference(getString(R.string.ring_tone_pref)));
+			Preference storagePath = findPreference("storagePath");
+			storagePath.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+				@Override
+				public boolean onPreferenceClick(Preference preference) {
+					Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+					Intent i = Intent.createChooser(intent, "File");
+					startActivityForResult(i, CHOOSE_FILE_REQUESTCODE);
+					return false;
+				}
+			});
 			setHasOptionsMenu(true);
 			bindPreferenceSummaryToValue(findPreference("storagePath"));
 
@@ -118,7 +128,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 					}
 
 				}
-			} else {
+			}  else {
 				preference.setSummary(stringValue);
 			}
 			return true;
@@ -126,13 +136,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 	};
 
 
-		public boolean onPreferenceClick(Preference preference) {
-			Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-			Intent i = Intent.createChooser(intent, "File");
-			startActivityForResult(i, CHOOSE_FILE_REQUESTCODE);
-			return false;
-
-	}
 
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);

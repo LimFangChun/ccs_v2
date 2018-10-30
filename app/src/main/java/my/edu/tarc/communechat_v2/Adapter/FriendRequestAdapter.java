@@ -2,6 +2,7 @@ package my.edu.tarc.communechat_v2.Adapter;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -19,7 +20,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import my.edu.tarc.communechat_v2.MainActivity;
+import my.edu.tarc.communechat_v2.ProfileActivity;
 import my.edu.tarc.communechat_v2.R;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
 import my.edu.tarc.communechat_v2.model.Friendship;
@@ -65,7 +66,7 @@ public class FriendRequestAdapter extends ArrayAdapter<Student> {
     @Override
     public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         final ViewHolder holder;
-        LayoutInflater inflater = LayoutInflater.from(mContext);
+        final LayoutInflater inflater = LayoutInflater.from(mContext);
         if (convertView == null) {
             convertView = inflater.inflate(mResource, parent, false);
 
@@ -187,7 +188,10 @@ public class FriendRequestAdapter extends ArrayAdapter<Student> {
             @Override
             public void onClick(View view) {
                 //TODO intent to profile activity to view selected user profile
-                Toast.makeText(getContext(), "friend_id2: " + holder.textViewUserID.getText().toString(), Toast.LENGTH_LONG).show();
+                //Toast.makeText(getContext(), "friend_id2: " + holder.textViewUserID.getText().toString(), Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(getContext(), ProfileActivity.class);
+                intent.putExtra(User.COL_USER_ID, Integer.parseInt(holder.textViewUserID.getText().toString()));
+                getContext().startActivity(intent);
             }
         });
 

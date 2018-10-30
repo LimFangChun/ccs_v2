@@ -64,6 +64,10 @@
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps"
             android:parentActivityName=".MapsActivity" />
+
+        <activity
+            android:name=".ProfileActivity"
+            android:parentActivityName=".ProfileActivity" />
     </application>
 
 </manifest>

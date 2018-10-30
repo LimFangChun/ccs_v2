@@ -23,11 +23,15 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import my.edu.tarc.communechat_v2.Fragment.ChatFragment;
 import my.edu.tarc.communechat_v2.Fragment.FindFriendFragment;
 import my.edu.tarc.communechat_v2.Fragment.FriendListFragment;
 import my.edu.tarc.communechat_v2.Fragment.ProfileFragment;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
+import my.edu.tarc.communechat_v2.chatEngine.ChatFragment;
+import my.edu.tarc.communechat_v2.chatEngine.ChatEngineStartup;
+import my.edu.tarc.communechat_v2.chatEngine.ChatSubscribeCallBack;
+import my.edu.tarc.communechat_v2.chatEngine.SelectContactActivity;
+
 import my.edu.tarc.communechat_v2.internal.MqttHelper;
 import my.edu.tarc.communechat_v2.model.User;
 
@@ -40,11 +44,13 @@ public class MainActivity extends AppCompatActivity {
 
     private SharedPreferences pref;
     private BottomNavigationView bottomNavigationView;
-
+    private MenuItem mAddPrivateChatRoom, mAddGroupChatRoom;
     @Override
     //inflate top right menu bar items
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.navi_top_menu_bar, menu);
+        mAddGroupChatRoom = menu.getItem(0);
+        mAddPrivateChatRoom = menu.getItem(1);
         return true;
     }
 
@@ -54,14 +60,28 @@ public class MainActivity extends AppCompatActivity {
         int itemId = item.getItemId();
         switch (itemId) {
             case R.id.nav_settings:
-                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(intent);
+
+                //new ChatEngineStartup(this).execute();
+                //MainActivity.mqttHelper.subscribe(my.edu.tarc.communechat_v2.chatEngine.ChatFragment.CURRENT_USER_ID +"");
+               // MainActivity.mqttHelper.getMqttClient().setCallback(new ChatSubscribeCallBack(this));
+                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
                 break;
             case R.id.nav_log_out:
                 //clear shared preference then navigate user to login activity
                 updateUserStatus("Offline");
                 pref.edit().clear().apply();
                 startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                break;
+            case R.id.nav_add_private_chat:
+                //TODO: CE
+                Intent intent = new Intent(this, SelectContactActivity.class);
+                intent.putExtra(SelectContactActivity.SELECTION_TYPE, SelectContactActivity.SELECT_PRIVATE_CHAT_MEMBER);
+                startActivity(intent);
+                break;
+            case R.id.nav_add_group_chat:
+                Intent intent2 = new Intent(this, SelectContactActivity.class);
+                intent2.putExtra(SelectContactActivity.SELECTION_TYPE, SelectContactActivity.SELECT_GROUP_CHAT_MEMBER);
+                startActivity(intent2);
                 break;
         }
 
@@ -94,9 +114,10 @@ public class MainActivity extends AppCompatActivity {
 
         //check user login status
         //if not logged in, redirect user to login activity
-        if (pref == null || pref.getInt(User.COL_USER_ID, -1) == -1) {
-            startActivity(new Intent(MainActivity.this, LoginActivity.class));
-        }
+//        if (pref == null || pref.getInt(User.COL_USER_ID, -1) == -1) {
+//            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+//        }
+        PreferenceManager.setDefaultValues(this, R.xml.settings, false);
     }
 
     //method to get user's current longitude and latitude
@@ -143,9 +164,17 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                     Fragment selectedFragment = null;
+
+                    //TODO:CE
+
+                    mAddGroupChatRoom.setVisible(false);
+                    mAddPrivateChatRoom.setVisible(false);
                     switch (item.getItemId()) {
                         case R.id.nav_chat:
-                            selectedFragment = new ChatFragment();
+                            //TODO: CE
+                            mAddGroupChatRoom.setVisible(true);
+                            mAddPrivateChatRoom.setVisible(true);
+                            selectedFragment = new my.edu.tarc.communechat_v2.chatEngine.ChatFragment();
                             break;
                         case R.id.nav_find_friend:
                             selectedFragment = new FindFriendFragment();
@@ -240,5 +269,11 @@ public class MainActivity extends AppCompatActivity {
         user.setLast_latitude(latitude);
 
         mqttHelper.connectPublish(this, topic, header, user);
+    }
+
+    public void backupReminder(){
+        AlertDialog.Builder reminder = new AlertDialog.Builder(MainActivity.this);
+        reminder.setTitle(R.string.gps_not_found);
+        reminder.setMessage(R.string.gps_not_found_desc1);
     }
 }

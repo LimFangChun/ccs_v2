@@ -85,7 +85,6 @@
     <string name="contact_number">Contact Number</string>
     <string name="email">Email</string>
     <string name="address">Address</string>
-    <string name="title_activity_settings">Settings</string>
 
     <!-- Strings related to Settings -->
 
@@ -155,7 +154,7 @@
     <string name="pref_title_new_message_notifications">New message notifications</string>
 
     <string name="pref_title_ringtone">Ringtone</string>
-    <string name="pref_ringtone_silent">Silent</string>
+
 
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="no">No</string>
@@ -172,5 +171,26 @@
     <string name="action_settings">Settings</string>
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="title_activity_maps">Map</string>
+    <string name="title_activity_chat_room">ChatRoomActivity</string>
+    <string name="title_activity_add_private">AddPrivateActivity</string>
+    <string name="title_activity_select_contact">SelectContactActivity</string>
+    <string name="title_activity_add_group">AddGroupActivity</string>
 
+    <string name="chat_notification">Chat Notification</string>
+    <string name="notification_key">notification_key</string>
+    <string name="mute">Mute</string>
+    <string name="mute_key">mute_key</string>
+    <string name="sound">Notification Sound</string>
+    <string name="ring_tone_pref">ring_tone_pref</string>
+    <string name="summary_choose_ringtone">Choose notification sound</string>
+    <string name="pref_ringtone_silent">Silent</string>
+    <string name="title_first_section">Notifications</string>
+    <string name="title_second_section">Chat Contents</string>
+    <string name="summary_message_preview">You can view message via notification</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="message_preview_key">message_preview_key</string>
+    <string name="key_auto_download">key_auto_download</string>
+    <string name="title_auto_download">Auto download</string>
+    <string name="summary_upload_over_wifi">Automatically download the videos and image</string>
+    <string name="notif_action_reply"></string>
 </resources>

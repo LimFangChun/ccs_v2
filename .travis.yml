@@ -2,8 +2,12 @@ before_install:
  - chmod +x gradlew
 
 language: android
+jdk: oraclejdk8
+
 android:
   components:
-    - build-tools-22.0.1
+    # Update Android SDK Tools
+    - tools
+
+    - build-tools-23.0.1
     - android-19
-    - extra

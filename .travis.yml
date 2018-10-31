@@ -11,3 +11,5 @@ android:
 
     - build-tools-23.0.1
     - android-19
+    - yes | sdkmanager --licenses
+

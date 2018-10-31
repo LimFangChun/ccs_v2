@@ -28,6 +28,7 @@ public class User {
     public static final String COL_LAST_LONGITUDE = "last_longitude";
     public static final String COL_LAST_LATITUDE = "last_latitude";
     public static final String COL_DISTANCE = "distance";
+    public static final String COL_PUBLIC_KEY = "public_key";
 
     //variables for encapsulation
     private int user_id;
@@ -46,6 +47,7 @@ public class User {
     private double last_longitude;
     private double last_latitude;
     private double distance;
+    private String public_key;
 
     public  User(){
 
@@ -53,7 +55,8 @@ public class User {
 
     public User(int user_id, String username, String display_name, String password, String position,
                 String gender, String nric, String phone_number, String email, String address,
-                String city_id, String status, Date last_online, double last_longitude, double last_latitude) {
+                String city_id, String status, Date last_online, double last_longitude, double last_latitude,
+                String public_key) {
         this.user_id = user_id;
         this.username = username;
         this.display_name = display_name;
@@ -69,6 +72,7 @@ public class User {
         this.last_online = last_online;
         this.last_longitude = last_longitude;
         this.last_latitude = last_latitude;
+        this.public_key=public_key;
     }
 
     public int getUser_id() {
@@ -224,5 +228,13 @@ public class User {
         } else {
             return Math.abs(lastOnlineAgo / 1000) + " second(s) ago";
         }
+    }
+
+    public String getPublic_key() {
+        return public_key;
+    }
+
+    public void setPublic_key(String public_key) {
+        this.public_key = public_key;
     }
 }

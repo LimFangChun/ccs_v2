@@ -59,6 +59,7 @@ CREATE TABLE User(
 	last_online datetime,
 	last_longitude 	decimal(18, 9),
 	last_latitude 	decimal(18, 9),
+	public_key	varchar(256),
 	PRIMARY KEY (user_id),
 	FOREIGN KEY (city_id) REFERENCES City(city_id)
 );

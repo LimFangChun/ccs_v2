@@ -37,4 +37,12 @@ public final class MqttHeader {
     public static final String SEARCH_USER = "SEARCH_USER";
     public static final String SERACH_USER_REPLY = "SERACH_USER_REPLY";
     public static final String NO_REPLY = "NO_REPLY";
+    public static final String UPDATE_PUBLIC_KEY = "UPDATE_PUBLIC_KEY";
+    public static final String UPDATE_PUBLIC_KEY_REPLY = "UPDATE_PUBLIC_KEY_REPLY";
+
+    //TODO Chat Engine Part
+    public static final String CHAT_ROOM = "CHAT_ROOM";
+    public static final String RECEIVE_MESSAGE = "RECEIVE_MESSAGE";
+    public static final String SEND_MESSAGE = "SEND_MESSAGE";
+    public static final String ADD_GROUP_CHAT_ROOM = "ADD_GROUP_CHAT_ROOM";
 }

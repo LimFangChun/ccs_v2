@@ -39,9 +39,9 @@ public class Student extends User {
                    String gender, String nric, String phone_number, String email, String address,
                    String city_id, String status, Date last_online, String student_id, String faculty,
                    String course, int tutorial_group, String intake, int academic_year, int user_id1,
-                   double last_longitude, double last_latitude) {
+                   double last_longitude, double last_latitude, String public_key) {
         super(user_id, username, display_name, password, position, gender, nric, phone_number, email,
-                address, city_id, status, last_online, last_longitude, last_latitude);
+                address, city_id, status, last_online, last_longitude, last_latitude, public_key);
         this.student_id = student_id;
         this.faculty = faculty;
         this.course = course;

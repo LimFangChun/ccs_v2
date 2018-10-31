@@ -85,9 +85,14 @@ Again, make sure to change the server ip address to your ip everytime before u s
 Good luck!
 find me at https://www.facebook.com/leo477831
 if you need any more help
+-----
+Hi there I'm Gan Zhen Jie, another member in the team
+also find me at https://www.facebook.com/juz.ppl.3
+although i contribute almost nothing lul.
+-----
 */
 
-$server = "192.168.0.106";     		// change to your broker's ip
+$server = "192.168.0.6";     		// change to your broker's ip
 $port = 1883;                     		// change if necessary, default is 1883
 $username = "root";                 // set your username
 $password = "";             // set your password
@@ -159,6 +164,8 @@ function procmsg($topic, $msg){
 					$ack_message = UPDATE_LOCATION($msg); break;}
 				case "FIND_BY_LOCATION": {
 					$ack_message = FIND_BY_LOCATION($msg); break;}
+				case "UPDATE_PUBLIC_KEY": {
+					$ack_message = UPDATE_PUBLIC_KEY($msg); break;}
 				//case "003810":	{$ack_message = fn003810($msg);publishMessage($topic, $ack_message); break;}  				
 				// case "003812":	{$ack_message = fn003812($msg);publishMessage($topic, $ack_message); break;}
 				// case "003814":	{$ack_message = fn003814($msg);publishMessage($topic, $ack_message); break;}
@@ -213,10 +220,41 @@ function dbResult($sql){
 			}
 }	
 
+function dbResult_stmt($sql, $types, $params){
+	$hostname_localhost = "localhost";
+	$database_localhost = "ccs_master";//change to your database name
+	$username_localhost = "ccs_main";//change to your database username, it is recommended to add a new user with password
+	$password_localhost = "123456";//change to user's password
+		$link = mysqli_connect($hostname_localhost, $username_localhost, $password_localhost, $database_localhost);
+			// Check connection
+			if($link === false){
+				echo("ERROR: Could not connect. " . mysqli_connect_error());
+			}
+			else{
+				mysqli_set_charset($link, "UTF8");	
+				$query = mysqli_prepare($link, $sql);
+				$sql_params_array = array();
+				array_push($sql_params_array, $query, $types);
+				for($x = 0; $x<count($params);$x++){
+					array_push($sql_params_array, $params[$x]);
+				}
+				call_user_func_array("mysqli_stmt_bind_param",$sql_params_array);
+				$result = mysqli_stmt_execute($sql_params_array[0]);
+				//$result = mysqli_query($link, $sql);
+				if($result)
+					return $result;
+				else
+					echo mysqli_error($link);
+				return $result;
+			// Close connection
+			mysqli_close($link);
+			}
+}	
+
 //MQTT publish message
 //DO NOT MODIFY, except ip address
 function publishMessage($topic, $ack_message){
-$server = "192.168.0.106";     		// change if necessary
+$server = "192.168.0.6";     		// change if necessary
 $port = 1883;                     		// change if necessary
 $username = "";                 // set your username
 $password = "";             // set your password
@@ -369,7 +407,7 @@ function UPDATE_USER($msg){
 	$email = $receivedData[9];
 	$address = $receivedData[10];
 	$city_id = $receivedData[11];
-	//if position="Student", create student table with user_id=[received user_id]
+	//if position="Student", create student table with user_id=[received user_id] (postponed, not now :P)
 	//$sql = "INSERT INTO Student (user_id) VALUES ('$user_id');";
 
 	$sql = "UPDATE User SET username = '$username', display_name = '$display_name', position = '$position', password = '$password',
@@ -410,6 +448,29 @@ function SEARCH_USER($msg){
 	return $ack_message;
 }
 
+function UPDATE_PUBLIC_KEY(){
+	$temp = func_get_arg(0);
+	$ack_message = "UPDATE_PUBLIC_KEY_REPLY, ";
+	
+	$temp = explode(',', $temp, 3); //user_id, public_key
+	$user_id = $temp[1];
+	$public_key = $temp[2];
+	
+	$sql = "UPDATE User SET public_key = ? WHERE user_id = ?";
+	$types = "si";
+	$params = array($public_key, $user_id);
+	$param_count = count($params);
+	$result = dbResult_stmt($sql, $types, $params);
+	if($result){
+		echo "\nUpdated user public_key: $user_id\n";
+		$ack_message .= "SUCCESS";
+	}else{
+		echo "\nFailed to update user public_key: $user_id\n";
+		echo mysqli_error($result)."\n";
+		$ack_message .= "FAILED";
+	}
+	return $ack_message;
+}
 
 //The following functions are
 //Done by 1st generation seniors

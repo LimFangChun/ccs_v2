@@ -114,11 +114,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String sensor = "sensor=false";
         //Mode for find direction
         String mode = "mode=driving";
+        //API key
+        String key = "key=" + getString(R.string.api_key);
         //Build the full param
-        String param = str_org + "&" + str_dest + "&" + sensor + "&" + mode;
+        String param = str_org + "&" + str_dest + "&" + sensor + "&" + mode + "&" + key;
         //Output format
         String output = "json";
+
         //Create url to request
+        //Log.d("Direction", "https://maps.googleapis.com/maps/api/directions/" + output + "?" + param);
         return "https://maps.googleapis.com/maps/api/directions/" + output + "?" + param;
     }
 
@@ -192,6 +196,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             super.onPostExecute(s);
             //Parse json here
             TaskParser taskParser = new TaskParser();
+            //Log.d("Direction", s);
             taskParser.execute(s);
         }
     }

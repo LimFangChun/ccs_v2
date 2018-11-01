@@ -209,7 +209,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        updateUserStatus("Online");
     }
 
     private void updateUserStatus(String status) {

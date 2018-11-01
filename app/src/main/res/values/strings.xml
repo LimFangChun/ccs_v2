@@ -193,4 +193,10 @@
     <string name="title_auto_download">Auto download</string>
     <string name="summary_upload_over_wifi">Automatically download the videos and image</string>
     <string name="notif_action_reply"></string>
+    <string name="profile_placeholderName">Gan Nar Psy</string>
+    <string name="profile_placeholderUid">1</string>
+    <string name="profile_placeholderGender">Male</string>
+    <string name="profile_placeholderStudentID">1709411</string>
+    <string name="profile_placeholderFaculty">FOCS</string>
+    <string name="profile_placeholderTutGroup">RSD3 Group 2 May</string>
 </resources>

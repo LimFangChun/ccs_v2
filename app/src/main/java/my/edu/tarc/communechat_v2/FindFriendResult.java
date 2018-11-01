@@ -107,41 +107,50 @@ public class FindFriendResult extends AppCompatActivity {
         public void messageArrived(String topic, MqttMessage message) throws Exception {
             MainActivity.mqttHelper.decode(message.toString());
 
-            if (MainActivity.mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
-                String[] response = new String[1];
-                response[0] = "We couldn't find any users";
-                ArrayAdapter adapter = new ArrayAdapter<String>(FindFriendResult.this,
-                        android.R.layout.simple_list_item_1, response);
-                listViewResult.setAdapter(adapter);
-            } else {
-                resultList = new ArrayList<>();
-                try {
-                    JSONArray result = new JSONArray(MainActivity.mqttHelper.getReceivedResult());
-                    for (int i = 0; i <= result.length() - 1; i++) {
-                        JSONObject temp = result.getJSONObject(i);
-                        Student friend = new Student();
-                        friend.setUser_id(temp.getInt(Student.COL_USER_ID));
-                        friend.setDisplay_name(temp.getString(Student.COL_DISPLAY_NAME));
-                        friend.setStatus(temp.getString(Student.COL_STATUS));
-                        friend.setLast_online(temp.getString(Student.COL_LAST_ONLINE));
-                        friend.setCourse(temp.getString(Student.COL_COURSE));
-                        friend.setAcademic_year(temp.getInt(Student.COL_ACADEMIC_YEAR));
-                        friend.setTutorial_group(temp.getInt(Student.COL_TUTORIAL_GROUP));
+            if (MainActivity.mqttHelper.getReceivedHeader().equals(MqttHeader.FIND_BY_AGE_REPLY) ||
+                    MainActivity.mqttHelper.getReceivedHeader().equals(MqttHeader.FIND_BY_ADDRESS_REPLY) ||
+                    MainActivity.mqttHelper.getReceivedHeader().equals(MqttHeader.FIND_BY_LOCATION_REPLY) ||
+                    !MainActivity.mqttHelper.getReceivedHeader().equals(MqttHeader.FIND_BY_PROGRAMME_REPLY) ||
+                    !MainActivity.mqttHelper.getReceivedHeader().equals(MqttHeader.FIND_BY_TUTORIAL_GROUP_REPLY)) {
 
-                        if (!temp.isNull(User.COL_DISTANCE)) {
-                            friend.setDistance(Double.parseDouble(temp.getString(User.COL_DISTANCE)));
+                if (MainActivity.mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
+                    String[] response = new String[1];
+                    response[0] = "We couldn't find any users";
+                    ArrayAdapter adapter = new ArrayAdapter<String>(FindFriendResult.this,
+                            android.R.layout.simple_list_item_1, response);
+                    listViewResult.setAdapter(adapter);
+                } else {
+                    resultList = new ArrayList<>();
+                    try {
+                        JSONArray result = new JSONArray(MainActivity.mqttHelper.getReceivedResult());
+                        for (int i = 0; i <= result.length() - 1; i++) {
+                            JSONObject temp = result.getJSONObject(i);
+                            Student friend = new Student();
+                            friend.setUser_id(temp.getInt(Student.COL_USER_ID));
+                            friend.setDisplay_name(temp.getString(Student.COL_DISPLAY_NAME));
+                            friend.setStatus(temp.getString(Student.COL_STATUS));
+                            friend.setLast_online(temp.getString(Student.COL_LAST_ONLINE));
+                            friend.setCourse(temp.getString(Student.COL_COURSE));
+                            friend.setAcademic_year(temp.getInt(Student.COL_ACADEMIC_YEAR));
+                            friend.setTutorial_group(temp.getInt(Student.COL_TUTORIAL_GROUP));
+                            friend.setLast_longitude(temp.getDouble(User.COL_LAST_LONGITUDE));
+                            friend.setLast_latitude(temp.getDouble(User.COL_LAST_LATITUDE));
+
+                            if (!temp.isNull(User.COL_DISTANCE)) {
+                                friend.setDistance(Double.parseDouble(temp.getString(User.COL_DISTANCE)));
+                            }
+                            resultList.add(friend);
                         }
-                        resultList.add(friend);
+                    } catch (JSONException | NullPointerException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException | NullPointerException e) {
-                    e.printStackTrace();
-                }
 
-                //put all result into custom list
-                FindResultAdapter adapter = new FindResultAdapter(FindFriendResult.this,
-                        R.layout.adapter_find_result,
-                        resultList);
-                listViewResult.setAdapter(adapter);
+                    //put all result into custom list
+                    FindResultAdapter adapter = new FindResultAdapter(FindFriendResult.this,
+                            R.layout.adapter_find_result,
+                            resultList);
+                    listViewResult.setAdapter(adapter);
+                }
             }
             //remove progress bar
             progressBar.setVisibility(View.GONE);

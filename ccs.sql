@@ -22,6 +22,7 @@ DROP TABLE IF EXISTS Message;
 DROP TABLE IF EXISTS Participant;
 DROP TABLE IF EXISTS Chat_Room;
 DROP TABLE IF EXISTS Student;
+DROP TABLE IF EXISTS UserActivityLog;
 DROP TABLE IF EXISTS User;
 DROP TABLE IF EXISTS City;
 DROP TABLE IF EXISTS State;
@@ -61,6 +62,15 @@ CREATE TABLE User(
 	public_key	varchar(256),
 	PRIMARY KEY (user_id),
 	FOREIGN KEY (city_id) REFERENCES City(city_id)
+);
+
+CREATE TABLE UserActivityLog(
+	log_id 		int(10) NOT NULL AUTO_INCREMENT,
+	user_id 	int(10) NOT NULL,
+	description 	varchar(200),
+	date_created 	datetime DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (log_id),
+	FOREIGN KEY (user_id) REFERENCES User(user_id)
 );
 
 CREATE TABLE Student(
@@ -495,15 +505,35 @@ insert into Message (message_id, message, sender_id, date_created, room_id) valu
 
 -- Setup necessary triggers
 
-
 DROP TRIGGER IF EXISTS Trg_Insert_New_Supply;
+DROP TRIGGER IF EXISTS Trg_Log_User_Activity;
 
+--create a temporary student record for new user
+--otherwise would cause error
 DELIMITER //
 CREATE TRIGGER Trg_Insert_New_Supply
 AFTER INSERT ON User
 FOR EACH ROW
 BEGIN
 	INSERT INTO Student (student_id, user_id) values (NEW.user_id, NEW.user_id);
+END;
+//
+
+CREATE TRIGGER Trg_Log_User_Activity
+AFTER UPDATE ON User
+FOR EACH ROW
+BEGIN
+	IF NEW.last_online <> OLD.last_online OR NEW.status <> OLD.status THEN
+		IF NEW.status LIKE 'Offline' THEN
+			INSERT INTO UserActivityLog (user_id, description) VALUES (NEW.user_id, 'Logged out');
+		ELSEIF NEW.status LIKE 'Online' THEN
+			INSERT INTO UserActivityLog (user_id, description) VALUES (NEW.user_id, 'Logged in');
+		END IF;
+	END IF;
+	
+	IF NEW.display_name <> OLD.display_name THEN
+		INSERT INTO UserActivityLog (user_id, description) VALUES (NEW.user_id, CONCAT('Changed display name to ', NEW.display_name));
+	END IF;
 END;
 //
 

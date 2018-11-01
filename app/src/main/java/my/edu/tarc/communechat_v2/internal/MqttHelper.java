@@ -32,25 +32,28 @@ public class MqttHelper {
     private String receivedResult;
 
     //change MQTT broker IP address here
-    private static final String serverUri = "tcp://192.168.0.15:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
-    //private static final String serverUri = "broker.hivemq.com";
-    private static String mqttUsername = "";
-    private static String mqttPassword = "";
+    //private static final String serverUri = "tcp://192.168.0.110:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
+    private static final String serverUri = "tcp://broker.hivemq.com:1883";
+    //private static String mqttUsername = "";
+    //private static String mqttPassword = "";
+    private static final String mqttUsername = "leo477831@gmail.com";
+    private static final String mqttPassword = "ba6acd07";
 
     private static int QoS = 1;
-    private static final String topicPrefix = "MY/TARUC/CCS/000000001/PUB/";
-    //private static final String topicPrefix = "/MY/TARUC/CCS/000000001/PUB/";
+    private static final String topicPrefix = "/MY/TARUC/CCS/000000001/PUB/";
+    //private static final String topicPrefix = "/leo477831@gmail.com/MY/TARUC/CCS/000000001/PUB/";
     private static boolean retain = false;
     private static boolean cleanSession = false;
     private static boolean automaticReconnect = true;
 
     public MqttHelper() {
         clientId = MqttClient.generateClientId();
+        mqttConnectOptions.setUserName(mqttUsername);
+        mqttConnectOptions.setPassword(mqttPassword.toCharArray());
     }
 
     public void connect(Context context) {
         if (mqttAndroidClient == null || !mqttAndroidClient.isConnected()) {
-
             mqttAndroidClient = new MqttAndroidClient(context, serverUri, clientId);
             try {
                 IMqttToken token = mqttAndroidClient.connect();

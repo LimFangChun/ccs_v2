@@ -60,10 +60,10 @@ public class MainActivity extends AppCompatActivity {
         int itemId = item.getItemId();
         switch (itemId) {
             case R.id.nav_settings:
+                new ChatEngineStartup(this).execute();
+                mqttHelper.subscribe(my.edu.tarc.communechat_v2.chatEngine.ChatFragment.CURRENT_USER_ID +"");
+                mqttHelper.getMqttClient().setCallback(new ChatSubscribeCallBack(this));
 
-                //new ChatEngineStartup(this).execute();
-                //MainActivity.mqttHelper.subscribe(my.edu.tarc.communechat_v2.chatEngine.ChatFragment.CURRENT_USER_ID +"");
-               // MainActivity.mqttHelper.getMqttClient().setCallback(new ChatSubscribeCallBack(this));
                 startActivity(new Intent(MainActivity.this, SettingsActivity.class));
                 break;
             case R.id.nav_log_out:
@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
 
         //check if user has GPS turn on
         //if not ask user if they want to turn on
-        runLocationService();
+        //runLocationService();
 
         bottomNavigationView.setOnNavigationItemSelectedListener(bottomNavListener);
 
@@ -200,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
 
         //update user status
-        updateUserStatus("Offline");
+        //updateUserStatus("Offline");
 
         //disconnect mqtt helper
         mqttHelper.disconnect();
@@ -209,7 +209,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        updateUserStatus("Online");
+        //updateUserStatus("Online");
+        mqttHelper.connect(getApplicationContext());
     }
 
     private void updateUserStatus(String status) {
@@ -261,7 +262,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void backupReminder(){
         AlertDialog.Builder reminder = new AlertDialog.Builder(MainActivity.this);
-        reminder.setTitle(R.string.gps_not_found);
-        reminder.setMessage(R.string.gps_not_found_desc1);
+        reminder.setTitle("Chat Backup");
+        reminder.setMessage("Do You want to backup your chat content?");
     }
 }

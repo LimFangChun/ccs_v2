@@ -2,23 +2,32 @@ package my.edu.tarc.communechat_v2.chatEngine;
 
 import android.util.Log;
 
+import java.math.BigInteger;
 import java.util.Calendar;
 
 public class MyDateTime {
 
     private Calendar calendar;
+    private static final int TOTAL_SECOND_IN_A_DAY = 86400;
 
     public MyDateTime() {
         calendar = Calendar.getInstance();
     }
 
     public String getDateTime() {
-        return calendar.get(Calendar.HOUR) + ":" + calendar.get(Calendar.MINUTE) + "XX" + (calendar.get(Calendar.DAY_OF_MONTH)+1) + "-" + calendar.get(Calendar.MONTH) + "-" + calendar.get(Calendar.YEAR);
+
+        int hour = calendar.get(Calendar.HOUR);
+
+        if (hour == 0) {
+            hour = 12;
+        }
+
+        return  hour + ":" + calendar.get(Calendar.MINUTE) + ":" + calendar.get(Calendar.SECOND) + "XX" + calendar.get(Calendar.DAY_OF_MONTH) + "-" + (calendar.get(Calendar.MONTH)+1) + "-" + calendar.get(Calendar.YEAR);
     }
 
     public static String getTime(String dateTime) {
         String[] dateTimeSplit = dateTime.split("XX");
-        //Log.i("Z", dateTime + " ZZ " + dateTimeSplit[0] + " zz " + dateTimeSplit[1]);
+
         return dateTimeSplit[0];
     }
 
@@ -28,15 +37,17 @@ public class MyDateTime {
             String[] dateTimeSplit = dateTime.split("XX");
             String[] currentDateTimeSplit = getDateTime().split("XX");
 
+
             //Compare the date of the given date and the current date
-            if (dateTimeSplit[1].equals(currentDateTimeSplit[1])) {
+            if (!dateTimeSplit[1].equals(currentDateTimeSplit[1])) {
                 String[] dateSplit = dateTimeSplit[1].split("-");
                 String[] currentDateSplit = currentDateTimeSplit[1].split("-");
 
                 //Ensure that the year are the same
                 if (dateSplit[2].equals(currentDateSplit[2])) {
+                    //Ensure that is the same month
                     if (dateSplit[1].equals(currentDateSplit[1])) {
-                        if ((Integer.parseInt(dateSplit[0]) + 1) == Integer.parseInt(currentDateSplit[1])) {
+                        if ((Integer.parseInt(dateSplit[0]) + 1) == Integer.parseInt(currentDateSplit[0])) {
                             return "Yesterday";
                         } else {
                             return dateTimeSplit[1];
@@ -83,6 +94,7 @@ public class MyDateTime {
 
     }
 
-    //public String compareLatestTime
-
+    public long getCurrentTimeInMillisecond() {
+        return calendar.getTimeInMillis();
+    }
 }

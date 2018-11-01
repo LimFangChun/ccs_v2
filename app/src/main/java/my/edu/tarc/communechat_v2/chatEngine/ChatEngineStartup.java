@@ -25,16 +25,29 @@ public class ChatEngineStartup extends AsyncTask<Void,Void,Void> {
 
         ApplicationDatabase applicationDatabase = ApplicationDatabase.build(mWeakReference.get());
 
-        List<ChatRoom> chatRoomList = applicationDatabase.chatRoomDao().getSubscriptionChatRoom(String.valueOf(ChatFragment.CURRENT_USER_ID));
+        Log.i("CHECKER", "INININI");
 
-        Log.i("ChatEngine", chatRoomList.size() + "Z");
+        // Get a list to unsubscribe
+        List<ChatRoom> unSubscribeChatRoomList = applicationDatabase.chatRoomDao().getUnsubscriptionChatRoom(ChatRoom.GROUP_CHAT_ROOM, ChatRoom.CHAT_ROOM_JOINED);
+        for (int i = 0; i < unSubscribeChatRoomList.size(); i++) {
+            //Only Group Chat Room Require Separate Calculation
+            MainActivity.mqttHelper.unsubscribe(unSubscribeChatRoomList.get(i).getChatRoomUniqueTopic());
+        }
+
+        // Get list of topic needed to subscribe
+        List<ChatRoom> chatRoomList = applicationDatabase.chatRoomDao().getSubscriptionChatRoom(ChatRoom.GROUP_CHAT_ROOM, ChatRoom.CHAT_ROOM_JOINED);
+
+
+        MainActivity.mqttHelper.subscribe(ChatFragment.CURRENT_USER_ID +"");
 
         for (int i = 0; i < chatRoomList.size(); i++) {
             //Only Group Chat Room Require Separate Calculation
             if (!chatRoomList.get(i).getChatRoomUniqueTopic().equals(String.valueOf(ChatFragment.CURRENT_USER_ID))) {
                 MainActivity.mqttHelper.subscribe(chatRoomList.get(i).getChatRoomUniqueTopic());
-                Log.i("ChatEngineStartup", chatRoomList.get(i).getChatRoomUniqueTopic());
+                Log.i("CHECKER ENTERED",chatRoomList.get(i).getChatRoomUniqueTopic() );
             }
+            Log.i("CHECKER",chatRoomList.get(i).getChatRoomUniqueTopic() );
+
         }
 
 

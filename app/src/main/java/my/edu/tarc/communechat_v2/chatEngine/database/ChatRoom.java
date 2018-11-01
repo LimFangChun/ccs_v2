@@ -13,9 +13,7 @@ public class ChatRoom {
     public static final String GROUP_CHAT_ROOM = "GroupChatRoom";
 
     @Ignore
-    public static final String ACTIVE_STATUS = "ActiveStatus";
-    @Ignore
-    public static final String LEFT_STATUS = "LeftStatus";
+    public static final String CHAT_ROOM_DISBAND = "Disband";
     @Ignore
     public static final String CHAT_ROOM_JOINED = "Joined";
     @Ignore
@@ -24,15 +22,21 @@ public class ChatRoom {
     @Ignore
     public static final String GROUP_DIVIDER = "XTX";
 
+    public static final String ID_NAME_DIVIDER = "OOIIOO";
+
     @PrimaryKey(autoGenerate = true)
     private long id;
     private String chatRoomUniqueTopic;
     private String name;
     private String latestMessage;
     private String dateTimeMessageReceived;
+    private String comparingDateTime;
     private String chatRoomType; //Private or Group
     private String status; //Like joined or left
     private String groupMember;
+    private String secretKey;
+    private String adminUserId;
+
 
     public long getId() {
         return id;
@@ -96,5 +100,29 @@ public class ChatRoom {
 
     public void setGroupMember(String groupMember) {
         this.groupMember = groupMember;
+    }
+
+    public String getComparingDateTime() {
+        return comparingDateTime;
+    }
+
+    public void setComparingDateTime(String comparingDateTime) {
+        this.comparingDateTime = comparingDateTime;
+    }
+
+    public String getSecretKey() {
+        return secretKey;
+    }
+
+    public void setSecretKey(String secretKey) {
+        this.secretKey = secretKey;
+    }
+
+    public String getAdminUserId() {
+        return adminUserId;
+    }
+
+    public void setAdminUserId(String adminUserId) {
+        this.adminUserId = adminUserId;
     }
 }

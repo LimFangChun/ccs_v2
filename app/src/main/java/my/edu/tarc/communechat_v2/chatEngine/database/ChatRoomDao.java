@@ -24,28 +24,25 @@ public interface ChatRoomDao {
     void updateChatRoom(ChatRoom chatRoom);
 
     @Query("SELECT * FROM ChatRoom WHERE chatRoomUniqueTopic = :topic")
-    ChatRoom searchExistingChatRoomString(String topic);
+    ChatRoom get(String topic);
 
     @Query("SELECT * FROM ChatRoom WHERE chatRoomUniqueTopic = :chatRoomTopic AND chatRoomType = :chatRoomType")
-    ChatRoom searchExistingChatRoom(String chatRoomTopic, String chatRoomType);
+    ChatRoom get(String chatRoomTopic, String chatRoomType);
 
     @Query("SELECT * FROM ChatRoom WHERE id = :chatRoomId")
-    ChatRoom searchExistingChatRoom(long chatRoomId);
+    ChatRoom get(long chatRoomId);
 
-    @Query("SELECT * FROM ChatRoom WHERE latestMessage != '' AND chatRoomUniqueTopic != :userId")
-    List<ChatRoom> getAll(String userId);
-
-    @Query("SELECT * FROM ChatRoom WHERE latestMessage != '' OR chatRoomUniqueTopic !=:userId")
-    List<ChatRoom> getAllChatRoom(String userId);
-
-    @Query("SELECT * FROM ChatRoom")
-    List<ChatRoom> getAllChatRoom();
+    @Query("SELECT * FROM ChatRoom WHERE latestMessage != '' OR chatRoomType =:groupTypeFilter ORDER BY comparingDateTime DESC")
+    List<ChatRoom> getAll(String groupTypeFilter);
 
     @Query("SELECT * FROM ChatRoom WHERE chatRoomType =:type AND chatRoomUniqueTopic =:topic")
     ChatRoom getGroupChatRoom(String type, String topic);
 
-    @Query("SELECT * FROM ChatRoom WHERE chatRoomUniqueTopic != :userId")
-    List<ChatRoom> getSubscriptionChatRoom(String userId);
+    @Query("SELECT * FROM ChatRoom WHERE chatRoomType =:chatRoomType AND status =:chatRoomStatus")
+    List<ChatRoom> getSubscriptionChatRoom(String chatRoomType, String chatRoomStatus);
+
+    @Query("SELECT * FROM ChatRoom WHERE chatRoomType != :chatRoomType AND status !=:chatRoomStatus")
+    List<ChatRoom> getUnsubscriptionChatRoom(String chatRoomType, String chatRoomStatus);
 
     @Query("DELETE FROM ChatRoom WHERE id = :id")
     void delete(long id);
@@ -55,6 +52,5 @@ public interface ChatRoomDao {
 
     @Delete
     void deleteManyChatRoom(List<ChatRoom> chatRoomList);
-
 
 }

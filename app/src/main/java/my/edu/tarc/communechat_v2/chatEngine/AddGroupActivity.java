@@ -33,7 +33,9 @@ import my.edu.tarc.communechat_v2.model.User;
 public class AddGroupActivity extends AppCompatActivity {
 
     private EditText mGroupNameEditText;
-    public static final String GROUP_NAME = "GroupName";
+    public static final String GROUP_NAME = "AddGroupNameActivity";
+    private RecyclerView mRecyclerView;
+    private static WeakReference<AddGroupActivity> sWeakReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,12 +44,15 @@ public class AddGroupActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        sWeakReference = new WeakReference<>(this);
+
         // Check whether action bar is initialize
         if (getSupportActionBar() != null) {
             // Set return back button
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
+        mRecyclerView = findViewById(R.id.recyclerView_addGroup);
         mGroupNameEditText = findViewById(R.id.editText_addGroupActivity_name);
 
 
@@ -71,15 +76,6 @@ public class AddGroupActivity extends AppCompatActivity {
 
         if (item.getItemId() == R.id.ce_menu_contact_selection_add) {
 
-            /*ChatRoom chatRoom = new ChatRoom();
-            chatRoom.setStatus(ChatRoom.CHAT_ROOM_JOINED);
-            chatRoom.setChatRoomType(ChatRoom.GROUP_CHAT_ROOM);
-            chatRoom.setName(mGroupNameEditText.getText().toString());
-            chatRoom.setDateTimeMessageReceived("");
-            chatRoom.setChatRoomUniqueTopic(ChatFragment.CURRENT_USER_ID + "_" + (new MyDateTime().getDateTime()));
-            chatRoom.setLatestMessage("");*/
-
-            //new InsertAsyncTask(this, chatRoom).execute();
             Intent intent = new Intent();
             intent.putExtra(GROUP_NAME, mGroupNameEditText.getText().toString());
             setResult(RESULT_OK, intent);
@@ -90,27 +86,28 @@ public class AddGroupActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        new StartupAsyncTask().execute();
+    }
+
     private static class RecyclerViewAdapter extends
             RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
 
-        private static WeakReference<SelectContactActivity> mWeakReference;
         private List<User> mUserList;
-        private RecyclerViewAdapter(List<User> userList, SelectContactActivity selectContactActivity) {
+        private RecyclerViewAdapter(List<User> userList) {
             mUserList = userList;
-            mWeakReference = new WeakReference<>(selectContactActivity);
         }
 
         protected class ViewHolder extends RecyclerView.ViewHolder {
 
-            private ImageView mIconImageView;
             private TextView mUserNameTextView;
-            private ConstraintLayout mConstraintLayout;
 
             private ViewHolder(View itemView) {
                 super(itemView);
 
                 mUserNameTextView = itemView.findViewById(R.id.textView_itemUserSelection_name);
-                mConstraintLayout = itemView.findViewById(R.id.layout);
 
             }
 
@@ -128,7 +125,7 @@ public class AddGroupActivity extends AppCompatActivity {
         public void onBindViewHolder(ViewHolder holder, int position) {
 
             User user = mUserList.get(position);
-            holder.mUserNameTextView.setText(user.getUser_id());
+            holder.mUserNameTextView.setText("#" + user.getUser_id() + "\n@" + user.getUsername());
 
         }
 
@@ -144,39 +141,26 @@ public class AddGroupActivity extends AppCompatActivity {
 
     private static class StartupAsyncTask extends AsyncTask<Void, Void, List<User>> {
 
-        private WeakReference<SelectContactActivity> mWeakReference;
 
-        private StartupAsyncTask(SelectContactActivity selectContactActivity) {
-            mWeakReference = new WeakReference<>(selectContactActivity);
+        private StartupAsyncTask() {
         }
 
         @Override
         protected List<User> doInBackground(Void... voids) {
 
-            ApplicationDatabase applicationDatabase
-                    = ApplicationDatabase.build(mWeakReference.get());
+            String[] userDetail = sWeakReference.get().getIntent().getStringExtra(SelectContactActivity.SELECTED_GROUP_MEMBER_USER_ID).split(ChatRoom.GROUP_DIVIDER);
 
             // TODO: this part need to be official
             List<User> userList = new ArrayList<>();
-            User user = new User();
-            user.setUser_id(1709498);
-            user.setUsername("Mr X");
-            userList.add(user);
+            User user;
 
-            if (ChatFragment.CURRENT_USER_ID == 1700001) {
+            for (String userInfo : userDetail) {
+                String[] userIdName = userInfo.split(ChatRoom.ID_NAME_DIVIDER);
                 user = new User();
-                user.setUser_id(1700002);
-                user.setUsername("Mr Test2 1700002");
-                userList.add(user);
-            } else {
-                user = new User();
-                user.setUser_id(1700001);
-                user.setUsername("Mr Test1 1700001");
+                user.setUsername(userIdName[1]);
+                user.setUser_id(Integer.parseInt(userIdName[0]));
                 userList.add(user);
             }
-
-
-
 
             return userList;
         }
@@ -185,17 +169,16 @@ public class AddGroupActivity extends AppCompatActivity {
         protected void onPostExecute(List<User> userList) {
             super.onPostExecute(userList);
 
-            // FIXME: this place got bug every time start instant run
             try {
                 LinearLayoutManager linearLayoutManager = new LinearLayoutManager(
-                        mWeakReference.get(), LinearLayoutManager.VERTICAL, false
+                        sWeakReference.get(), LinearLayoutManager.VERTICAL, false
                 );
 
-                /*mWeakReference.get().mRecyclerView.setLayoutManager(linearLayoutManager);
-                mWeakReference.get().mRecyclerView.setHasFixedSize(true);
+                sWeakReference.get().mRecyclerView.setLayoutManager(linearLayoutManager);
+                sWeakReference.get().mRecyclerView.setHasFixedSize(true);
 
-                mWeakReference.get().mRecyclerView.setAdapter(
-                        new RecyclerViewAdapter(userList, mWeakReference.get()));*/
+                sWeakReference.get().mRecyclerView.setAdapter(
+                        new RecyclerViewAdapter(userList));
 
 
             } catch (NullPointerException e) {

@@ -32,12 +32,14 @@ public class MqttHelper {
     private String receivedResult;
 
     //change MQTT broker IP address here
-    private static final String serverUri = "tcp://172.16.138.112:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
+    private static final String serverUri = "tcp://192.168.0.15:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
+    //private static final String serverUri = "broker.hivemq.com";
     private static String mqttUsername = "";
     private static String mqttPassword = "";
 
     private static int QoS = 1;
     private static final String topicPrefix = "MY/TARUC/CCS/000000001/PUB/";
+    //private static final String topicPrefix = "/MY/TARUC/CCS/000000001/PUB/";
     private static boolean retain = false;
     private static boolean cleanSession = false;
     private static boolean automaticReconnect = true;
@@ -415,6 +417,14 @@ public class MqttHelper {
                         .append(",")
                         .append(user.getPublic_key());
                 result = temp.toString();
+                break;
+            }
+            case MqttHeader.GET_USER_PROFILE:{
+                User user = (User)data;
+                temp.append(MqttHeader.GET_USER_PROFILE)
+                        .append(",")
+                        .append(user.getUser_id());
+                result=temp.toString();
                 break;
             }
         }

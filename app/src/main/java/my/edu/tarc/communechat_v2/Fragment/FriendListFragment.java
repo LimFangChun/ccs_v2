@@ -31,6 +31,7 @@ import java.util.ArrayList;
 
 import my.edu.tarc.communechat_v2.Adapter.FriendListAdapter;
 import my.edu.tarc.communechat_v2.FriendRequestActivity;
+import my.edu.tarc.communechat_v2.ProfileActivity;
 import my.edu.tarc.communechat_v2.R;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
 import my.edu.tarc.communechat_v2.model.Student;
@@ -91,6 +92,9 @@ public class FriendListFragment extends Fragment {
             int userID = Integer.parseInt(textViewUserID.getText().toString());
 
             //TODO:pass user id to view user profile activity
+            Intent intent = new Intent(getContext(), ProfileActivity.class);
+            intent.putExtra(User.COL_USER_ID, userID);
+            startActivity(intent);
         }
     };
 

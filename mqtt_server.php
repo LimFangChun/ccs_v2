@@ -92,7 +92,7 @@ although i contribute almost nothing lul.
 -----
 */
 
-$server = "192.168.0.6";     		// change to your broker's ip
+$server = "192.168.0.15";     		// change to your broker's ip
 $port = 1883;                     		// change if necessary, default is 1883
 $username = "root";                 // set your username
 $password = "";             // set your password
@@ -123,14 +123,14 @@ $mqtt->close();
 //->>>>>>>>>>>>>>>>>>>>>>--Do not modify--- END
 
 //Server Responses
-function procmsg($topic, $msg){		
+function procmsg($topic, $msg){
 		$ack_message = "";
 		echo "\nReceiving message:";
 		echo "\nTopic ".$topic;
 		echo "\nReceived Message: ".$msg."\n";
-		
+
 		if(!empty($msg)){
-			$commandmsg = explode(",", $msg);				
+			$commandmsg = explode(",", $msg);
 			switch($commandmsg[0]){
 				case "LOGIN":	{
 					$ack_message = LOGIN($msg); break;}
@@ -166,10 +166,12 @@ function procmsg($topic, $msg){
 					$ack_message = FIND_BY_LOCATION($msg); break;}
 				case "UPDATE_PUBLIC_KEY": {
 					$ack_message = UPDATE_PUBLIC_KEY($msg); break;}
-				//case "003810":	{$ack_message = fn003810($msg);publishMessage($topic, $ack_message); break;}  				
+				case "GET_USER_PROFILE":	{
+					$ack_message = GET_USER_PROFILE($msg); break;}
+				//case "003810":	{$ack_message = fn003810($msg);publishMessage($topic, $ack_message); break;}
 				// case "003812":	{$ack_message = fn003812($msg);publishMessage($topic, $ack_message); break;}
 				// case "003814":	{$ack_message = fn003814($msg);publishMessage($topic, $ack_message); break;}
-				// case "003816":	{$ack_message = fn003816($msg);publishMessage($topic, $ack_message); break;}			
+				// case "003816":	{$ack_message = fn003816($msg);publishMessage($topic, $ack_message); break;}
 				// case "003818":	{$ack_message = fn003818($msg);publishMessage($topic, $ack_message); break;}
 				// case "003820":	{fn003820($msg); break;}
 				// case "003822": 	{$ack_message = fn003822($msg);publishMessage($topic, $ack_message); break;}
@@ -208,7 +210,7 @@ function dbResult($sql){
 				echo("ERROR: Could not connect. " . mysqli_connect_error());
 			}
 			else{
-				mysqli_set_charset($link, "UTF8");	
+				mysqli_set_charset($link, "UTF8");
 				$result = mysqli_query($link, $sql);
 				if($result)
 					return $result;
@@ -218,9 +220,9 @@ function dbResult($sql){
 			// Close connection
 			mysqli_close($link);
 			}
-}	
+}
 
-function dbResult_stmt($sql, $types, $params){
+function dbResult_stmt($sql, $types, $params, $param_count){
 	$hostname_localhost = "localhost";
 	$database_localhost = "ccs_master";//change to your database name
 	$username_localhost = "ccs_main";//change to your database username, it is recommended to add a new user with password
@@ -231,7 +233,7 @@ function dbResult_stmt($sql, $types, $params){
 				echo("ERROR: Could not connect. " . mysqli_connect_error());
 			}
 			else{
-				mysqli_set_charset($link, "UTF8");	
+				mysqli_set_charset($link, "UTF8");
 				$query = mysqli_prepare($link, $sql);
 				$sql_params_array = array();
 				array_push($sql_params_array, $query, $types);
@@ -249,12 +251,12 @@ function dbResult_stmt($sql, $types, $params){
 			// Close connection
 			mysqli_close($link);
 			}
-}	
+}
 
 //MQTT publish message
 //DO NOT MODIFY, except ip address
 function publishMessage($topic, $ack_message){
-$server = "192.168.0.6";     		// change if necessary
+$server = "192.168.0.15";     		// change if necessary
 $port = 1883;                     		// change if necessary
 $username = "";                 // set your username
 $password = "";             // set your password
@@ -280,22 +282,22 @@ $QOS = 1;
 //Update: For student LOGIN only
 function LOGIN($msg){
 	$ack_message = "";
-	$receivedData = explode(',', $msg);		 
-	echo "\nHeader: ".$receivedData[0]."\n"; 
-	echo "\nUsername: ".$receivedData[1]."\n"; 
+	$receivedData = explode(',', $msg);
+	echo "\nHeader: ".$receivedData[0]."\n";
+	echo "\nUsername: ".$receivedData[1]."\n";
 	echo "\nPassword: ".$receivedData[2]."\n";
 	$username = $receivedData[1];
 	$password = $receivedData[2];
 
 	$ack_message = "LOGIN_REPLY,";
 	$sql ="SELECT *
-			FROM `user` 
+			FROM `user`
 			INNER JOIN `student` ON `user`.`user_id` = `student`.`user_id`
-			WHERE BINARY `User`.`username` = '$username' 
+			WHERE BINARY `User`.`username` = '$username'
 			AND BINARY `User`.`password` = '$password'
 			AND user.status = 'Offline'";
 	//Note: BINARY to toggle case sensitive, by default not case sensitive
-	
+
 	$result = dbResult($sql);
 	if(mysqli_num_rows($result) > 0){
 		$temp = array();
@@ -316,24 +318,24 @@ function LOGIN($msg){
 
 function REGISTER_USER($msg){
 	echo "\nRegistering new user...\n";
-	
+
 	//clean $ack_message
 	$ack_message = "REGISTER_USER_REPLY,";
-	
-	$receivedData = explode(',', $msg);		 
+
+	$receivedData = explode(',', $msg);
 	$username = $receivedData[1];
 	$password = $receivedData[2];
-	
+
 	$sql = "SELECT * FROM User WHERE BINARY username = '$username'";
 	$result = dbResult($sql);
 	if(mysqli_num_rows($result) == 0){
 		echo "Registering user:".$username;
-		
+
 		$sql = "INSERT INTO User (username, password, display_name) VALUES ('$username', '$password', '$username');";
 		$result = dbResult($sql);
 		if($result){
 			echo "\nNew user registered:".$username."\n";
-			$ack_message .= "SUCCESS";		
+			$ack_message .= "SUCCESS";
 		}else{
 			echo "\nCannot register user:".$username."\n";
 			$ack_message .= "NO_RESULT";
@@ -348,11 +350,11 @@ function REGISTER_USER($msg){
 function UPDATE_USER_STATUS(){
 	$temp = func_get_arg(0);
 	$ack_message = "UPDATE_USER_STATUS_REPLY, ";
-	
+
 	$temp = explode(',', $temp);
 	$user_id = $temp[1];
 	$status = $temp[2];
-	
+
 	$sql = "UPDATE User SET status = '$status', last_online = CURRENT_TIMESTAMP WHERE user_id = '$user_id'";
 	$result = dbResult($sql);
 	if($result){
@@ -395,6 +397,7 @@ function UPDATE_USER($msg){
 	//position = student by default
 	//username, nric, phone_number, email requires validation
 
+	echo "\nupdating user...\n";
 	$receivedData = explode(',', $msg);	// 1,...=user_id, username, display_name, position, password, gender, nric, phone_number, email, address, city_id
 	$user_id = $receivedData[1];
 	$username = $receivedData[2];
@@ -421,16 +424,42 @@ function UPDATE_USER($msg){
 	}
 }
 
+function GET_USER_PROFILE($msg){
+	$temp = func_get_arg(0);
+	$ack_message = "GET_USER_PROFILE_REPLY, ";
+
+	$temp = explode(',', $temp); //user_id
+	$user_id = $temp[1];
+	$sql = "SELECT display_name, student.student_id, student.faculty, student.course, student.tutorial_group, student.intake, student.academic_year
+			FROM User INNER JOIN Student ON User.user_id = Student.user_id
+			WHERE user.user_id = '$user_id'";
+	$result = dbResult($sql);
+	if(mysqli_num_rows($result) > 0){
+		$temp = array();
+		while($row = mysqli_fetch_array($result)){
+			$temp[] = $row;
+		}
+		echo "\nUser profile found: ".$user_id."\n";
+		$ack_message .= json_encode($temp);
+	}else{
+		echo "\nUser profile not found: ".$user_id."\n";
+		$ack_message .= "NO_RESULT";
+	}
+	echo "\n".$ack_message;
+	return $ack_message;
+}
+
+
 function SEARCH_USER($msg){
 	echo "\nSearching user...\n";
 	$ack_message = "SEARCH_USER_REPLY,";
-	
+
 	$receivedData = explode(',', $msg);
 	$user_id = $receivedData[1];
 	$target_username = $receivedData[2];
-	
+
 	$sql = "SELECT user.user_id, display_name, student.course, student.tutorial_group
-			FROM User INNER JOIN Student ON User.user_id = Student.user_id 
+			FROM User INNER JOIN Student ON User.user_id = Student.user_id
 			WHERE display_name LIKE '%$target_username%' OR username LIKE '$target_username'";
 	$result = dbResult($sql);
 	if(mysqli_num_rows($result) > 0){
@@ -451,16 +480,16 @@ function SEARCH_USER($msg){
 function UPDATE_PUBLIC_KEY(){
 	$temp = func_get_arg(0);
 	$ack_message = "UPDATE_PUBLIC_KEY_REPLY, ";
-	
+
 	$temp = explode(',', $temp, 3); //user_id, public_key
 	$user_id = $temp[1];
 	$public_key = $temp[2];
-	
+
 	$sql = "UPDATE User SET public_key = ? WHERE user_id = ?";
 	$types = "si";
 	$params = array($public_key, $user_id);
 	$param_count = count($params);
-	$result = dbResult_stmt($sql, $types, $params);
+	$result = dbResult_stmt($sql, $types, $params, $param_count);
 	if($result){
 		echo "\nUpdated user public_key: $user_id\n";
 		$ack_message .= "SUCCESS";

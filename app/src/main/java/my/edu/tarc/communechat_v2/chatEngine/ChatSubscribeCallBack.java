@@ -105,7 +105,7 @@ public class ChatSubscribeCallBack implements MqttCallback {
             chat.setComparingDateTime(String.valueOf(myDateTime.getCurrentTimeInMillisecond()));
 
             //Prevent group message from being update twice
-            if (!applicationDatabase.chatDao().checkRepetition(chat.getChatRoomUniqueTopic(), chat.getMessage(), chat.getDate(), chat.getSenderId())) {
+            if (!applicationDatabase.chatDao().checkRepetition(chat.getChatRoomUniqueTopic(), chat.getMessage(), mProcessMessage[2], chat.getSenderId())) {
 
                 //Retrieve group chat room if exist
                 ChatRoom chatRoomGroup = applicationDatabase.chatRoomDao().getGroupChatRoom(ChatRoom.GROUP_CHAT_ROOM, mProcessMessage[4]);
@@ -215,6 +215,8 @@ public class ChatSubscribeCallBack implements MqttCallback {
 
             ChatRoom chatRoom = applicationDatabase.chatRoomDao().get(mProcessMessage[1]);
             if (chatRoom == null) {
+
+                Log.i("CHECKER", MainActivity.mqttHelper.getReceivedResult());
 
                 chatRoom = new ChatRoom();
                 chatRoom.setChatRoomType(mProcessMessage[0]);

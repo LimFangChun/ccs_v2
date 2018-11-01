@@ -34,7 +34,7 @@ public class MqttHelper {
     private String receivedResult;
 
     //change MQTT broker IP address here
-    private static final String serverUri = "tcp://172.22.8.249:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
+    private static final String serverUri = "tcp://192.168.43.118:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
     private static String mqttUsername = "";
     private static String mqttPassword = "";
 
@@ -418,45 +418,51 @@ public class MqttHelper {
                         .append(user.getPublic_key());
                 result = temp.toString();
                 break;
-            }  case MqttHeader.SEND_MESSAGE:
-                Chat chat = (Chat) data;
-                temp.append(MqttHeader.SEND_MESSAGE)
-                        .append(",")
-                        .append(chat.getMessage())
-                        .append(",")
-                        .append(chat.getSenderId())
-                        .append(",")
-                        .append(chat.getDate())
-                        .append(",")
-                        .append(chat.getMessageType())
-                        .append(",")
-                        .append(chat.getChatRoomUniqueTopic())
-                        .append(",")
-                        .append(chat.getComparingDateTime());
+            }
+                //TODO: CE Chat Engine part
+                case MqttHeader.SEND_MESSAGE:
+                    Chat chat = (Chat) data;
+                    temp.append(MqttHeader.SEND_MESSAGE)
+                            .append(",")
+                            .append(chat.getMessage())
+                            .append(",")
+                            .append(chat.getSenderId())
+                            .append(",")
+                            .append(chat.getDate())
+                            .append(",")
+                            .append(chat.getMessageType())
+                            .append(",")
+                            .append(chat.getChatRoomUniqueTopic())
+                            .append(",")
+                            .append(chat.getComparingDateTime());
 
-                result = temp.toString();
-                break;
-            case MqttHeader.ADD_GROUP_CHAT_ROOM:
-                ChatRoom chatRoom = (ChatRoom) data;
-                temp.append(MqttHeader.ADD_GROUP_CHAT_ROOM)
-                        .append(",")
-                        .append(chatRoom.getChatRoomType())
-                        .append(",")
-                        .append(chatRoom.getChatRoomUniqueTopic())
-                        .append(",")
-                        .append(chatRoom.getDateTimeMessageReceived())
-                        .append(",")
-                        .append(chatRoom.getGroupMember())
-                        .append(",")
-                        .append(chatRoom.getLatestMessage())
-                        .append(",")
-                        .append(chatRoom.getName())
-                        .append(",")
-                        .append(chatRoom.getStatus())
-                        .append(",")
-                    .append(chatRoom.getComparingDateTime());
-                result = temp.toString();
-                break;
+                    result = temp.toString();
+                    break;
+                case MqttHeader.ADD_GROUP_CHAT_ROOM:
+                    ChatRoom chatRoom = (ChatRoom) data;
+                    temp.append(MqttHeader.ADD_GROUP_CHAT_ROOM)
+                            .append(",")
+                            .append(chatRoom.getChatRoomType())
+                            .append(",")
+                            .append(chatRoom.getChatRoomUniqueTopic())
+                            .append(",")
+                            .append(chatRoom.getDateTimeMessageReceived())
+                            .append(",")
+                            .append(chatRoom.getGroupMember())
+                            .append(",")
+                            .append(chatRoom.getLatestMessage())
+                            .append(",")
+                            .append(chatRoom.getName())
+                            .append(",")
+                            .append(chatRoom.getStatus())
+                            .append(",")
+                            .append(chatRoom.getAdminUserId())
+                            .append(",")
+                            .append(chatRoom.getSecretKey())
+                            .append(",")
+                            .append(chatRoom.getComparingDateTime());
+                    result = temp.toString();
+                    break;
         }
         return result;
     }

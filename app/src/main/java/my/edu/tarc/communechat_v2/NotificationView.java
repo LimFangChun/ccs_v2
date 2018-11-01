@@ -128,24 +128,35 @@ public class NotificationView extends Application {
             createNotificationChannel(mNotificationManager, uri);
 
             NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
-            inboxStyle.addLine("TESTING");
-            inboxStyle.addLine("123");
             setPendingNotificationsCount(getPendingNotificationsCount() + 1);
-
+            String incomingMessage=chat.getMessage();
             String[] message = new String[getPendingNotificationsCount()];
-            message[getPendingNotificationsCount() - 1] = chat.getMessage();
-            boolean store = saveArray(message, String.valueOf(chat.getRoomId()), activity);
-            Log.v("testingLINE", String.valueOf(getPendingNotificationsCount()));
-            Log.v("testingLINE", String.valueOf(store));
             String[] oldMessage=loadArray(String.valueOf(chat.getRoomId()),activity);
+//            if(oldMessage.length!=0){
+//                Log.v("testingLINE", incomingMessage);
+//                List<String> oldMessages = Arrays.asList(oldMessage);
+//                oldMessages.add(incomingMessage);
+//                message=oldMessages.toArray(new String[oldMessage.length]);
+//                boolean store = saveArray(message, String.valueOf(chat.getRoomId()), activity);
+//                for (int i = oldMessages.size()-1; i <=oldMessages.size() ; i++) {
+//                    Log.v("testingLINE", "wwwwwwwwwww");
+//                     inboxStyle.addLine(oldMessages.get(i));
+//                     Log.v("testingLINE", oldMessages.get(i));
+//                }
+//            }else{
+//                Log.v("testingLINE", "qqqqqqqq");
+//                message[getPendingNotificationsCount() - 1] = incomingMessage;
+//                boolean store = saveArray(message, String.valueOf(chat.getRoomId()), activity);
+//            }
 
+            Log.v("testingLINE", String.valueOf(getPendingNotificationsCount()));
+            //String[] oldMessage=loadArray(String.valueOf(chat.getRoomId()),activity);
 //            if(oldMessage.length!=0){
 //                List<String> messages = Arrays.asList(oldMessage);
 //                Log.i(TAG,"showSmallNotification "+ messages);
 //                Log.v("testingLINE", String.valueOf(messages.size()));
 //                for (int i = messages.size()-1; i <=messages.size() ; i++) {
 //                    Log.v("testingLINE", "wwwwwwwwwww");
-//
 //                    // inboxStyle.addLine(messages.get(i));
 //                   // Log.v("testingLINE", messages.get(i));
 //                }
@@ -205,8 +216,14 @@ public class NotificationView extends Application {
                     .setLabel(replyLabel)
                     .build();
 
+            PendingIntent DirectReply;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                 DirectReply = contentIntent;
+            }else{
+                DirectReply = chatIntent;
+                            }
             NotificationCompat.Action replyAction = new NotificationCompat.Action.Builder(
-                    R.drawable.ic_notif_action_reply, replyLabel, contentIntent)
+                    R.drawable.ic_notif_action_reply, replyLabel, DirectReply)
                     .addRemoteInput(remoteInput)
                     .setAllowGeneratedReplies(true)
                     .build();
@@ -316,6 +333,12 @@ public class NotificationView extends Application {
         for (int i = 0; i < size; i++)
             array[i] = prefs.getString(arrayName + "_" + i, null);
         return array;
+    }
+
+    public static void clearMessage(String arrayName, Context mContext) {
+        SharedPreferences prefs = mContext.getSharedPreferences("message", 0);
+        int size = prefs.getInt(arrayName + "_size", 0);
+        prefs.edit().clear();
     }
 
     public static int getPendingNotificationsCount() {

@@ -63,6 +63,11 @@
             android:label="@string/title_activity_add_group"
             android:theme="@style/AppTheme.NoActionBar"></activity>
 
+        <activity
+            android:name=".chatEngine.GroupManagementActivity"
+            android:label="@string/title_activity_group_management"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+
         <receiver
             android:name=".NotificationBroadcastReceiver"
             android:enabled="true"

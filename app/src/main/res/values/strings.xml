@@ -193,4 +193,5 @@
     <string name="title_auto_download">Auto download</string>
     <string name="summary_upload_over_wifi">Automatically download the videos and image</string>
     <string name="notif_action_reply"></string>
+    <string name="title_activity_group_management">GroupManagementActivity</string>
 </resources>

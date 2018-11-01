@@ -41,6 +41,7 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
             Log.v("2testing", intent.getStringExtra(SELECTED_CHAT_ROOM_UNIQUE_TOPIC));
             NotificationView.setPendingNotificationsCount(0);
             nm.cancel(getNotifID());
+            Log.v("2testing", String.valueOf(getNotifID()));
             Intent nextIntent = new Intent(context, ChatRoomActivity.class);
             nextIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             nextIntent.putExtra(SELECTED_CHAT_ROOM_ID, (intent.getLongExtra(SELECTED_CHAT_ROOM_ID, 0)));
@@ -48,6 +49,8 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
             //nextIntent.putExtra("ROOM_TYPE",intent.getStringExtra("ROOM_TYPE"));
             context.startActivity(nextIntent);
         } else if (REPLY_ACTION.equals(intent.getAction())) {
+
+
             MyDateTime myDateTime = new MyDateTime();
 
             long chatRoomId = intent.getLongExtra(SELECTED_CHAT_ROOM_ID, 0);

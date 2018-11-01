@@ -140,7 +140,10 @@ public class GroupManagementActivity extends AppCompatActivity implements View.O
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+
         getMenuInflater().inflate(R.menu.ce_chat_room_group_management_menu, menu);
+        menu.findItem(R.id.ce_menu_groupManagement_disbandGroup).setVisible(isAdmin);
+        menu.findItem(R.id.ce_menu_groupManagement_addMember).setVisible(isAdmin);
         return true;
     }
 
@@ -505,7 +508,7 @@ public class GroupManagementActivity extends AppCompatActivity implements View.O
 
                     String[] adminList = chatRoom.getAdminUserId().split(ChatRoom.GROUP_DIVIDER);
                     // If there is no admin in the group it will disband
-                    if(adminList.length > 1) {
+                    if(!(adminList.length < 2 && sWeakReference.get().isAdmin)) {
                         StringBuilder adminStringBuilder = new StringBuilder();
                         // This part remove the selected admin from the admin list
                         for (String adminId : adminList) {

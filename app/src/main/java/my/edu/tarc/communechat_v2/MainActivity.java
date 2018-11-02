@@ -23,11 +23,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import my.edu.tarc.communechat_v2.Fragment.ChatFragment;
 import my.edu.tarc.communechat_v2.Fragment.FindFriendFragment;
 import my.edu.tarc.communechat_v2.Fragment.FriendListFragment;
 import my.edu.tarc.communechat_v2.Fragment.ProfileFragment;
-import my.edu.tarc.communechat_v2.chatEngine.ChatFragment;
-import my.edu.tarc.communechat_v2.chatEngine.SelectContactActivity;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
 import my.edu.tarc.communechat_v2.internal.MqttHelper;
 import my.edu.tarc.communechat_v2.model.User;
@@ -71,14 +70,14 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.nav_add_private_chat:
                 //TODO: CE
-                Intent intent = new Intent(this, SelectContactActivity.class);
-                intent.putExtra(SelectContactActivity.SELECTION_TYPE, SelectContactActivity.SELECT_PRIVATE_CHAT_MEMBER);
-                startActivity(intent);
+//                Intent intent = new Intent(this, SelectContactActivity.class);
+//                intent.putExtra(SelectContactActivity.SELECTION_TYPE, SelectContactActivity.SELECT_PRIVATE_CHAT_MEMBER);
+//                startActivity(intent);
                 break;
             case R.id.nav_add_group_chat:
-                Intent intent2 = new Intent(this, SelectContactActivity.class);
-                intent2.putExtra(SelectContactActivity.SELECTION_TYPE, SelectContactActivity.SELECT_GROUP_CHAT_MEMBER);
-                startActivity(intent2);
+//                Intent intent2 = new Intent(this, SelectContactActivity.class);
+//                intent2.putExtra(SelectContactActivity.SELECTION_TYPE, SelectContactActivity.SELECT_GROUP_CHAT_MEMBER);
+//                startActivity(intent2);
                 break;
         }
 
@@ -168,10 +167,10 @@ public class MainActivity extends AppCompatActivity {
                     mAddPrivateChatRoom.setVisible(false);
                     switch (item.getItemId()) {
                         case R.id.nav_chat:
-                            //TODO: CE
-                            mAddGroupChatRoom.setVisible(true);
-                            mAddPrivateChatRoom.setVisible(true);
-                            selectedFragment = new my.edu.tarc.communechat_v2.chatEngine.ChatFragment();
+//                            //TODO: CE
+//                            mAddGroupChatRoom.setVisible(true);
+//                            mAddPrivateChatRoom.setVisible(true);
+                            selectedFragment = new ChatFragment();
                             break;
                         case R.id.nav_find_friend:
                             selectedFragment = new FindFriendFragment();

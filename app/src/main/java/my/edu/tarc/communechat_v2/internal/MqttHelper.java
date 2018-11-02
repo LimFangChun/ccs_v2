@@ -11,8 +11,12 @@ import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import my.edu.tarc.communechat_v2.model.Chat_Room;
 import my.edu.tarc.communechat_v2.model.Friendship;
+import my.edu.tarc.communechat_v2.model.Message;
 import my.edu.tarc.communechat_v2.model.Student;
 import my.edu.tarc.communechat_v2.model.User;
 
@@ -161,16 +165,16 @@ public class MqttHelper {
     public void unsubscribe(final String topic) {
         if (mqttAndroidClient != null && mqttAndroidClient.isConnected()) {
             try {
-                IMqttToken unsubToken = mqttAndroidClient.unsubscribe(topicPrefix + topic);
+                IMqttToken unsubToken = mqttAndroidClient.unsubscribe(topic);
                 unsubToken.setActionCallback(new IMqttActionListener() {
                     @Override
                     public void onSuccess(IMqttToken asyncActionToken) {
-                        Log.i(TAG, "Unsubscribe from " + topicPrefix + topic);
+                        Log.i(TAG, "Unsubscribe from " + topic);
                     }
 
                     @Override
                     public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                        Log.i(TAG, "Failed to unsubscribe from " + topicPrefix + topic);
+                        Log.i(TAG, "Failed to unsubscribe from " + topic);
                     }
                 });
             } catch (MqttException e) {
@@ -181,6 +185,7 @@ public class MqttHelper {
 
     public void publish(final String publishTopic, final String header, final Object data) {
         if (mqttAndroidClient != null && mqttAndroidClient.isConnected()) {
+
             byte[] encodedPayload = new byte[0];
             try {
                 encodedPayload = encode(header, data).getBytes();
@@ -272,6 +277,41 @@ public class MqttHelper {
                 temp.append(MqttHeader.COUNT_FRIEND_REQUEST)
                         .append(",")
                         .append(newUser.getUser_id());
+                result = temp.toString();
+                break;
+            }
+            case MqttHeader.GET_CHAT_ROOM: {
+                User user = (User) data;
+                temp.append(MqttHeader.GET_CHAT_ROOM)
+                        .append(",")
+                        .append(user.getUser_id());
+                result = temp.toString();
+                break;
+            }
+            case MqttHeader.GET_ROOM_MESSAGE: {
+                Chat_Room chatRoom = (Chat_Room) data;
+                temp.append(MqttHeader.GET_ROOM_MESSAGE)
+                        .append(",")
+                        .append(chatRoom.getRoom_id());
+                result = temp.toString();
+                break;
+            }
+            case MqttHeader.SEND_ROOM_MESSAGE: {
+                Message message = (Message) data;
+                JSONObject messageJSON = new JSONObject();
+                try {
+                    messageJSON.put(Message.COL_ROOM_ID, String.valueOf(message.getRoom_id()));
+                    messageJSON.put(Message.COL_SENDER_ID, String.valueOf(message.getSender_id()));
+                    messageJSON.put(Message.COL_MESSAGE_TYPE, message.getMessage_type());
+                    messageJSON.put(Message.COL_MESSAGE, message.getMessage());
+                    messageJSON.put(Message.COL_DATE_CREATED, message.getDate_created().toString());
+                    messageJSON.put(Message.COL_SENDER_NAME, message.getSender_name());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                temp.append(MqttHeader.SEND_ROOM_MESSAGE)
+                        .append(",")
+                        .append(messageJSON.toString());
                 result = temp.toString();
                 break;
             }

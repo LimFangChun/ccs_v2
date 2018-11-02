@@ -2,7 +2,7 @@ package my.edu.tarc.communechat_v2.model;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Calendar;
 
 public class Message {
     //variables that define column name
@@ -13,19 +13,23 @@ public class Message {
     public static final String COL_ROOM_ID = "room_id";
     public static final String COL_MESSAGE_TYPE = "message_type";
     public static final String COL_STATUS = "status";
+    public static final String COL_SENDER_NAME = "sender_name";
 
     //variables for encapsulation
     private int message_id;
     private String message;
     private int sender_id;
-    private Date date_created;
+    private Calendar date_created;
     private int room_id;
     private String message_type;
     private String status;
+    private String sender_name;
 
-    public Message(){}
+    public Message() {
+        date_created = Calendar.getInstance();
+    }
 
-    public Message(int message_id, String message, int sender_id, Date date_created, int room_id, String message_type, String status) {
+    public Message(int message_id, String message, int sender_id, Calendar date_created, int room_id, String message_type, String status) {
         this.message_id = message_id;
         this.message = message;
         this.sender_id = sender_id;
@@ -59,19 +63,19 @@ public class Message {
         this.sender_id = sender_id;
     }
 
-    public Date getDate_created() {
+    public Calendar getDate_created() {
         return date_created;
     }
 
-    public void setDate_created(Date date_created) {
+    public void setDate_created(Calendar date_created) {
         this.date_created = date_created;
     }
 
     public void setDate_created(String date_created){
-        try{
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-            this.date_created = (Date) dateFormat.parse(date_created);
-        }catch (NullPointerException|ParseException e){
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        try {
+            this.date_created.setTime(dateFormat.parse(date_created));
+        } catch (ParseException e) {
             e.printStackTrace();
         }
     }
@@ -98,5 +102,13 @@ public class Message {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public void setSender_name(String sender_name) {
+        this.sender_name = sender_name;
+    }
+
+    public String getSender_name() {
+        return sender_name;
     }
 }

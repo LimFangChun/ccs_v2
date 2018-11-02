@@ -1,6 +1,8 @@
 package my.edu.tarc.communechat_v2.model;
 
-import java.util.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class Chat_Room {
     //variables that define column name
@@ -15,15 +17,16 @@ public class Chat_Room {
     private int room_id;
     private int owner_id;
     private String room_name;
-    private Date date_created;
-    private Date last_update;
+    private Calendar date_created;
+    private Calendar last_update;
     private String topic_address;
 
     public Chat_Room(){
-
+        date_created = Calendar.getInstance();
+        last_update = Calendar.getInstance();
     }
 
-    public Chat_Room(int room_id, int owner_id, String room_name, Date date_created, Date last_update, String topic_address) {
+    public Chat_Room(int room_id, int owner_id, String room_name, Calendar date_created, Calendar last_update, String topic_address) {
         this.room_id = room_id;
         this.owner_id = owner_id;
         this.room_name = room_name;
@@ -56,20 +59,29 @@ public class Chat_Room {
         this.room_name = room_name;
     }
 
-    public Date getDate_created() {
+    public Calendar getDate_created() {
         return date_created;
     }
 
-    public void setDate_created(Date date_created) {
+    public void setDate_created(Calendar date_created) {
         this.date_created = date_created;
     }
 
-    public Date getLast_update() {
+    public Calendar getLast_update() {
         return last_update;
     }
 
-    public void setLast_update(Date last_update) {
+    public void setLast_update(Calendar last_update) {
         this.last_update = last_update;
+    }
+
+    public void setLast_update(String last_update) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        try {
+            this.last_update.setTime(dateFormat.parse(last_update));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     public String getTopic_address() {
@@ -78,5 +90,20 @@ public class Chat_Room {
 
     public void setTopic_address(String topic_address) {
         this.topic_address = topic_address;
+    }
+
+    public String calculateLastUpdate() {
+        long lastOnlineAgo = getLast_update().getTimeInMillis() - System.currentTimeMillis();
+        if (lastOnlineAgo / 1000 / 60 / 60 / 24 / 30 != 0) {
+            return Math.abs(lastOnlineAgo / 1000 / 60 / 60 / 24 / 30) + " month(s) ago";
+        } else if (lastOnlineAgo / 1000 / 60 / 60 / 24 != 0) {
+            return Math.abs(lastOnlineAgo / 1000 / 60 / 60 / 24) + " day(s) ago";
+        } else if (lastOnlineAgo / 1000 / 60 / 60 != 0) {
+            return Math.abs(lastOnlineAgo / 1000 / 60 / 60) + " hour(s) ago";
+        } else if (lastOnlineAgo / 1000 / 60 != 0) {
+            return Math.abs(lastOnlineAgo / 1000 / 60) + " minute(s) ago";
+        } else {
+            return Math.abs(lastOnlineAgo / 1000) + " second(s) ago";
+        }
     }
 }

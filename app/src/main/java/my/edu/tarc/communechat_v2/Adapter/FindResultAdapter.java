@@ -242,7 +242,7 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
             @Override
             public void onClick(View view) {
                 //TODO check gps status
-                //TODO too lazy to do it
+                //TODO too lazy to do it, junior please do it LUL
                 Intent intent = new Intent(getContext(), MapsActivity.class);
                 intent.putExtra(User.COL_LAST_LONGITUDE, student.getLast_longitude());
                 intent.putExtra(User.COL_LAST_LATITUDE, student.getLast_latitude());

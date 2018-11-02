@@ -229,6 +229,7 @@ public class LoginActivity extends AppCompatActivity {
 
                 //put user data into shared preference
                 editor.putInt(User.COL_USER_ID, temp.getInt(User.COL_USER_ID));
+                editor.putString(User.COL_DISPLAY_NAME, temp.getString(User.COL_DISPLAY_NAME));
                 editor.putString(User.COL_USERNAME, temp.getString(User.COL_USERNAME));
                 editor.putString(User.COL_PASSWORD, temp.getString(User.COL_PASSWORD));
                 editor.putString(User.COL_POSITION, temp.getString(User.COL_POSITION));

@@ -17,7 +17,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
@@ -31,7 +30,7 @@
         </activity>
         <activity
             android:name=".LoginActivity"
-            android:windowSoftInputMode="stateVisible" />
+            android:windowSoftInputMode="stateAlwaysVisible" />
 
         <service android:name="org.eclipse.paho.android.service.MqttService" />
 
@@ -44,28 +43,27 @@
         <activity
             android:name=".FriendRequestActivity"
             android:parentActivityName=".FriendRequestActivity" />
-
         <activity
             android:name=".SettingsActivity"
             android:parentActivityName=".SettingsActivity" />
+        <!-- <activity -->
+        <!-- android:name=".chatEngine.ChatRoomActivity" -->
+        <!-- android:label="@string/title_activity_chat_room" -->
+        <!-- android:theme="@style/AppTheme.NoActionBar" /> -->
+        <!-- <activity -->
+        <!-- android:name=".chatEngine.SelectContactActivity" -->
+        <!-- android:label="@string/title_activity_select_contact" -->
+        <!-- android:theme="@style/AppTheme.NoActionBar" /> -->
+        <!-- <activity -->
+        <!-- android:name=".chatEngine.AddGroupActivity" -->
+        <!-- android:label="@string/title_activity_add_group" -->
+        <!-- android:theme="@style/AppTheme.NoActionBar" /> -->
 
-        <activity
-            android:name=".chatEngine.ChatRoomActivity"
-            android:label="@string/title_activity_chat_room"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".chatEngine.SelectContactActivity"
-            android:label="@string/title_activity_select_contact"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".chatEngine.AddGroupActivity"
-            android:label="@string/title_activity_add_group"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
 
-        <receiver
-            android:name=".NotificationBroadcastReceiver"
-            android:enabled="true"
-            android:exported="false" />
+        <!-- <receiver -->
+        <!-- android:name=".NotificationBroadcastReceiver" -->
+        <!-- android:enabled="true" -->
+        <!-- android:exported="false" /> -->
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -82,13 +80,15 @@
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps"
             android:parentActivityName=".MapsActivity" />
-
         <activity
             android:name=".ProfileActivity"
             android:parentActivityName=".ProfileActivity" />
-
-        <activity android:name=".TestEncryptionActivity"
-            android:parentActivityName=".TestEncryptionActivity"/>
+        <activity
+            android:name=".TestEncryptionActivity"
+            android:parentActivityName=".TestEncryptionActivity" />
+        <activity
+            android:name=".ChatRoomActivity"
+            android:parentActivityName=".ChatRoomActivity" />
     </application>
 
 </manifest>

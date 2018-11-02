@@ -95,7 +95,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //Toast.makeText(this, targetUser.getLast_longitude() + ", " + targetUser.getLast_latitude(), Toast.LENGTH_LONG).show();
         mMap.moveCamera(CameraUpdateFactory.newLatLng(user));
         mMap.setMyLocationEnabled(true);
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(user.latitude, user.longitude), 13));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(user.latitude, user.longitude), 10));
 
         //get direction between 2 points, using Google API
         //source: https://www.youtube.com/watch?v=jg1urt3FGCY

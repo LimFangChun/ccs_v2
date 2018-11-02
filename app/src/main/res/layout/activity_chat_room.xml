@@ -1,25 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:chatview="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".chatEngine.ChatRoomActivity">
+    tools:context=".ChatRoomActivity"
+    android:orientation="vertical">
 
-    <android.support.design.widget.AppBarLayout
+    <ProgressBar
+        android:id="@+id/progressBar_chatRoom"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
+        android:layout_height="wrap_content" />
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
-
-    </android.support.design.widget.AppBarLayout>
-
-    <include layout="@layout/content_chat_room" />
-
-</android.support.design.widget.CoordinatorLayout>
+    <co.intentservice.chatui.ChatView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/chatView_room"
+        app:inputTextColor="@color/colorBlack"
+        app:inputHint="@string/type_here"
+        app:inputUseEditorAction="true"
+        app:bubbleBackgroundSend="@color/colorWhite"
+        app:messageTextColorSend="@color/colorBlack"
+        app:bubbleBackgroundRcv="@color/colorPrimary"
+        app:messageTextColorRcv="@color/colorBlack" />
+</LinearLayout>

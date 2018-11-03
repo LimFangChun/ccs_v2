@@ -40,13 +40,10 @@ public class MainActivity extends AppCompatActivity {
 
     private SharedPreferences pref;
     private BottomNavigationView bottomNavigationView;
-    private MenuItem mAddPrivateChatRoom, mAddGroupChatRoom;
     @Override
     //inflate top right menu bar items
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.navi_top_menu_bar, menu);
-        mAddGroupChatRoom = menu.getItem(0);
-        mAddPrivateChatRoom = menu.getItem(1);
         return true;
     }
 
@@ -67,17 +64,6 @@ public class MainActivity extends AppCompatActivity {
                 updateUserStatus("Offline");
                 pref.edit().clear().apply();
                 startActivity(new Intent(MainActivity.this, LoginActivity.class));
-                break;
-            case R.id.nav_add_private_chat:
-                //TODO: CE
-//                Intent intent = new Intent(this, SelectContactActivity.class);
-//                intent.putExtra(SelectContactActivity.SELECTION_TYPE, SelectContactActivity.SELECT_PRIVATE_CHAT_MEMBER);
-//                startActivity(intent);
-                break;
-            case R.id.nav_add_group_chat:
-//                Intent intent2 = new Intent(this, SelectContactActivity.class);
-//                intent2.putExtra(SelectContactActivity.SELECTION_TYPE, SelectContactActivity.SELECT_GROUP_CHAT_MEMBER);
-//                startActivity(intent2);
                 break;
         }
 
@@ -160,16 +146,8 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                     Fragment selectedFragment = null;
-
-                    //TODO:CE
-
-                    mAddGroupChatRoom.setVisible(false);
-                    mAddPrivateChatRoom.setVisible(false);
                     switch (item.getItemId()) {
                         case R.id.nav_chat:
-//                            //TODO: CE
-//                            mAddGroupChatRoom.setVisible(true);
-//                            mAddPrivateChatRoom.setVisible(true);
                             selectedFragment = new ChatFragment();
                             break;
                         case R.id.nav_find_friend:

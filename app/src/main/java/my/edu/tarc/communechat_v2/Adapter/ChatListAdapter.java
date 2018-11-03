@@ -34,6 +34,7 @@ public class ChatListAdapter extends ArrayAdapter<Chat_Room> {
         TextView textViewDate;
         TextView textViewContent;
         TextView textViewRoomID;
+        TextView textViewRole;
     }
 
     public ChatListAdapter(@NonNull Context context, int resource, @NonNull ArrayList<Chat_Room> objects) {
@@ -52,6 +53,7 @@ public class ChatListAdapter extends ArrayAdapter<Chat_Room> {
         chatRoom.setOwner_id(Objects.requireNonNull(getItem(position)).getOwner_id());
         chatRoom.setLast_update(Objects.requireNonNull(getItem(position)).getLast_update());
         chatRoom.setRoom_name(Objects.requireNonNull(getItem(position)).getRoom_name());
+        chatRoom.setRole(Objects.requireNonNull(getItem(position)).getRole());
 
         final ViewHolder holder;
 
@@ -67,6 +69,7 @@ public class ChatListAdapter extends ArrayAdapter<Chat_Room> {
             holder.textViewContent = convertView.findViewById(R.id.textView_content);
             holder.textViewDate = convertView.findViewById(R.id.textView_lastDate);
             holder.textViewRoomID = convertView.findViewById(R.id.textView_roomID);
+            holder.textViewRole = convertView.findViewById(R.id.textView_role);
 
             //set tag for future use
             convertView.setTag(holder);
@@ -81,17 +84,18 @@ public class ChatListAdapter extends ArrayAdapter<Chat_Room> {
         }
 
         StringBuilder date = new StringBuilder();
-        date.append(chatRoom.getDate_created().get(Calendar.DAY_OF_MONTH))
+        date.append(chatRoom.getLast_update().get(Calendar.DAY_OF_MONTH))
                 .append("/")
-                .append(chatRoom.getDate_created().get(Calendar.MONTH))
+                .append(chatRoom.getLast_update().get(Calendar.MONTH))
                 .append("/")
-                .append(chatRoom.getDate_created().get(Calendar.YEAR))
+                .append(chatRoom.getLast_update().get(Calendar.YEAR))
                 .append(" ")
                 .append(chatRoom.calculateLastUpdate());
         holder.textViewDate.setText(date);
         holder.textViewHeader.setText(chatRoom.getRoom_name());
         holder.textViewContent.setText("");
         holder.textViewRoomID.setText(String.valueOf(chatRoom.getRoom_id()));
+        holder.textViewRole.setText(chatRoom.getRole());
 
         return convertView;
     }

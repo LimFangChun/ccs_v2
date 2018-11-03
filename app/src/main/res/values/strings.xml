@@ -196,4 +196,8 @@
     <string name="notif_action_reply"></string>
     <string name="type_here">Type here</string>
     <string name="you">You</string>
+    <string name="exit_group">Exit group</string>
+    <string name="add_people">Add people</string>
+    <string name="remove_people">Remove people</string>
+    <string name="see_group_info">See group info</string>
 </resources>

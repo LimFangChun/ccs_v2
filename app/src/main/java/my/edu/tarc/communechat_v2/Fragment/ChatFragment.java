@@ -31,6 +31,7 @@ import my.edu.tarc.communechat_v2.ChatRoomActivity;
 import my.edu.tarc.communechat_v2.R;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
 import my.edu.tarc.communechat_v2.model.Chat_Room;
+import my.edu.tarc.communechat_v2.model.Participant;
 import my.edu.tarc.communechat_v2.model.User;
 
 import static my.edu.tarc.communechat_v2.MainActivity.mqttHelper;
@@ -67,15 +68,17 @@ public class ChatFragment extends Fragment {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 TextView textViewRoomID = view.findViewById(R.id.textView_roomID);
                 TextView textViewRoomName = view.findViewById(R.id.textView_header);
+                TextView textViewRole = view.findViewById(R.id.textView_role);
 
                 Chat_Room chatRoom = new Chat_Room();
                 chatRoom.setRoom_id(Integer.parseInt(textViewRoomID.getText().toString()));
                 chatRoom.setRoom_name(textViewRoomName.getText().toString());
+                chatRoom.setRole(textViewRole.getText().toString());
 
-                //todo pass room id to room activity
                 Intent intent = new Intent(getActivity(), ChatRoomActivity.class);
                 intent.putExtra(Chat_Room.COL_ROOM_ID, chatRoom.getRoom_id());
                 intent.putExtra(Chat_Room.COL_ROOM_NAME, chatRoom.getRoom_name());
+                intent.putExtra(Participant.COL_ROLE, chatRoom.getRole());
                 startActivity(intent);
             }
         });
@@ -121,6 +124,7 @@ public class ChatFragment extends Fragment {
                                 room.setRoom_name(temp.getString(Chat_Room.COL_ROOM_NAME));
                                 room.setOwner_id(temp.getInt(Chat_Room.COL_OWNER_ID));
                                 room.setLast_update(temp.getString(Chat_Room.COL_LAST_UPDATE));
+                                room.setRole(temp.getString(Participant.COL_ROLE));
 
                                 resultList.add(room);
                             }

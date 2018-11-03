@@ -20,6 +20,7 @@ public class Chat_Room {
     private Calendar date_created;
     private Calendar last_update;
     private String topic_address;
+    private String role;
 
     public Chat_Room(){
         date_created = Calendar.getInstance();
@@ -105,5 +106,13 @@ public class Chat_Room {
         } else {
             return Math.abs(lastOnlineAgo / 1000) + " second(s) ago";
         }
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }

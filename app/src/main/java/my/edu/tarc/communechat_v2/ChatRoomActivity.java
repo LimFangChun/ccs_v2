@@ -4,8 +4,11 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -22,6 +25,7 @@ import my.edu.tarc.communechat_v2.internal.MqttHeader;
 import my.edu.tarc.communechat_v2.internal.MqttHelper;
 import my.edu.tarc.communechat_v2.model.Chat_Room;
 import my.edu.tarc.communechat_v2.model.Message;
+import my.edu.tarc.communechat_v2.model.Participant;
 import my.edu.tarc.communechat_v2.model.User;
 
 import static my.edu.tarc.communechat_v2.MainActivity.mqttHelper;
@@ -43,6 +47,38 @@ public class ChatRoomActivity extends AppCompatActivity {
     private MqttHelper chatMqttHelper;
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if (chatRoom.getRole().equals("Admin")) {
+            getMenuInflater().inflate(R.menu.room_admin_menu, menu);
+        } else {
+            getMenuInflater().inflate(R.menu.room_member_menu, menu);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int itemId = item.getItemId();
+        //TODO add action
+        switch (itemId) {
+            case R.id.nav_add_people:
+                Toast.makeText(this, "Add people", Toast.LENGTH_LONG).show();
+                break;
+            case R.id.nav_remove_people:
+                Toast.makeText(this, "Remove people", Toast.LENGTH_LONG).show();
+                break;
+            case R.id.nav_exit_group:
+                Toast.makeText(this, "Exit group", Toast.LENGTH_LONG).show();
+                break;
+            case R.id.nav_group_info:
+                Toast.makeText(this, "See group info", Toast.LENGTH_LONG).show();
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_room);
@@ -54,6 +90,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         chatRoom = new Chat_Room();
+        chatRoom.setRole(getIntent().getStringExtra(Participant.COL_ROLE));
         chatRoom.setRoom_id(getIntent().getIntExtra(Chat_Room.COL_ROOM_ID, -1));
         chatMqttHelper.subscribe("sendMessage/room" + chatRoom.getRoom_id());
         chatMqttHelper.getMqttClient().setCallback(chatRoomCallback);
@@ -90,6 +127,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                         getString(R.string.you)
                 ));
                 chatMqttHelper.publish(topic, header, message);
+                chatViewRoom.getInputEditText().setText("");
 
                 //make sure to return false
                 //return true the chat view will update automatically

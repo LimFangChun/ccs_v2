@@ -491,22 +491,25 @@ insert into Participant (room_id, user_id, role) values (1, 1, 'Admin');
 insert into Participant (room_id, user_id, role) values (1, 2, 'Member');
 insert into Participant (room_id, user_id, role) values (2, 1, 'Admin');
 insert into Participant (room_id, user_id, role) values (2, 2, 'Admin');
-insert into Participant (room_id, user_id, role) values (2, 3, 'Member');
+insert into Participant (room_id, user_id, role) values (2, 3, 'Admin');
+insert into Participant (room_id, user_id, role) values (2, 4, 'Member');
+insert into Participant (room_id, user_id, role) values (2, 5, 'Member');
 
 -- Done by: Lim Fang Chun
 -- Message table records
 -- Column: message_id(PK), message, sender_id, date_created, room_id, message_type
-insert into Message (message_id, message, sender_id, date_created, room_id) values (1, "Hello, this is first message from room 1", 1, '2018-09-29 15:59:01', 1);
-insert into Message (message_id, message, sender_id, date_created, room_id) values (2, "monkaS", 2, '2018-09-29 16:59:01', 1);
-insert into Message (message_id, message, sender_id, date_created, room_id) values (3, "ZULUL", 1, '2018-09-29 17:59:01', 1);
-insert into Message (message_id, message, sender_id, date_created, room_id) values (4, "4th messsage", 1, '2018-09-29 16:59:30', 2);
-insert into Message (message_id, message, sender_id, date_created, room_id) values (5, "Kappa", 3, '2018-09-29 16:59:01', 2);
+insert into Message (message, sender_id, date_created, room_id) values ("Hello, this is first message from room 1", 1, '2018-09-29 15:59:01', 1);
+insert into Message (message, sender_id, date_created, room_id) values ("monkaS", 2, '2018-09-29 16:59:01', 1);
+insert into Message (message, sender_id, date_created, room_id) values ("ZULUL", 1, '2018-09-29 17:59:01', 1);
+insert into Message (message, sender_id, date_created, room_id) values ("4th messsage", 1, '2018-09-29 16:59:30', 2);
+insert into Message (message, sender_id, date_created, room_id) values ("Kappa", 3, '2018-09-29 16:59:01', 2);
 
 
 -- Setup necessary triggers
 
 DROP TRIGGER IF EXISTS Trg_Insert_New_Supply;
 DROP TRIGGER IF EXISTS Trg_Log_User_Activity;
+DROP TRIGGER IF EXISTS Trg_Insert_New_Message;
 
 --create a temporary student record for new user
 --otherwise would cause error
@@ -534,6 +537,18 @@ BEGIN
 	IF NEW.display_name <> OLD.display_name THEN
 		INSERT INTO UserActivityLog (user_id, description) VALUES (NEW.user_id, CONCAT('Changed display name to ', NEW.display_name));
 	END IF;
+	
+	IF NEW.last_latitude <> OLD.last_latitude OR NEW.last_longitude <> OLD.last_longitude THEN
+		INSERT INTO UserActivityLog (user_id, description) VALUES (NEW.user_id, CONCAT('Location updated.. Ltd: ', NEW.last_latitude, ', Lgn: ', NEW.last_longitude));
+	END IF;
+END;
+//
+
+CREATE TRIGGER Trg_Insert_New_Message
+AFTER INSERT ON Message
+FOR EACH ROW
+BEGIN
+	UPDATE Chat_Room SET last_update = CURRENT_TIMESTAMP WHERE room_id = NEW.room_id;
 END;
 //
 

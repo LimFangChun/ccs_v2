@@ -32,7 +32,7 @@
             android:name=".LoginActivity"
             android:windowSoftInputMode="stateAlwaysVisible" />
 
-        <service android:name="org.eclipse.paho.android.service.MqttService"></service>
+        <service android:name="org.eclipse.paho.android.service.MqttService" />
 
         <activity
             android:name=".RegisterUserActivity"
@@ -89,6 +89,9 @@
         <activity
             android:name=".ChatRoomActivity"
             android:parentActivityName=".ChatRoomActivity" />
+        <activity
+            android:name=".GroupInfoActivity"
+            android:parentActivityName=".GroupInfoActivity" />
     </application>
 
 </manifest>

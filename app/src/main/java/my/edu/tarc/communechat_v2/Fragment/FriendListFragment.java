@@ -89,8 +89,6 @@ public class FriendListFragment extends Fragment {
             TextView textViewUserID = (TextView) view.findViewById(R.id.textView_userID);
             int userID = Integer.parseInt(textViewUserID.getText().toString());
 
-            //TODO:pass user id to view user profile activity
-            //TODO test this
             Intent intent = new Intent(getActivity(), ProfileActivity.class);
             intent.putExtra(User.COL_USER_ID, userID);
             startActivity(intent);

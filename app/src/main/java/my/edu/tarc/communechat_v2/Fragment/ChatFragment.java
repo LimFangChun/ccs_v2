@@ -52,6 +52,8 @@ public class ChatFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        sleep(0.5);
+
         View view = inflater.inflate(R.layout.fragment_chat, container, false);
 
         pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -150,5 +152,14 @@ public class ChatFragment extends Fragment {
 
             }
         });
+    }
+
+    private void sleep(double second) {
+        try {
+            int time = (int) (second * 1000);
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

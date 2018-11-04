@@ -1,6 +1,6 @@
 package my.edu.tarc.communechat_v2.model;
 
-public class Participant {
+public class Participant extends User {
     //variables that define column name
     public static final String COL_ROOM_ID = "room_id";
     public static final String COL_USER_ID = "user_id";

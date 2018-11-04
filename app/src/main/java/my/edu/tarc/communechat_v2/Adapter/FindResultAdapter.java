@@ -133,7 +133,8 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
 
         //github: https://github.com/amulyakhare/TextDrawable/blob/master/README.md
         ColorGenerator colorGenerator = ColorGenerator.MATERIAL;
-        TextDrawable drawable = TextDrawable.builder().buildRound(student.getDisplay_name().substring(0, 1), colorGenerator.getRandomColor());
+        int color = colorGenerator.getColor(student.getDisplay_name());
+        TextDrawable drawable = TextDrawable.builder().buildRound(student.getDisplay_name().substring(0, 1), color);
         holder.imageViewProfilePicture.setImageDrawable(drawable);
 
         holder.textViewUserID.setText(String.valueOf(student.getUser_id()));

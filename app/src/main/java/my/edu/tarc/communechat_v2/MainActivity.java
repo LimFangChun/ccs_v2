@@ -83,6 +83,8 @@ public class MainActivity extends AppCompatActivity {
         //if not ask user if they want to turn on
         runLocationService();
 
+        updateUserStatus("Online");
+
         bottomNavigationView.setOnNavigationItemSelectedListener(bottomNavListener);
 
         if (savedInstanceState == null) {

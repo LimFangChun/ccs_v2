@@ -64,8 +64,23 @@ public class Chat_Room {
         return date_created;
     }
 
+    public String formatDateCreated() {
+        return getDate_created().get(Calendar.DAY_OF_MONTH) + "/" +
+                getDate_created().get(Calendar.MONTH) + "/" +
+                getDate_created().get(Calendar.YEAR);
+    }
+
     public void setDate_created(Calendar date_created) {
         this.date_created = date_created;
+    }
+
+    public void setDate_created(String date_created) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        try {
+            this.date_created.setTime(dateFormat.parse(date_created));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     public Calendar getLast_update() {
@@ -105,6 +120,21 @@ public class Chat_Room {
             return Math.abs(lastOnlineAgo / 1000 / 60) + " minute(s) ago";
         } else {
             return Math.abs(lastOnlineAgo / 1000) + " second(s) ago";
+        }
+    }
+
+    public String calculateDateCreated() {
+        long dateCreated = getDate_created().getTimeInMillis() - System.currentTimeMillis();
+        if (dateCreated / 1000 / 60 / 60 / 24 / 30 != 0) {
+            return Math.abs(dateCreated / 1000 / 60 / 60 / 24 / 30) + " month(s) ago";
+        } else if (dateCreated / 1000 / 60 / 60 / 24 != 0) {
+            return Math.abs(dateCreated / 1000 / 60 / 60 / 24) + " day(s) ago";
+        } else if (dateCreated / 1000 / 60 / 60 != 0) {
+            return Math.abs(dateCreated / 1000 / 60 / 60) + " hour(s) ago";
+        } else if (dateCreated / 1000 / 60 != 0) {
+            return Math.abs(dateCreated / 1000 / 60) + " minute(s) ago";
+        } else {
+            return Math.abs(dateCreated / 1000) + " second(s) ago";
         }
     }
 

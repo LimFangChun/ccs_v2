@@ -4,7 +4,7 @@ import android.annotation.SuppressLint;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Calendar;
 
 /**
  * Created by Xeosz on 26-Sep-17.
@@ -43,19 +43,19 @@ public class User {
     private String address;
     private String city_id;
     private String status;
-    private Date last_online;
+    private Calendar last_online;
     private double last_longitude;
     private double last_latitude;
     private double distance;
     private String public_key;
 
     public  User(){
-
+        last_online = Calendar.getInstance();
     }
 
     public User(int user_id, String username, String display_name, String password, String position,
                 String gender, String nric, String phone_number, String email, String address,
-                String city_id, String status, Date last_online, double last_longitude, double last_latitude,
+                String city_id, String status, Calendar last_online, double last_longitude, double last_latitude,
                 String public_key) {
         this.user_id = user_id;
         this.username = username;
@@ -159,15 +159,25 @@ public class User {
         return status;
     }
 
+    public String getStatusInUnicode() {
+        if (getStatus().equals("Offline")) {
+            //red button
+            return "\uD83D\uDD34";
+        } else {
+            //blue button
+            return "\uD83D\uDD35";
+        }
+    }
+
     public void setStatus(String status) {
         this.status = status;
     }
 
-    public Date getLast_online() {
+    public Calendar getLast_online() {
         return last_online;
     }
 
-    public void setLast_online(Date last_online) {
+    public void setLast_online(Calendar last_online) {
         this.last_online = last_online;
     }
 
@@ -177,7 +187,7 @@ public class User {
     public void setLast_online(String last_online) {
         try{
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-            this.last_online = (Date) dateFormat.parse(last_online);
+            this.last_online.setTime(dateFormat.parse(last_online));
         }catch (NullPointerException|ParseException e){
             e.printStackTrace();
         }
@@ -216,7 +226,7 @@ public class User {
     }
 
     public String calculateLastOnline(){
-        long lastOnlineAgo = getLast_online().getTime() - System.currentTimeMillis();
+        long lastOnlineAgo = getLast_online().getTimeInMillis() - System.currentTimeMillis();
         if (lastOnlineAgo / 1000 / 60 / 60 / 24 / 30 != 0) {
             return Math.abs(lastOnlineAgo / 1000 / 60 / 60 / 24 / 30) + " month(s) ago";
         } else if (lastOnlineAgo / 1000 / 60 / 60 / 24 != 0) {

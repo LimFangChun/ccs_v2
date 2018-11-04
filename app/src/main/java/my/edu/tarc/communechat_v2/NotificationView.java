@@ -171,9 +171,6 @@ public class NotificationView extends Application {
 
             Log.v("testingLOADSIZE", String.valueOf(oldMessage.size()));
             if(oldMessage.size()>0){
-                Log.v("testingNEWM", incomingMessage);
-                Log.v("testingOLDm", oldMessage.get(0));
-                Log.v("testingSIZE", String.valueOf(oldMessage.size()));
                 oldMessage.add(new String(incomingMessage));
                 boolean store = saveArray(oldMessage, String.valueOf(chat.getRoomId()), activity);
 
@@ -183,11 +180,9 @@ public class NotificationView extends Application {
                     }else {
                         inboxStyle.addLine(oldMessage.get(i));
                     }
-                    Log.v("testingLINE", oldMessage.get(i));
 
                 }
             }else{
-                Log.v("testingLINE", "qqqqqqqq");
                 List<String> message = new ArrayList<String>();
                 message.add(new String (incomingMessage));
                 if(chatRoom.getChatRoomType().equals(GROUP_CHAT_ROOM)){
@@ -197,8 +192,6 @@ public class NotificationView extends Application {
                     str = incomingMessage;
                 }
                 boolean store = saveArray(message, String.valueOf(chat.getRoomId()), activity);
-                Log.v("testingLINE", String.valueOf(store));
-                Log.v("testingSAVESIZE", String.valueOf(message.size()));
             }
 
 
@@ -369,7 +362,6 @@ public class NotificationView extends Application {
         SharedPreferences prefs = mContext.getSharedPreferences("message", 0);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putInt(arrayName + "_size", message.size());
-        Log.v("SIZEsavetesting", String.valueOf(message.size()));
         for (int i = 0; i < message.size(); i++)
             editor.putString(arrayName + "_" + i, message.get(i));
         return editor.commit();
@@ -378,7 +370,6 @@ public class NotificationView extends Application {
     public static List<String> loadArray(String arrayName, Context mContext) {
         SharedPreferences prefs = mContext.getSharedPreferences("message", 0);
         int size = prefs.getInt(arrayName + "_size", 0);
-        Log.v("SIZEloadtesting", String.valueOf(size));
         List<String> message = new ArrayList<String>();
 
             Log.v("Loopsize", String.valueOf(size));

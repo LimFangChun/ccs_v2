@@ -18,6 +18,8 @@ import my.edu.tarc.communechat_v2.chatEngine.SelectContactActivity;
 import my.edu.tarc.communechat_v2.chatEngine.database.Chat;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
 
+import static my.edu.tarc.communechat_v2.NotificationView.NOTIFICTION_DISMISS;
+import static my.edu.tarc.communechat_v2.NotificationView.clearMessage;
 import static my.edu.tarc.communechat_v2.NotificationView.getNotifID;
 import static my.edu.tarc.communechat_v2.NotificationView.getReplyMessage;
 import static my.edu.tarc.communechat_v2.chatEngine.ChatFragment.CURRENT_USER_ID;
@@ -37,20 +39,19 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
         NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
         if (NOTIFICTION_TAPS.equals(intent.getAction())) {
-            Log.v("2testing", String.valueOf(intent.getLongExtra(SELECTED_CHAT_ROOM_ID, 0)));
-            Log.v("2testing", intent.getStringExtra(SELECTED_CHAT_ROOM_UNIQUE_TOPIC));
             NotificationView.setPendingNotificationsCount(0);
             nm.cancel(getNotifID());
-            Log.v("2testing", String.valueOf(getNotifID()));
+            clearMessage(String.valueOf(intent.getLongExtra(SELECTED_CHAT_ROOM_ID, 0)),context);
             Intent nextIntent = new Intent(context, ChatRoomActivity.class);
             nextIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             nextIntent.putExtra(SELECTED_CHAT_ROOM_ID, (intent.getLongExtra(SELECTED_CHAT_ROOM_ID, 0)));
             nextIntent.putExtra(SELECTED_CHAT_ROOM_UNIQUE_TOPIC, (intent.getStringExtra(SELECTED_CHAT_ROOM_UNIQUE_TOPIC)));
-            //nextIntent.putExtra("ROOM_TYPE",intent.getStringExtra("ROOM_TYPE"));
             context.startActivity(nextIntent);
-        } else if (REPLY_ACTION.equals(intent.getAction())) {
 
-
+        } else if(NOTIFICTION_DISMISS.equals(intent.getAction())){
+            NotificationView.setPendingNotificationsCount(0);
+            nm.cancel(getNotifID());
+        }else if (REPLY_ACTION.equals(intent.getAction())) {
             MyDateTime myDateTime = new MyDateTime();
 
             long chatRoomId = intent.getLongExtra(SELECTED_CHAT_ROOM_ID, 0);
@@ -81,6 +82,7 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
 
             NotificationView.setPendingNotificationsCount(0);
             nm.cancel(getNotifID());
+            clearMessage(String.valueOf(chat.getRoomId()),context);
         }
     }
 

@@ -182,7 +182,11 @@
     <string name="mute_key">mute_key</string>
     <string name="sound">Notification Sound</string>
     <string name="ring_tone_pref">ring_tone_pref</string>
+    <string name="pop_up">pop_up</string>
     <string name="summary_choose_ringtone">Choose notification sound</string>
+    <string name="group_mute_key">group_mute_key</string>
+    <string name="group_pop_up">group_pop_up</string>
+    <string name="group_ring_tone_pref">group_ring_tone_pref</string>
     <string name="pref_ringtone_silent">Silent</string>
     <string name="title_first_section">Notifications</string>
     <string name="title_second_section">Chat Contents</string>
@@ -194,4 +198,6 @@
     <string name="summary_upload_over_wifi">Automatically download the videos and image</string>
     <string name="notif_action_reply"></string>
     <string name="title_activity_group_management">GroupManagementActivity</string>
+    <string name="subtitle_message_notification">Message Notification</string>
+    <string name="subtitle_group_notification">Group Message Notification</string>
 </resources>

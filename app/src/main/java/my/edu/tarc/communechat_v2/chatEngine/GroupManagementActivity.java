@@ -117,14 +117,21 @@ public class GroupManagementActivity extends AppCompatActivity implements View.O
         if (mIsGroupJoined) {
             switch (view.getId()) {
                 case R.id.imageButton_groupManagementActivity_edit:
-
+                    String nameCheck=mNameTextView.getText().toString();
                     //If text view is hidden it will reveal it
                     if (mNameTextView.getVisibility() == View.INVISIBLE && !mNameEditText.getText().toString().isEmpty()) {
                         mChatRoomName = mNameEditText.getText().toString();
                         mNameTextView.setText(mChatRoomName);
                         mNameEditText.setVisibility(View.INVISIBLE);
                         mNameTextView.setVisibility(View.VISIBLE);
-                        new UpdateAsyncTask(UpdateAsyncTask.CHANGE_GROUP_NAME).execute();
+
+
+                        //TODO: JUST ADDED THIS
+                        //If user did not change anything it won't register
+                        if (!mNameEditText.getText().toString().equals(nameCheck)) {
+                            new UpdateAsyncTask(UpdateAsyncTask.CHANGE_GROUP_NAME).execute();
+                        }
+
                     } else {
                         mNameEditText.setText(mChatRoomName);
                         mNameEditText.setVisibility(View.VISIBLE);
@@ -140,8 +147,8 @@ public class GroupManagementActivity extends AppCompatActivity implements View.O
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-
         getMenuInflater().inflate(R.menu.ce_chat_room_group_management_menu, menu);
+
         menu.findItem(R.id.ce_menu_groupManagement_disbandGroup).setVisible(isAdmin);
         menu.findItem(R.id.ce_menu_groupManagement_addMember).setVisible(isAdmin);
         return true;
@@ -509,6 +516,7 @@ public class GroupManagementActivity extends AppCompatActivity implements View.O
                     String[] adminList = chatRoom.getAdminUserId().split(ChatRoom.GROUP_DIVIDER);
                     // If there is no admin in the group it will disband
                     if(!(adminList.length < 2 && sWeakReference.get().isAdmin)) {
+
                         StringBuilder adminStringBuilder = new StringBuilder();
                         // This part remove the selected admin from the admin list
                         for (String adminId : adminList) {
@@ -535,10 +543,6 @@ public class GroupManagementActivity extends AppCompatActivity implements View.O
 
                         chatRoom.setGroupMember(stringBuilder.toString());
 
-                        Log.i(TAG, chatRoom.getGroupMember() + "Check Group");
-                        Log.i(TAG, chatRoom.getStatus() + "Check Group");
-
-
                         chatRoom.setStatus(ChatRoom.CHAT_ROOM_LEFT);
 
 
@@ -549,18 +553,27 @@ public class GroupManagementActivity extends AppCompatActivity implements View.O
                     //There is no break here is by design
                     //If group chat room have no admin, it will go and disband chat room
                 case DISBAND_GROUP:
+
                     chatRoom.setStatus(ChatRoom.CHAT_ROOM_DISBAND);
                     chatRoom.setGroupMember("");
                     chatRoom.setAdminUserId("");
                     chat.setMessage("I have disband this group chat");
+                    chatRoom.setLatestMessage("I have disband this group chat");
+
                     break;
                 case CHANGE_GROUP_NAME:
                     chatRoom.setName(sWeakReference.get().mChatRoomName);
                     chat.setMessage("I have change the name to " + sWeakReference.get().mChatRoomName);
+
+                    chatRoom.setLatestMessage("I have change the name to " + sWeakReference.get().mChatRoomName);
+
                     break;
             }
+            //TODO: JUST ADDED THIS
             chatRoom.setComparingDateTime(String.valueOf(myDateTime.getCurrentTimeInMillisecond()));
+            chatRoom.setDateTimeMessageReceived(myDateTime.getDateTime());
             chat.setComparingDateTime(String.valueOf(myDateTime.getCurrentTimeInMillisecond()));
+            chat.setDate(myDateTime.getDateTime());
 
             applicationDatabase.chatRoomDao().updateChatRoom(chatRoom);
             applicationDatabase.chatDao().insert(chat);

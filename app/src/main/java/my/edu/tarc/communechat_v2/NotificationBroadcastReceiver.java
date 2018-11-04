@@ -51,6 +51,7 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
         } else if(NOTIFICTION_DISMISS.equals(intent.getAction())){
             NotificationView.setPendingNotificationsCount(0);
             nm.cancel(getNotifID());
+            clearMessage(String.valueOf(intent.getLongExtra(SELECTED_CHAT_ROOM_ID, 0)),context);
         }else if (REPLY_ACTION.equals(intent.getAction())) {
             MyDateTime myDateTime = new MyDateTime();
 

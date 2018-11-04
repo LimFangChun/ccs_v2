@@ -14,7 +14,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import java.util.UUID;
 
-import my.edu.tarc.communechat_v2.chatEngine.RSA;
+import my.edu.tarc.communechat_v2.chatEngine.Encryption.RSA;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
 import my.edu.tarc.communechat_v2.model.User;
 

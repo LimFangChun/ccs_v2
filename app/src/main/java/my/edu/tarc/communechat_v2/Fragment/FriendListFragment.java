@@ -12,8 +12,6 @@ import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -31,6 +29,7 @@ import java.util.ArrayList;
 
 import my.edu.tarc.communechat_v2.Adapter.FriendListAdapter;
 import my.edu.tarc.communechat_v2.FriendRequestActivity;
+import my.edu.tarc.communechat_v2.ProfileActivity;
 import my.edu.tarc.communechat_v2.R;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
 import my.edu.tarc.communechat_v2.model.Student;
@@ -54,7 +53,7 @@ public class FriendListFragment extends Fragment {
 
         listViewFriendList = view.findViewById(R.id.listView_friendList);
         fabAddFriend = view.findViewById(R.id.fab_addFriend);
-        fabAddFriend.setVisibility(View.GONE);
+        fabAddFriend.setVisibility(View.VISIBLE);
         progressBarFriendList = view.findViewById(R.id.progressBar_FriendList);
         progressBarFriendList.getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(getContext(), R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
 
@@ -90,7 +89,9 @@ public class FriendListFragment extends Fragment {
             TextView textViewUserID = (TextView) view.findViewById(R.id.textView_userID);
             int userID = Integer.parseInt(textViewUserID.getText().toString());
 
-            //TODO:pass user id to view user profile activity
+            Intent intent = new Intent(getActivity(), ProfileActivity.class);
+            intent.putExtra(User.COL_USER_ID, userID);
+            startActivity(intent);
         }
     };
 
@@ -136,47 +137,6 @@ public class FriendListFragment extends Fragment {
             }
             progressBarFriendList.setVisibility(View.INVISIBLE);
             mqttHelper.unsubscribe(uniqueTopic);
-            countFriendRequest();
-        }
-
-        @Override
-        public void deliveryComplete(IMqttDeliveryToken token) {
-
-        }
-    };
-
-    private void countFriendRequest() {
-        User user = new User();
-        user.setUser_id(pref.getInt(User.COL_USER_ID, -1));
-        String topic = "countFriendRequest/" + user.getUser_id();
-        String header = MqttHeader.COUNT_FRIEND_REQUEST;
-
-        mqttHelper.connectPublishSubscribe(getActivity(), topic, header, user);
-        mqttHelper.getMqttClient().setCallback(countFriendRequestCallback);
-    }
-
-    private MqttCallback countFriendRequestCallback = new MqttCallback() {
-        @Override
-        public void connectionLost(Throwable cause) {
-
-        }
-
-        @Override
-        public void messageArrived(String topic, MqttMessage message) throws Exception {
-            mqttHelper.decode(message.toString());
-            mqttHelper.unsubscribe(topic);
-            if (mqttHelper.getReceivedHeader().equals(MqttHeader.COUNT_FRIEND_REQUEST_REPLY)) {
-                if (mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT) ||
-                        Integer.parseInt(mqttHelper.getReceivedResult()) == 0) {
-                    fabAddFriend.setVisibility(View.GONE);
-                } else {
-                    fabAddFriend.setVisibility(View.VISIBLE);
-
-                    //some fancy animation for FAB
-                    final Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.shake_effect_fab);
-                    fabAddFriend.startAnimation(animation);
-                }
-            }
         }
 
         @Override

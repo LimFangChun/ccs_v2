@@ -17,7 +17,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -46,7 +45,7 @@ public class LoginActivity extends AppCompatActivity {
 
     //Views
     private EditText etPassword;
-    private AutoCompleteTextView etUsername;
+    private EditText etUsername;
     private Button btnLogin;
     private Button buttonRegister;
     private ConstraintLayout layoutLogin;
@@ -124,7 +123,7 @@ public class LoginActivity extends AppCompatActivity {
 
         //Initialize view
         etPassword = (EditText) findViewById(R.id.editText_password);
-        etUsername = (AutoCompleteTextView) findViewById(R.id.editText_username);
+        etUsername = (EditText) findViewById(R.id.editText_username);
         btnLogin = (Button) findViewById(R.id.button_login);
         buttonRegister = (Button) findViewById(R.id.button_register);
 

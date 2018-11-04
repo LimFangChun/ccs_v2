@@ -211,9 +211,14 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         //updateUserStatus("Online");
         mqttHelper.connect(getApplicationContext());
+
     }
 
     private void updateUserStatus(String status) {
+        if (pref.getInt(User.COL_USER_ID, -1) == -1) {
+            return;
+        }
+
         String topic = "updateUserStatus/" + pref.getInt(User.COL_USER_ID, -1);
         String header = MqttHeader.UPDATE_USER_STATUS;
         User user = new User();
@@ -227,6 +232,10 @@ public class MainActivity extends AppCompatActivity {
     private final LocationListener locationListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
+            if (pref.getInt(User.COL_USER_ID, -1) == -1) {
+                return;
+            }
+
             pref.edit().putFloat(User.COL_LAST_LONGITUDE, (float) location.getLongitude()).apply();
             pref.edit().putFloat(User.COL_LAST_LATITUDE, (float) location.getLatitude()).apply();
             Log.d("[LocationService]", "Location changed, lgt: " + location.getLongitude() + " ltd: " + location.getLatitude());
@@ -250,6 +259,10 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private void updateUserLocation(double longitude, double latitude) {
+        if (pref.getInt(User.COL_USER_ID, -1) == -1) {
+            return;
+        }
+
         String topic = "updateLocation/" + pref.getInt(User.COL_USER_ID, -1);
         String header = MqttHeader.UPDATE_LOCATION;
         User user = new User();

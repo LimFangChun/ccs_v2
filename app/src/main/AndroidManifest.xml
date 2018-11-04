@@ -48,6 +48,12 @@
         <activity
             android:name=".SettingsActivity"
             android:parentActivityName=".SettingsActivity" />
+        <activity
+            android:name=".ProfileActivity"
+            android:parentActivityName=".ProfileActivity" />
+        <activity
+            android:name=".TestEncryptionActivity"
+            android:parentActivityName=".TestEncryptionActivity" />
 
         <activity
             android:name=".chatEngine.ChatRoomActivity"
@@ -84,6 +90,14 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
+        <activity
+            android:name=".MapsActivity"
+            android:label="@string/title_activity_maps"
+            android:parentActivityName=".MapsActivity" />
+
+        <activity
+            android:name=".ProfileActivity"
+            android:parentActivityName=".ProfileActivity" />
     </application>
 
 </manifest>

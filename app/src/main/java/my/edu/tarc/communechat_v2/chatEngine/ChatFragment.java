@@ -51,6 +51,7 @@ public class ChatFragment extends Fragment {
     public static final String SELECTED_CHAT_ROOM_ID = "SelectedChatRoomId";
     public static final String SELECTED_CHAT_ROOM_UNIQUE_TOPIC = "SelectedChatRoomUniqueTopic";
 
+
     public static final int CURRENT_USER_ID = 1700002;
 
     @Override

@@ -200,4 +200,12 @@
     <string name="title_activity_group_management">GroupManagementActivity</string>
     <string name="subtitle_message_notification">Message Notification</string>
     <string name="subtitle_group_notification">Group Message Notification</string>
+  
+    <string name="profile_placeholderName">Gan Nar Psy</string>
+    <string name="profile_placeholderUid">1</string>
+    <string name="profile_placeholderGender">Male</string>
+    <string name="profile_placeholderStudentID">1709411</string>
+    <string name="profile_placeholderFaculty">FOCS</string>
+    <string name="profile_placeholderTutGroup">RSD3 Group 2 May</string>
+
 </resources>

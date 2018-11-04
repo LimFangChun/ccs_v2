@@ -38,6 +38,7 @@ public class FriendRequestActivity extends AppCompatActivity {
 
         assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        setTitle("Friend request");
 
         listViewFriendRequest = findViewById(R.id.listView_friendRequest);
         progressBarFriendRequest = findViewById(R.id.progressBar_FriendRequest);

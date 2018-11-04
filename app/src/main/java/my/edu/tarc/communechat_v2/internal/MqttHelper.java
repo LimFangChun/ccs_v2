@@ -34,23 +34,30 @@ public class MqttHelper {
     private String receivedResult;
 
     //change MQTT broker IP address here
-    private static final String serverUri = "tcp://192.168.0.181:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
-    private static String mqttUsername = "";
-    private static String mqttPassword = "";
+
+    //private static final String serverUri = "tcp://192.168.0.110:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
+    private static final String serverUri = "tcp://broker.hivemq.com:1883";
+    //private static String mqttUsername = "";
+    //private static String mqttPassword = "";
+    private static final String mqttUsername = "leo477831@gmail.com";
+    private static final String mqttPassword = "ba6acd07";
+
 
     private static int QoS = 1;
-    private static final String topicPrefix = "MY/TARUC/CCS/000000001/PUB/";
+    private static final String topicPrefix = "/MY/TARUC/CCS/000000001/PUB/";
+    //private static final String topicPrefix = "/leo477831@gmail.com/MY/TARUC/CCS/000000001/PUB/";
     private static boolean retain = false;
     private static boolean cleanSession = false;
     private static boolean automaticReconnect = true;
 
     public MqttHelper() {
         clientId = MqttClient.generateClientId();
+        mqttConnectOptions.setUserName(mqttUsername);
+        mqttConnectOptions.setPassword(mqttPassword.toCharArray());
     }
 
     public void connect(Context context) {
         if (mqttAndroidClient == null || !mqttAndroidClient.isConnected()) {
-
             mqttAndroidClient = new MqttAndroidClient(context, serverUri, clientId);
             try {
                 IMqttToken token = mqttAndroidClient.connect();
@@ -419,8 +426,9 @@ public class MqttHelper {
                 result = temp.toString();
                 break;
             }
+
                 //TODO: CE Chat Engine part
-                case MqttHeader.SEND_MESSAGE:
+                case MqttHeader.SEND_MESSAGE:{
                     Chat chat = (Chat) data;
                     temp.append(MqttHeader.SEND_MESSAGE)
                             .append(",")
@@ -438,7 +446,8 @@ public class MqttHelper {
 
                     result = temp.toString();
                     break;
-                case MqttHeader.ADD_GROUP_CHAT_ROOM:
+                }
+                case MqttHeader.ADD_GROUP_CHAT_ROOM:{
                     ChatRoom chatRoom = (ChatRoom) data;
                     temp.append(MqttHeader.ADD_GROUP_CHAT_ROOM)
                             .append(",")
@@ -463,6 +472,16 @@ public class MqttHelper {
                             .append(chatRoom.getComparingDateTime());
                     result = temp.toString();
                     break;
+                }
+            case MqttHeader.GET_USER_PROFILE:{
+                User user = (User)data;
+                temp.append(MqttHeader.GET_USER_PROFILE)
+                        .append(",")
+                        .append(user.getUser_id());
+                result=temp.toString();
+                break;
+            }
+
         }
         return result;
     }

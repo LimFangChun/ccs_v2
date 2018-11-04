@@ -106,4 +106,10 @@ public class Student extends User {
     public void setUser_id(int user_id) {
         this.user_id = user_id;
     }
+
+    public String getTutorialGroupString(){
+        String academicYearString = Integer.toString(academic_year);
+        String tutorialGroupString = Integer.toString(tutorial_group);
+        return course.concat(academicYearString.concat(" Group ").concat(tutorialGroupString + " ").concat(intake));
+    }
 }

@@ -45,7 +45,8 @@ public class ChatFragment extends Fragment {
     public static final String CHAT_ENGINE_MESSAGE_RECEIVED = "ChatEngineMessageReceived";
     public static final String CHAT_ENGINE_USER_ID = "ChatEngineUserId";
     public static final String TAG = "ChatFragment";
-    private static WeakReference<ChatFragment> mWeakReference;
+
+    private static WeakReference<ChatFragment> sWeakReference;
 
     public static final String SELECTED_CHAT_ROOM_ID = "SelectedChatRoomId";
     public static final String SELECTED_CHAT_ROOM_UNIQUE_TOPIC = "SelectedChatRoomUniqueTopic";
@@ -59,11 +60,12 @@ public class ChatFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_chat, container, false);
 
+
         mRecyclerView = view.findViewById(R.id.recyclerView_chatFragment);
 
         mDescriptionTextView = view.findViewById(R.id.textView_chatFragment_Description);
 
-        mWeakReference = new WeakReference<>(this);
+        sWeakReference = new WeakReference<>(this);
 
         return view;
     }
@@ -72,42 +74,37 @@ public class ChatFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        //MainActivity.mqttHelper.subscribe(ChatFragment.CURRENT_USER_ID +"");
-
         if (SelectContactActivity.sChatRoomId != -1) {
+
             Intent intent = new Intent(getContext(), ChatRoomActivity.class);
             intent.putExtra(SELECTED_CHAT_ROOM_ID, SelectContactActivity.sChatRoomId);
             intent.putExtra(SELECTED_CHAT_ROOM_UNIQUE_TOPIC, SelectContactActivity.sChatRoomUniqueTopic);
+            //This indicate that the whole cycle have officially ended
+            //This prevent the loop when creating new chat room
+            SelectContactActivity.sChatRoomId = -1;
             startActivity(intent);
         }
         // Inform Which page is the user currently at
-        //TODO:
         getActivity().getSharedPreferences(ChatFragment.CHAT_ENGINE_SHARE_PREFERENCES, MODE_PRIVATE)
                 .edit().putString(ChatFragment.CHAT_ENGINE_MESSAGE_RECEIVED, TAG).apply();
+
+        //TODO: Remove this get current user id
         getActivity().getSharedPreferences(ChatFragment.CHAT_ENGINE_SHARE_PREFERENCES, MODE_PRIVATE)
                 .edit().putInt(ChatFragment.CHAT_ENGINE_USER_ID, CURRENT_USER_ID).apply();
 
         new StartupAsyncTask(this).execute();
     }
 
-    public static void refreshPage(){
-        Log.i(TAG, "Refreshing Page");
-        mWeakReference.get().onResume();
-    }
 
     private static class RecyclerViewAdapter extends
             RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
 
-        private static WeakReference<ChatFragment> mWeakReference;
         private ActionCallBackAdapter mActionCallBackAdapter;
         private List<ChatRoom> mChatRoomList;
 
-        private RecyclerViewAdapter(List<ChatRoom> chatRoomList, ChatFragment chatFragment) {
+        private RecyclerViewAdapter(List<ChatRoom> chatRoomList) {
             mChatRoomList = chatRoomList;
-            mWeakReference = new WeakReference<>(chatFragment);
-            mActionCallBackAdapter = new ActionCallBackAdapter(
-                    mWeakReference.get(), this, mWeakReference.get().mRecyclerView
-            );
+            mActionCallBackAdapter = new ActionCallBackAdapter();
         }
 
         protected class ViewHolder extends RecyclerView.ViewHolder
@@ -138,18 +135,18 @@ public class ChatFragment extends Fragment {
                 if (mActionCallBackAdapter.checkActionModeCallBackOpen()) {
 
                     if (mActionCallBackAdapter.setSelectItem(
-                            mChatRoomList.get(getAdapterPosition()), getAdapterPosition())
+                            mChatRoomList.get(getAdapterPosition()))
                             ) {
                         mConstraintLayout.setBackgroundColor(Color.WHITE);
                     } else {
                         mConstraintLayout.setBackgroundColor(Color.TRANSPARENT);
                     }
                 } else {
-                    Intent intent = new Intent(mWeakReference.get().getContext(), ChatRoomActivity.class);
+                    Intent intent = new Intent(sWeakReference.get().getContext(), ChatRoomActivity.class);
                     // Inform which chat room is selected
                     intent.putExtra(SELECTED_CHAT_ROOM_ID, mChatRoomList.get(getAdapterPosition()).getId());
                     intent.putExtra(SELECTED_CHAT_ROOM_UNIQUE_TOPIC, mChatRoomList.get(getAdapterPosition()).getChatRoomUniqueTopic());
-                    mWeakReference.get().startActivity(intent);
+                    sWeakReference.get().startActivity(intent);
                 }
 
             }
@@ -160,7 +157,7 @@ public class ChatFragment extends Fragment {
                 int position = getAdapterPosition();
 
                 if (!mActionCallBackAdapter.checkActionModeCallBackOpen()) {
-                    mWeakReference.get().getActivity().startActionMode(
+                    sWeakReference.get().getActivity().startActionMode(
                             mActionCallBackAdapter
                     );
                     mActionCallBackAdapter.openActionModeCallBack();
@@ -169,7 +166,7 @@ public class ChatFragment extends Fragment {
 
                 ChatRoom chatRoom = mChatRoomList.get(position);
 
-                if (mActionCallBackAdapter.setSelectItem(chatRoom, position)) {
+                if (mActionCallBackAdapter.setSelectItem(chatRoom)) {
                     mConstraintLayout.setBackgroundColor(Color.WHITE);
                 } else {
                     mConstraintLayout.setBackgroundColor(Color.TRANSPARENT);
@@ -192,17 +189,22 @@ public class ChatFragment extends Fragment {
             ChatRoom chatRoom = mChatRoomList.get(position);
 
             holder.mNameTextView.setText(chatRoom.getName());
-            holder.mMessageTextView.setText(chatRoom.getLatestMessage());
+
+            //The chat room will only display when message is not empty except for group chat room
+            if (chatRoom.getLatestMessage().isEmpty()) {
+                holder.mMessageTextView.setText("You have been invited into the group");
+            } else {
+                holder.mMessageTextView.setText(chatRoom.getLatestMessage());
+            }
+
             holder.mDateTimeTextView.setText(new MyDateTime().getTimeFormatSetting(chatRoom.getDateTimeMessageReceived()));
 
+            // Check if item is selected and change the background color accordingly
             if (mActionCallBackAdapter.mSelectedChatRoomList.contains(chatRoom)) {
                 holder.mConstraintLayout.setBackgroundColor(Color.WHITE);
             } else {
                 holder.mConstraintLayout.setBackgroundColor(Color.TRANSPARENT);
             }
-
-            // TODO: Later Implement
-            //holder.mIconImageView.setImageBitmap();
 
         }
 
@@ -213,6 +215,7 @@ public class ChatFragment extends Fragment {
 
     }
 
+    // Start up to load the list of chat room in chat fragment
     private static class StartupAsyncTask extends AsyncTask<Void,Void,List<ChatRoom>> {
 
         private WeakReference<ChatFragment> mWeakReference;
@@ -227,7 +230,7 @@ public class ChatFragment extends Fragment {
             ApplicationDatabase applicationDatabase
                     = ApplicationDatabase.build(mWeakReference.get().getContext());
 
-            return applicationDatabase.chatRoomDao().getAllChatRoom(String.valueOf(ChatFragment.CURRENT_USER_ID));
+            return applicationDatabase.chatRoomDao().getAll(ChatRoom.GROUP_CHAT_ROOM);
         }
 
         @Override
@@ -240,7 +243,8 @@ public class ChatFragment extends Fragment {
                 mWeakReference.get().mDescriptionTextView.setVisibility(View.GONE);
             }
 
-            // FIXME: this place got bug every time start instant run
+            // Note this part will have bug ONLY when you do instant run
+            // normal running function does not effect
             try {
                 LinearLayoutManager linearLayoutManager = new LinearLayoutManager(
                         mWeakReference.get().getContext(),
@@ -256,11 +260,12 @@ public class ChatFragment extends Fragment {
                 mWeakReference.get().mRecyclerView
                         .setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
 
-                mWeakReference.get().mRecyclerView.addItemDecoration(new DividerItemDecoration(mWeakReference.get().getContext(), DividerItemDecoration.VERTICAL));
-
-                mWeakReference.get().mRecyclerView.setAdapter(
-                        new RecyclerViewAdapter(chatRoomList, mWeakReference.get())
+                mWeakReference.get().mRecyclerView.addItemDecoration(
+                        new DividerItemDecoration(mWeakReference.get().getContext()
+                                , DividerItemDecoration.VERTICAL)
                 );
+
+                mWeakReference.get().mRecyclerView.setAdapter(new RecyclerViewAdapter(chatRoomList));
 
             } catch (NullPointerException e) {
                 e.printStackTrace();
@@ -270,28 +275,20 @@ public class ChatFragment extends Fragment {
 
     }
 
+    // This is called in Recycle View onLongClick
+    // This function is use to highlight the selected chat room to delete
     private static class ActionCallBackAdapter implements ActionMode.Callback {
 
-        private WeakReference<ChatFragment> mWeakReference;
         private boolean mIsActionModeCallBackOpen = false;
-        private boolean mIsSelectedChatRoomDeleted = false;
         private ActionMode mActionMode;
-        private RecyclerViewAdapter mRecyclerViewAdapter;
-        private RecyclerView mRecyclerView;
-        private List<Integer> mPositionIntegerList = new ArrayList<>();
         private List<ChatRoom> mSelectedChatRoomList = new ArrayList<>();
 
-        private ActionCallBackAdapter(ChatFragment chatFragment,
-                                      RecyclerViewAdapter recyclerViewAdapter,
-                                      RecyclerView recyclerView) {
-            mWeakReference = new WeakReference<>(chatFragment);
-            mRecyclerViewAdapter = recyclerViewAdapter;
-            mRecyclerView = recyclerView;
+        private ActionCallBackAdapter() {
         }
 
         @Override
         public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
-            mWeakReference.get().getActivity().getMenuInflater()
+            sWeakReference.get().getActivity().getMenuInflater()
                     .inflate(R.menu.context_menu, menu);
 
             mActionMode = actionMode;
@@ -307,34 +304,20 @@ public class ChatFragment extends Fragment {
         @Override
         public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
 
-            mIsSelectedChatRoomDeleted = true;
+            new DeleteAsyncTask(mSelectedChatRoomList).execute();
             actionMode.finish();
-            new DeleteAsyncTask(mSelectedChatRoomList, actionMode,mWeakReference.get()).execute();
+            onDestroyActionMode(actionMode);
             return true;
 
         }
 
         @Override
         public void onDestroyActionMode(ActionMode actionMode) {
-
-            if (mIsSelectedChatRoomDeleted) {
-                for (int i = 0; i < mSelectedChatRoomList.size(); i++) {
-                    mRecyclerViewAdapter.mChatRoomList.remove(mSelectedChatRoomList.get(i));
-                    mRecyclerView.removeViewAt(mPositionIntegerList.get(i));
-                    mRecyclerViewAdapter.notifyItemRemoved(mPositionIntegerList.get(i));
-                }
-
-            } else {
-                mRecyclerViewAdapter.notifyDataSetChanged();
-            }
-
+            //Clear all the selected item and close the action mode
+            //And reload the new list
             mSelectedChatRoomList.clear();
-            mPositionIntegerList.clear();
-            mIsSelectedChatRoomDeleted = false;
             mIsActionModeCallBackOpen = false;
-
-
-            //actionMode.finish();
+            new StartupAsyncTask(sWeakReference.get()).execute();
         }
 
         public boolean checkActionModeCallBackOpen() {
@@ -346,13 +329,12 @@ public class ChatFragment extends Fragment {
         }
 
         /**
-         * The call will return true when item is added and false when item is remove
+         * The function will return true when item is added and false when item is remove
          **/
-        public boolean setSelectItem(ChatRoom chatRoom, int itemPosition) {
+        public boolean setSelectItem(ChatRoom chatRoom) {
             boolean returnValue;
 
             if (mSelectedChatRoomList.contains(chatRoom)) {
-                mPositionIntegerList.remove(Integer.valueOf(itemPosition));
                 mSelectedChatRoomList.remove(chatRoom);
                 if (mSelectedChatRoomList.isEmpty()) {
                     onDestroyActionMode(mActionMode);
@@ -363,7 +345,6 @@ public class ChatFragment extends Fragment {
                 returnValue = false;
 
             } else {
-                mPositionIntegerList.add(itemPosition);
                 mSelectedChatRoomList.add(chatRoom);
                 mActionMode.setTitle(String.valueOf(mSelectedChatRoomList.size()));
                 returnValue = true;
@@ -376,29 +357,26 @@ public class ChatFragment extends Fragment {
 
     private static class DeleteAsyncTask extends AsyncTask<Void, Void, Void> {
 
-        private WeakReference<ChatFragment> mWeakReference;
-        private ActionMode mActionMode;
-        private List<ChatRoom> mChatRoomList;
+        private List<ChatRoom> mChatRoomList = new ArrayList<>();
 
-        private DeleteAsyncTask(List<ChatRoom> chatRoomList, ActionMode actionMode,
-                                       ChatFragment chatFragment) {
-            mWeakReference = new WeakReference<>(chatFragment);
-            mActionMode = actionMode;
-            mChatRoomList = chatRoomList;
+        private DeleteAsyncTask(List<ChatRoom> chatRoomList) {
+            mChatRoomList.addAll(chatRoomList);
         }
 
         @Override
         protected Void doInBackground(Void... voids) {
 
             ApplicationDatabase applicationDatabase =
-                    ApplicationDatabase.build(mWeakReference.get().getContext());
+                    ApplicationDatabase.build(sWeakReference.get().getContext());
 
             // Remove chat room
-            applicationDatabase.chatRoomDao().deleteManyChatRoom(mChatRoomList);
-
             List<Long> roomId = new ArrayList<>();
-            for (int i = 0; i < mChatRoomList.size(); i++) {
-                roomId.add(mChatRoomList.get(i).getId());
+            for (ChatRoom chatRoom : mChatRoomList) {
+                if (!(chatRoom.getStatus().equals(ChatRoom.CHAT_ROOM_JOINED)
+                        && chatRoom.getChatRoomType().equals(ChatRoom.GROUP_CHAT_ROOM))) {
+                    applicationDatabase.chatRoomDao().delete(chatRoom);
+                    roomId.add(chatRoom.getId());
+                }
             }
             // Remove all the chat that is store in the chat history
             applicationDatabase.chatDao().deleteAllChatInChatRoom(roomId);
@@ -412,5 +390,9 @@ public class ChatFragment extends Fragment {
         }
     }
 
+    public static void refreshPage(){
+        Log.i(TAG, "Refreshing Page");
+        sWeakReference.get().onResume();
+    }
 
 }

@@ -12,6 +12,8 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
+import my.edu.tarc.communechat_v2.chatEngine.database.Chat;
+import my.edu.tarc.communechat_v2.chatEngine.database.ChatRoom;
 import my.edu.tarc.communechat_v2.model.Friendship;
 import my.edu.tarc.communechat_v2.model.Student;
 import my.edu.tarc.communechat_v2.model.User;
@@ -32,12 +34,14 @@ public class MqttHelper {
     private String receivedResult;
 
     //change MQTT broker IP address here
+
     //private static final String serverUri = "tcp://192.168.0.110:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
     private static final String serverUri = "tcp://broker.hivemq.com:1883";
     //private static String mqttUsername = "";
     //private static String mqttPassword = "";
     private static final String mqttUsername = "leo477831@gmail.com";
     private static final String mqttPassword = "ba6acd07";
+
 
     private static int QoS = 1;
     private static final String topicPrefix = "/MY/TARUC/CCS/000000001/PUB/";
@@ -422,6 +426,53 @@ public class MqttHelper {
                 result = temp.toString();
                 break;
             }
+
+                //TODO: CE Chat Engine part
+                case MqttHeader.SEND_MESSAGE:{
+                    Chat chat = (Chat) data;
+                    temp.append(MqttHeader.SEND_MESSAGE)
+                            .append(",")
+                            .append(chat.getMessage())
+                            .append(",")
+                            .append(chat.getSenderId())
+                            .append(",")
+                            .append(chat.getDate())
+                            .append(",")
+                            .append(chat.getMessageType())
+                            .append(",")
+                            .append(chat.getChatRoomUniqueTopic())
+                            .append(",")
+                            .append(chat.getComparingDateTime());
+
+                    result = temp.toString();
+                    break;
+                }
+                case MqttHeader.ADD_GROUP_CHAT_ROOM:{
+                    ChatRoom chatRoom = (ChatRoom) data;
+                    temp.append(MqttHeader.ADD_GROUP_CHAT_ROOM)
+                            .append(",")
+                            .append(chatRoom.getChatRoomType())
+                            .append(",")
+                            .append(chatRoom.getChatRoomUniqueTopic())
+                            .append(",")
+                            .append(chatRoom.getDateTimeMessageReceived())
+                            .append(",")
+                            .append(chatRoom.getGroupMember())
+                            .append(",")
+                            .append(chatRoom.getLatestMessage())
+                            .append(",")
+                            .append(chatRoom.getName())
+                            .append(",")
+                            .append(chatRoom.getStatus())
+                            .append(",")
+                            .append(chatRoom.getAdminUserId())
+                            .append(",")
+                            .append(chatRoom.getSecretKey())
+                            .append(",")
+                            .append(chatRoom.getComparingDateTime());
+                    result = temp.toString();
+                    break;
+                }
             case MqttHeader.GET_USER_PROFILE:{
                 User user = (User)data;
                 temp.append(MqttHeader.GET_USER_PROFILE)
@@ -430,6 +481,7 @@ public class MqttHelper {
                 result=temp.toString();
                 break;
             }
+
         }
         return result;
     }

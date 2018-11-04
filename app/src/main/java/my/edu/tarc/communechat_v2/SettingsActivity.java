@@ -49,6 +49,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
 			// notification preference change listener
 			bindPreferenceSummaryToValue(findPreference(getString(R.string.ring_tone_pref)));
+			bindPreferenceSummaryToValue(findPreference(getString(R.string.group_ring_tone_pref)));
 			Preference storagePath = findPreference("storagePath");
 			storagePath.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 				@Override
@@ -93,19 +94,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 		public boolean onPreferenceChange(Preference preference, Object newValue) {
 			String stringValue = newValue.toString();
 
-			if (preference instanceof ListPreference) {
-				// For list preferences, look up the correct display value in
-				// the preference's 'entries' list.
-				ListPreference listPreference = (ListPreference) preference;
-				int index = listPreference.findIndexOfValue(stringValue);
-
-				// Set the summary to reflect the new value.
-				preference.setSummary(
-						index >= 0
-								? listPreference.getEntries()[index]
-								: null);
-
-			} else if (preference instanceof RingtonePreference) {
+			 if (preference instanceof RingtonePreference) {
 				// For ringtone preferences, look up the correct display value
 				// using RingtoneManager.
 				if (TextUtils.isEmpty(stringValue)) {
@@ -113,6 +102,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 					preference.setSummary(R.string.pref_ringtone_silent);
 
 				} else {
+
 					Ringtone ringtone = RingtoneManager.getRingtone(
 							preference.getContext(), Uri.parse(stringValue));
 
@@ -122,7 +112,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 					} else {
 						// Set the summary to reflect the new ringtone display
 						// name.
-
 						String name = ringtone.getTitle(preference.getContext());
 						preference.setSummary(name);
 					}

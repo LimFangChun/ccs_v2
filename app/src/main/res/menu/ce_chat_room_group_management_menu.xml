@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/ce_menu_groupManagement_addMember"
+        android:title="Add Member"
+        app:showAsAction="never"
+        android:orderInCategory="100"/>
+    <item android:id="@+id/ce_menu_groupManagement_leaveGroup"
+        android:title="Leave Group"
+        app:showAsAction="never"
+        android:orderInCategory="100"/>
+    <item android:id="@+id/ce_menu_groupManagement_disbandGroup"
+        android:title="Disband Group"
+        app:showAsAction="never"
+        android:orderInCategory="100"/>
+</menu>

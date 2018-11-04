@@ -14,6 +14,7 @@ public class Chat {
     private long roomId;
     private String message;
     private String date;
+    private String comparingDateTime;
     private String senderId;
     private String messageType;
     private String chatRoomUniqueTopic;
@@ -72,5 +73,13 @@ public class Chat {
 
     public void setChatRoomUniqueTopic(String chatRoomUniqueTopic) {
         this.chatRoomUniqueTopic = chatRoomUniqueTopic;
+    }
+
+    public String getComparingDateTime() {
+        return comparingDateTime;
+    }
+
+    public void setComparingDateTime(String comparingDateTime) {
+        this.comparingDateTime = comparingDateTime;
     }
 }

@@ -36,11 +36,13 @@ public class SelectContactActivity extends AppCompatActivity {
     public static final String SELECTION_TYPE = "SelectionType";
     public static final int SELECT_PRIVATE_CHAT_MEMBER = 1;
     public static final int SELECT_GROUP_CHAT_MEMBER = 2;
+    public static final int SELECT_NEW_GROUP_MEMBER = 3;
 
     public static final int GET_GROUP_NAME_REQUEST = 12345;
 
     public static long sChatRoomId = -1;
     public static String sChatRoomUniqueTopic = "";
+    public static String sChatRoomName = "";
 
     public static final String SELECTED_GROUP_MEMBER_USER_ID = "SelectedGroupMemberUserId";
 
@@ -48,10 +50,12 @@ public class SelectContactActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private int mSelectionAction;
     private MenuItem mMenuAddButton;
-    private static int sUserId;
 
     private List<String> mSelectedUserIdStringList;
     private String mProcessSelectedUserIdString = "EMPTY";
+
+    private List<String> mSelectedUserNameStringList;
+    private static WeakReference<SelectContactActivity> sWeakReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,14 +64,14 @@ public class SelectContactActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        sWeakReference = new WeakReference<>(this);
+
         mSelectedUserIdStringList = new ArrayList<>();
+        mSelectedUserNameStringList = new ArrayList<>();
 
         mSelectionAction = getIntent().getIntExtra(SELECTION_TYPE, 0);
 
         mRecyclerView = findViewById(R.id.recyclerView_selectContactActivity);
-
-        sUserId = getSharedPreferences(ChatFragment.CHAT_ENGINE_SHARE_PREFERENCES, MODE_PRIVATE)
-                .getInt(ChatFragment.CHAT_ENGINE_USER_ID, 0);
 
         // Check whether action bar is initialize
         if (getSupportActionBar() != null) {
@@ -76,6 +80,7 @@ public class SelectContactActivity extends AppCompatActivity {
         }
 
     }
+
     @Override
     public boolean onSupportNavigateUp() {
         onBackPressed();
@@ -85,7 +90,7 @@ public class SelectContactActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        new StartupAsyncTask(this).execute();
+        new StartupAsyncTask().execute();
     }
 
     @Override
@@ -101,22 +106,50 @@ public class SelectContactActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         if (item.getItemId() == R.id.ce_menu_contact_selection_add) {
-
             StringBuilder stringBuilder = new StringBuilder();
-            for (int i = 0; i < mSelectedUserIdStringList.size(); i++) {
-                stringBuilder.append(mSelectedUserIdStringList.get(i)).append(ChatRoom.GROUP_DIVIDER);
+            if (mSelectionAction == SELECT_NEW_GROUP_MEMBER) {
+                //Add member into the list
+                for (int i = 0; i < mSelectedUserIdStringList.size(); i++) {
+                    stringBuilder.append(mSelectedUserIdStringList.get(i))
+                            .append(ChatRoom.ID_NAME_DIVIDER)
+                            .append(mSelectedUserNameStringList.get(i))
+                            .append(ChatRoom.GROUP_DIVIDER);
+                }
+
+                mProcessSelectedUserIdString = stringBuilder.toString();
+
+                Intent intent = new Intent();
+                intent.putExtra(GroupManagementActivity.NEW_MEMBER_DETAIL, mProcessSelectedUserIdString);
+                setResult(RESULT_OK, intent);
+                finish();
+            } else {
+
+                //Note: Add Group Chat
+                //TODO: Missing username
+                // Add Admin into member list
+                stringBuilder.append(ChatFragment.CURRENT_USER_ID)
+                        .append(ChatRoom.ID_NAME_DIVIDER)
+                        .append("Current User Name")
+                        .append(ChatRoom.GROUP_DIVIDER);
+
+                //Add member into the list
+                for (int i = 0; i < mSelectedUserIdStringList.size(); i++) {
+                    stringBuilder.append(mSelectedUserIdStringList.get(i))
+                            .append(ChatRoom.ID_NAME_DIVIDER)
+                            .append(mSelectedUserNameStringList.get(i))
+                            .append(ChatRoom.GROUP_DIVIDER);
+                }
+
+                mProcessSelectedUserIdString = stringBuilder.toString();
+
+                Intent intent = new Intent(this, AddGroupActivity.class);
+                intent.putExtra(SELECTED_GROUP_MEMBER_USER_ID, mProcessSelectedUserIdString);
+
+                startActivityForResult(intent, GET_GROUP_NAME_REQUEST);
+
             }
-
-            mProcessSelectedUserIdString = stringBuilder.toString();
-
-            Intent intent = new Intent(this, AddGroupActivity.class);
-            intent.putExtra(SELECTED_GROUP_MEMBER_USER_ID, mProcessSelectedUserIdString);
-
-            startActivityForResult(intent, GET_GROUP_NAME_REQUEST);
-
-            mMenuAddButton.setVisible(false);
-
         }
+
 
         return super.onOptionsItemSelected(item);
     }
@@ -131,28 +164,29 @@ public class SelectContactActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 String chatRoomGroupUniqueTopic = ChatFragment.CURRENT_USER_ID + "_" + (new MyDateTime().getDateTime());
 
+                MyDateTime myDateTime = new MyDateTime();
+
                 ChatRoom chatRoom = new ChatRoom();
                 chatRoom.setStatus(ChatRoom.CHAT_ROOM_JOINED);
                 chatRoom.setChatRoomType(ChatRoom.GROUP_CHAT_ROOM);
                 chatRoom.setName(data.getStringExtra(AddGroupActivity.GROUP_NAME));
-                chatRoom.setDateTimeMessageReceived("");
+                chatRoom.setDateTimeMessageReceived(myDateTime.getDateTime());
                 chatRoom.setChatRoomUniqueTopic(chatRoomGroupUniqueTopic);
                 chatRoom.setLatestMessage("");
-                if (!mProcessSelectedUserIdString.equals("EMPTY")) {
-                    chatRoom.setGroupMember(mProcessSelectedUserIdString);
-                } else {
+                chatRoom.setAdminUserId(String.valueOf(ChatFragment.CURRENT_USER_ID) + ChatRoom.GROUP_DIVIDER);
+                chatRoom.setComparingDateTime(String.valueOf(myDateTime.getCurrentTimeInMillisecond()));
+                if (mProcessSelectedUserIdString.equals("EMPTY")) {
                     StringBuilder stringBuilder = new StringBuilder();
                     for (int i = 0; i < mSelectedUserIdStringList.size(); i++) {
-                        stringBuilder.append(mSelectedUserIdStringList.get(i)).append(ChatRoom.GROUP_DIVIDER);
+                        stringBuilder.append(mSelectedUserIdStringList.get(i))
+                                .append(ChatRoom.ID_NAME_DIVIDER)
+                                .append(mSelectedUserNameStringList.get(i))
+                                .append(ChatRoom.GROUP_DIVIDER);
                     }
                     mProcessSelectedUserIdString = stringBuilder.toString();
                 }
 
-                //TODO: this part need to notify the other user of the group to subscribe to the group
-                /*MainActivity.mqttHelper.connectPublishSubscribe(this,
-                        chatRoomGroupUniqueTopic,
-                        MqttHeader.ADD_GROUP_CHAT_ROOM, chatRoom
-                );*/
+                chatRoom.setGroupMember(mProcessSelectedUserIdString);
 
                 //Publish to every group member in the group that is invited using their User Id as a Unique Topic
                 for (int i = 0; i < mSelectedUserIdStringList.size(); i++) {
@@ -162,10 +196,8 @@ public class SelectContactActivity extends AppCompatActivity {
                     );
                 }
 
-                new InsertAsyncTask(this, chatRoom).execute();
+                new InsertAsyncTask(chatRoom).execute();
             }
-
-
 
         }
 
@@ -173,24 +205,38 @@ public class SelectContactActivity extends AppCompatActivity {
 
     private static class StartupAsyncTask extends AsyncTask<Void, Void, List<User>> {
 
-        private WeakReference<SelectContactActivity> mWeakReference;
 
-        private StartupAsyncTask(SelectContactActivity selectContactActivity) {
-            mWeakReference = new WeakReference<>(selectContactActivity);
+        private StartupAsyncTask() {
+
         }
 
         @Override
         protected List<User> doInBackground(Void... voids) {
 
-            ApplicationDatabase applicationDatabase
-                    = ApplicationDatabase.build(mWeakReference.get());
+            //TODO: Need to add method to prevent from adding existing member into group
+            /*String[] existingGroupMember = sWeakReference.get().getIntent().getStringExtra(
+                    GroupManagementActivity.EXISTING_MEMBER_LIST).split(ChatRoom.GROUP_DIVIDER
+            );*/
+
+            /*
+            * if (existingGroupMember[0].equal(XX)) {
+            *
+            * }
+            *
+            * */
 
             // TODO: this part need to be official
             List<User> userList = new ArrayList<>();
             User user = new User();
-            user.setUser_id(1709498);
+            user.setUser_id(1700003);
             user.setUsername("Mr X");
             userList.add(user);
+
+            user = new User();
+            user.setUser_id(1700004);
+            user.setUsername("Mr X");
+            userList.add(user);
+
 
             if (ChatFragment.CURRENT_USER_ID == 1700001) {
                 user = new User();
@@ -205,8 +251,6 @@ public class SelectContactActivity extends AppCompatActivity {
             }
 
 
-
-
             return userList;
         }
 
@@ -214,18 +258,14 @@ public class SelectContactActivity extends AppCompatActivity {
         protected void onPostExecute(List<User> userList) {
             super.onPostExecute(userList);
 
-            // FIXME: this place got bug every time start instant run
             try {
                 LinearLayoutManager linearLayoutManager = new LinearLayoutManager(
-                        mWeakReference.get(), LinearLayoutManager.VERTICAL, false
+                        sWeakReference.get(), LinearLayoutManager.VERTICAL, false
                 );
 
-                mWeakReference.get().mRecyclerView.setLayoutManager(linearLayoutManager);
-                mWeakReference.get().mRecyclerView.setHasFixedSize(true);
-
-                mWeakReference.get().mRecyclerView.setAdapter(
-                        new RecyclerViewAdapter(userList, mWeakReference.get()));
-
+                sWeakReference.get().mRecyclerView.setLayoutManager(linearLayoutManager);
+                sWeakReference.get().mRecyclerView.setHasFixedSize(true);
+                sWeakReference.get().mRecyclerView.setAdapter(new RecyclerViewAdapter(userList));
 
             } catch (NullPointerException e) {
                 e.printStackTrace();
@@ -239,17 +279,14 @@ public class SelectContactActivity extends AppCompatActivity {
     private static class RecyclerViewAdapter extends
             RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
 
-        private static WeakReference<SelectContactActivity> mWeakReference;
         private List<User> mUserList;
 
-        private RecyclerViewAdapter(List<User> userList, SelectContactActivity selectContactActivity) {
+        private RecyclerViewAdapter(List<User> userList) {
             mUserList = userList;
-            mWeakReference = new WeakReference<>(selectContactActivity);
         }
 
-        protected class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+        protected class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-            private ImageView mIconImageView;
             private TextView mUserNameTextView;
             private ConstraintLayout mConstraintLayout;
 
@@ -268,22 +305,20 @@ public class SelectContactActivity extends AppCompatActivity {
                 User user = mUserList.get(position);
 
 
-                if (mWeakReference.get().mSelectionAction == SELECT_PRIVATE_CHAT_MEMBER) {
-                    //TODO here add private chatRoom
+                if (sWeakReference.get().mSelectionAction == SELECT_PRIVATE_CHAT_MEMBER) {
 
                     ChatRoom chatRoom = new ChatRoom();
                     chatRoom.setStatus(ChatRoom.CHAT_ROOM_JOINED);
                     chatRoom.setChatRoomType(ChatRoom.PRIVATE_CHAT_ROOM);
                     chatRoom.setName(user.getUsername());
                     chatRoom.setDateTimeMessageReceived("");
-                    //chatRoom.setChatRoomUniqueTopic(String.valueOf(ChatFragment.CURRENT_USER_ID) + "_" + user.getUser_id());
-                    chatRoom.setChatRoomUniqueTopic(user.getUser_id()+"");
+                    chatRoom.setChatRoomUniqueTopic(user.getUser_id() + "");
                     chatRoom.setLatestMessage("");
 
-                    new InsertAsyncTask(mWeakReference.get(), chatRoom).execute();
+                    new InsertAsyncTask(chatRoom).execute();
 
                 } else {
-                    if (setSelectItem(String.valueOf(user.getUser_id()))) {
+                    if (setSelectItem(String.valueOf(user.getUser_id()), user.getUsername())) {
                         mConstraintLayout.setBackgroundColor(Color.WHITE);
                     } else {
                         mConstraintLayout.setBackgroundColor(Color.TRANSPARENT);
@@ -308,7 +343,7 @@ public class SelectContactActivity extends AppCompatActivity {
 
             holder.mUserNameTextView.setText(String.valueOf(user.getUser_id()));
 
-            if (mWeakReference.get().mSelectedUserIdStringList.contains(String.valueOf(user.getUser_id()))) {
+            if (sWeakReference.get().mSelectedUserIdStringList.contains(String.valueOf(user.getUser_id()))) {
                 holder.mConstraintLayout.setBackgroundColor(Color.WHITE);
             } else {
                 holder.mConstraintLayout.setBackgroundColor(Color.TRANSPARENT);
@@ -321,22 +356,24 @@ public class SelectContactActivity extends AppCompatActivity {
             return mUserList.size();
         }
 
-        private boolean setSelectItem(String userId) {
+        private boolean setSelectItem(String userId, String username) {
 
             boolean objectExist;
 
-            if (mWeakReference.get().mSelectedUserIdStringList.contains(userId)) {
-                mWeakReference.get().mSelectedUserIdStringList.remove(userId);
+            if (sWeakReference.get().mSelectedUserIdStringList.contains(userId)) {
+                sWeakReference.get().mSelectedUserIdStringList.remove(userId);
+                sWeakReference.get().mSelectedUserNameStringList.remove(username);
                 objectExist = false;
             } else {
-                mWeakReference.get().mSelectedUserIdStringList.add(userId);
+                sWeakReference.get().mSelectedUserIdStringList.add(userId);
+                sWeakReference.get().mSelectedUserNameStringList.add(username);
                 objectExist = true;
             }
 
-            if (mWeakReference.get().mSelectedUserIdStringList.size() > 0) {
-                mWeakReference.get().mMenuAddButton.setVisible(true);
+            if (sWeakReference.get().mSelectedUserIdStringList.size() > 0) {
+                sWeakReference.get().mMenuAddButton.setVisible(true);
             } else {
-                mWeakReference.get().mMenuAddButton.setVisible(false);
+                sWeakReference.get().mMenuAddButton.setVisible(false);
             }
 
 
@@ -344,16 +381,13 @@ public class SelectContactActivity extends AppCompatActivity {
         }
 
 
-
     }
 
-    private static class InsertAsyncTask extends AsyncTask<Void,Void,Void> {
+    private static class InsertAsyncTask extends AsyncTask<Void, Void, Void> {
 
-        private WeakReference<SelectContactActivity> mWeakReference;
         private ChatRoom mChatRoom;
 
-        private InsertAsyncTask(SelectContactActivity selectContactActivity, ChatRoom chatRoom) {
-            mWeakReference = new WeakReference<>(selectContactActivity);
+        private InsertAsyncTask(ChatRoom chatRoom) {
             mChatRoom = chatRoom;
         }
 
@@ -361,16 +395,19 @@ public class SelectContactActivity extends AppCompatActivity {
         protected Void doInBackground(Void... voids) {
 
             ApplicationDatabase applicationDatabase
-                    = ApplicationDatabase.build(mWeakReference.get());
+                    = ApplicationDatabase.build(sWeakReference.get());
 
-            ChatRoom chatRoom = applicationDatabase.chatRoomDao().searchExistingChatRoomString(mChatRoom.getChatRoomUniqueTopic());
+            ChatRoom chatRoom = applicationDatabase.chatRoomDao()
+                    .get(mChatRoom.getChatRoomUniqueTopic());
 
             if (chatRoom == null) {
                 sChatRoomId = applicationDatabase.chatRoomDao().insert(mChatRoom);
                 sChatRoomUniqueTopic = mChatRoom.getChatRoomUniqueTopic();
+                sChatRoomName = mChatRoom.getName();
             } else {
                 sChatRoomId = chatRoom.getId();
                 sChatRoomUniqueTopic = chatRoom.getChatRoomUniqueTopic();
+                sChatRoomName = chatRoom.getName();
             }
 
 
@@ -380,13 +417,10 @@ public class SelectContactActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-
-            mWeakReference.get().finish();
-
+            sWeakReference.get().finish();
         }
 
     }
-
 
 
 }

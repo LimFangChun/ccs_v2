@@ -47,7 +47,7 @@ public class TestData {
         chatRoom.setId(1);
         chatRoom.setChatRoomUniqueTopic("Group Creator Id + Date & Time Unique Value");
         chatRoom.setChatRoomType(ChatRoom.PRIVATE_CHAT_ROOM);
-        chatRoom.setStatus(ChatRoom.ACTIVE_STATUS);
+        //chatRoom.setStatus(ChatRoom.ACTIVE_STATUS);
         chatRoomList.add(chatRoom);
 
         chatRoom = new ChatRoom();
@@ -56,7 +56,7 @@ public class TestData {
         chatRoom.setDateTimeMessageReceived(calendar.get(Calendar.DAY_OF_MONTH) + " - " + calendar.get(Calendar.MONTH) + " - " + calendar.get(Calendar.YEAR));
         chatRoom.setId(2);
         chatRoom.setChatRoomUniqueTopic("Group Creator Id + Date & Time Unique Value2");
-        chatRoom.setStatus(ChatRoom.ACTIVE_STATUS);
+        //chatRoom.setStatus(ChatRoom.ACTIVE_STATUS);
         chatRoomList.add(chatRoom);
 
         return chatRoomList;

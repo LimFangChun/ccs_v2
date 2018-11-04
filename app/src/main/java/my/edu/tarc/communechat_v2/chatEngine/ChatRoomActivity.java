@@ -36,6 +36,7 @@ import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
@@ -50,31 +51,34 @@ import my.edu.tarc.communechat_v2.internal.MqttHeader;
 public class ChatRoomActivity extends AppCompatActivity implements View.OnClickListener {
 
     private EditText mMessageBoxEditText;
-    private List<Chat> mChatList;
     private RecyclerView mRecyclerView;
     private long mChatRoomIdLong;
     private String mChatRoomUniqueTopic = "0";
 
+    private String mGroupStatus;
+
     private long mUserContactId;
     //private long mRecipientContactId;
     public static final String TAG = "ChatRoomActivity";
-    private static WeakReference<ChatRoomActivity> mWeakReference;
+
+    private static WeakReference<ChatRoomActivity> sWeakReference;
+    private boolean mIsThisAGroupChatRoom = false;
+
+    private MenuItem mGroupInfoMenuItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_room);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
 
         //TODO: replace it with the real actual id
         mUserContactId = getSharedPreferences(ChatFragment.CHAT_ENGINE_SHARE_PREFERENCES, MODE_PRIVATE)
                 .getInt(ChatFragment.CHAT_ENGINE_USER_ID, 0);
-        // TODO: get recipient contact id
-        //mRecipientContactId = getIntent().getLongExtra();
 
-        //This prevent the loop when creating new chat room
-        SelectContactActivity.sChatRoomId = -1;
+
 
         // Check whether action bar is initialize
         if (getSupportActionBar() != null) {
@@ -92,18 +96,23 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
 
         mRecyclerView = findViewById(R.id.recyclerView_chatRoomActivity);
 
-        mWeakReference = new WeakReference<>(this);
+        sWeakReference = new WeakReference<>(this);
+
 
     }
 
     public static void refreshPage() {
         Log.i(TAG, "Refreshing Page");
-        mWeakReference.get().onPostResume();
+        sWeakReference.get().onResume();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.ce_chat_room_menu, menu);
+        mGroupInfoMenuItem = menu.findItem(R.id.ce_menu_chatRoom_check);
+        //Only reveal the group info button in the action bar when this chat room is a group room
+        mGroupInfoMenuItem.setVisible(mIsThisAGroupChatRoom);
+
         return true;
     }
 
@@ -113,18 +122,17 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
 
         switch (item.getItemId()) {
             case R.id.ce_menu_chatRoom_search:
-                //TODO TEMP
-                //MainActivity.mqttHelper.subscribe(mUserContactId + "_" + mRecipientContactId);
-                //MainActivity.mqttHelper.subscribe( mRecipientContactId + "_" + mUserContactId);
-                // Qos = 1 means guarantee send message
-
-                //Intent intent = new Intent(this, AddGroupActivity.class);
-                //startActivity(intent);
+                //TODO If there's time do a search function here
                 break;
             case R.id.ce_menu_chatRoom_check:
-                // TODO: This part must be called at the beginning of the app
-                // It will notify the broker to retrieve message
-                //MainActivity.mqttHelper.getMqttClient().setCallback(new ChatSubscribeCallBack(this));
+                //This part call the group management activity
+                //Only group chat room can access to group management
+                if (mIsThisAGroupChatRoom) {
+                    Intent intent = new Intent(this, GroupManagementActivity.class);
+                    intent.putExtra(GroupManagementActivity.CHAT_ROOM_TOPIC, mChatRoomUniqueTopic);
+                    startActivity(intent);
+                }
+
                 break;
 
         }
@@ -134,50 +142,46 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
 
 
     @Override
-    protected void onPostResume() {
-        super.onPostResume();
+    protected void onResume() {
+        super.onResume();
+
         // Inform Which page is the user currently at
         getSharedPreferences(ChatFragment.CHAT_ENGINE_SHARE_PREFERENCES, MODE_PRIVATE)
                 .edit().putString(ChatFragment.CHAT_ENGINE_MESSAGE_RECEIVED, TAG).apply();
 
-        new StartupAsyncTask(this).execute();
+        new StartupAsyncTask().execute();
     }
 
     @Override
     public void onClick(View view) {
 
+
         if (!mMessageBoxEditText.getText().toString().equals("")) {
-            //FIXME: here stuck
+
+            MyDateTime myDateTime = new MyDateTime();
+
             Chat chat = new Chat();
-            chat.setDate(new MyDateTime().getDateTime());
+            chat.setDate(myDateTime.getDateTime());
             chat.setMessage(mMessageBoxEditText.getText().toString());
             chat.setMessageType(Chat.TEXT_MESSAGE);
-            chat.setRoomId(mChatRoomIdLong);
 
             // This part put your user id
             chat.setSenderId(String.valueOf(mUserContactId));
             chat.setChatRoomUniqueTopic(mChatRoomUniqueTopic);
-
-            String[] processUniqueTopic = mChatRoomUniqueTopic.split("_");
-            //chat.setChatRoomUniqueTopic(processUniqueTopic[1] + "_" + processUniqueTopic[0]);
-
-            //Log.i(TAG, "MUST SEE" + mChatRoomUniqueTopic);
-            //Log.i(TAG, "MUST SEE" + processUniqueTopic[1] + "_" + processUniqueTopic[0]);
-
-            //String uniqueTopic = UUID.randomUUID().toString().substring(0, 8);
-            //TODO: CE Place Chat Room Id
+            chat.setRoomId(mChatRoomIdLong);
+            chat.setComparingDateTime(String.valueOf(myDateTime.getCurrentTimeInMillisecond()));
 
             if (isNetworkAvailable()) {
 
-                MainActivity.mqttHelper.connectPublishSubscribe(this,
+                MainActivity.mqttHelper.publish(
                         mChatRoomUniqueTopic,
                         MqttHeader.SEND_MESSAGE, chat
                 );
 
-                new UpdateAsyncTask(this, chat).execute();
+                new UpdateAsyncTask(this, chat, mChatRoomIdLong).execute();
                 mMessageBoxEditText.setText("");
 
-            }
+            } //TODO add alert dialog
 
 
         }
@@ -193,16 +197,14 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
     private static class RecyclerViewAdapter extends
             RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
 
-        private static WeakReference<ChatRoomActivity> mWeakReference;
+        private static long sSizeOfChat = 0;
         private List<Chat> mChatList;
         private ActionCallBackAdapter mActionCallBackAdapter;
 
-        private RecyclerViewAdapter(List<Chat> chatList, ChatRoomActivity chatRoomFragment) {
+        private RecyclerViewAdapter(List<Chat> chatList) {
             mChatList = chatList;
-            mWeakReference = new WeakReference<>(chatRoomFragment);
-            mActionCallBackAdapter = new ActionCallBackAdapter(
-                    mWeakReference.get(), this, mWeakReference.get().mRecyclerView
-            );
+            sSizeOfChat = chatList.size();
+            mActionCallBackAdapter = new ActionCallBackAdapter(this);
         }
 
         protected class ViewHolder extends RecyclerView.ViewHolder
@@ -211,6 +213,7 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
             private ImageView mIconImageView;
             private TextView mSenderLeftTextView, mUserRightTextView;
             private TextView mSenderLeftTimeTextView, mUserRightTimeTextView;
+            private TextView mSenderLeftNameTextView;
 
             private ConstraintLayout mConstraintLayout;
 
@@ -219,9 +222,20 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
 
                 mUserRightTextView = itemView.findViewById(R.id.textView_itemChatRoom_userRight);
                 mSenderLeftTextView = itemView.findViewById(R.id.textView_itemChatRoom_senderLeft);
+
                 mConstraintLayout = itemView.findViewById(R.id.layout);
+
                 mSenderLeftTimeTextView = itemView.findViewById(R.id.textView_itemChatRoom_senderLeftTime);
                 mUserRightTimeTextView = itemView.findViewById(R.id.textView_itemChatRoom_userRightTime);
+
+                mSenderLeftNameTextView = itemView.findViewById(R.id.textView_itemChatRoom_senderLeftName);
+
+                mUserRightTextView.setBackgroundColor(Color.GRAY);
+                mUserRightTimeTextView.setBackgroundColor(Color.GRAY);
+
+                mSenderLeftNameTextView.setBackgroundColor(sWeakReference.get().getResources().getColor(R.color.colorPrimary));
+                mSenderLeftTimeTextView.setBackgroundColor(sWeakReference.get().getResources().getColor(R.color.colorPrimary));
+                mSenderLeftTextView.setBackgroundColor(sWeakReference.get().getResources().getColor(R.color.colorPrimary));
 
                 itemView.setOnClickListener(this);
                 itemView.setOnLongClickListener(this);
@@ -235,7 +249,7 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
 
                 if (mActionCallBackAdapter.checkActionModeCallBackOpen()) {
 
-                    if (mActionCallBackAdapter.setSelectItem(chat, position)) {
+                    if (mActionCallBackAdapter.setSelectItem(chat)) {
                         mConstraintLayout.setBackgroundColor(Color.WHITE);
                     } else {
                         mConstraintLayout.setBackgroundColor(Color.TRANSPARENT);
@@ -249,7 +263,7 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
                 int position = getAdapterPosition();
 
                 if (!mActionCallBackAdapter.checkActionModeCallBackOpen()) {
-                    mWeakReference.get().startActionMode(
+                    sWeakReference.get().startActionMode(
                             mActionCallBackAdapter
                     );
                     mActionCallBackAdapter.openActionModeCallBack();
@@ -258,7 +272,7 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
 
                 Chat chat = mChatList.get(position);
 
-                if (mActionCallBackAdapter.setSelectItem(chat, position)) {
+                if (mActionCallBackAdapter.setSelectItem(chat)) {
                     mConstraintLayout.setBackgroundColor(Color.WHITE);
                 } else {
                     mConstraintLayout.setBackgroundColor(Color.TRANSPARENT);
@@ -281,29 +295,44 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
 
             Chat chat = mChatList.get(position);
 
-
             if (mActionCallBackAdapter.mSelectedChatList.contains(chat)) {
                 holder.mConstraintLayout.setBackgroundColor(Color.WHITE);
             } else {
                 holder.mConstraintLayout.setBackgroundColor(Color.TRANSPARENT);
             }
 
-            if (chat.getSenderId().equals(String.valueOf(mWeakReference.get().mUserContactId))) {
+            String secondFormat;
+            // This part add 0 in front of the minute if value is less than 10
+            if (Integer.parseInt(MyDateTime.getTime(chat.getDate()).split(":")[1]) > 9) {
+                secondFormat = MyDateTime.getTime(chat.getDate()).split(":")[1];
+            } else {
+                secondFormat = "0" + MyDateTime.getTime(chat.getDate()).split(":")[1];
+            }
+
+            String displayTime = MyDateTime.getTime(chat.getDate()).split(":")[0] + ":" + secondFormat;
+
+            if (chat.getSenderId().equals(String.valueOf(sWeakReference.get().mUserContactId))) {
                 holder.mUserRightTextView.setVisibility(View.VISIBLE);
                 holder.mUserRightTextView.setText(chat.getMessage());
                 holder.mUserRightTimeTextView.setVisibility(View.VISIBLE);
-                holder.mUserRightTimeTextView.setText(MyDateTime.getTime(chat.getDate()));
+                holder.mUserRightTimeTextView.setText(displayTime);
 
                 holder.mSenderLeftTimeTextView.setVisibility(View.GONE);
                 holder.mSenderLeftTextView.setVisibility(View.GONE);
+                holder.mSenderLeftNameTextView.setVisibility(View.GONE);
 
 
             } else {
                 holder.mSenderLeftTextView.setText(chat.getMessage());
                 holder.mSenderLeftTextView.setVisibility(View.VISIBLE);
-                holder.mSenderLeftTimeTextView.setText(MyDateTime.getTime(chat.getDate()));
+                holder.mSenderLeftTimeTextView.setText(displayTime);
                 holder.mSenderLeftTimeTextView.setVisibility(View.VISIBLE);
+                //Check whether message is a group message
 
+                if (sWeakReference.get().mIsThisAGroupChatRoom) {
+                    holder.mSenderLeftNameTextView.setText(chat.getSenderId());
+                    holder.mSenderLeftNameTextView.setVisibility(View.VISIBLE);
+                }
 
                 holder.mUserRightTextView.setVisibility(View.GONE);
                 holder.mUserRightTimeTextView.setVisibility(View.GONE);
@@ -320,30 +349,19 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
 
     private static class ActionCallBackAdapter implements ActionMode.Callback {
 
-        private WeakReference<ChatRoomActivity> mWeakReference;
         private boolean mIsActionModeCallBackOpen = false;
-        private boolean mIsSelectedChatDeleted = false;
         private ActionMode mActionMode;
         private RecyclerViewAdapter mRecyclerViewAdapter;
-        private RecyclerView mRecyclerView;
-        private List<Integer> mPositionIntegerList = new ArrayList<>();
         private List<Chat> mSelectedChatList = new ArrayList<>();
 
-        private ActionCallBackAdapter(ChatRoomActivity chatRoomActivity,
-                                      RecyclerViewAdapter recyclerViewAdapter,
-                                      RecyclerView recyclerView) {
-            mWeakReference = new WeakReference<>(chatRoomActivity);
+        private ActionCallBackAdapter(RecyclerViewAdapter recyclerViewAdapter) {
             mRecyclerViewAdapter = recyclerViewAdapter;
-            mRecyclerView = recyclerView;
         }
 
         @Override
         public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
-            mWeakReference.get().getMenuInflater()
-                    .inflate(R.menu.context_menu, menu);
-
+            sWeakReference.get().getMenuInflater().inflate(R.menu.context_menu, menu);
             mActionMode = actionMode;
-
             return true;
         }
 
@@ -355,8 +373,7 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
         @Override
         public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
 
-            mIsSelectedChatDeleted = true;
-            new DeleteAsyncTask(mSelectedChatList, actionMode, mWeakReference.get()).execute();
+            new DeleteAsyncTask(mSelectedChatList, actionMode, sWeakReference.get()).execute();
             return true;
 
         }
@@ -367,11 +384,9 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
 
             mRecyclerViewAdapter.notifyDataSetChanged();
             mSelectedChatList.clear();
-            mPositionIntegerList.clear();
-            mIsSelectedChatDeleted = false;
             mIsActionModeCallBackOpen = false;
             actionMode.finish();
-            mWeakReference.get().onPostResume();
+            sWeakReference.get().onResume();
         }
 
         public boolean checkActionModeCallBackOpen() {
@@ -385,11 +400,10 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
         /**
          * The call will return true when item is added and false when item is remove
          **/
-        public boolean setSelectItem(Chat chat, int itemPosition) {
+        public boolean setSelectItem(Chat chat) {
             boolean returnValue;
 
             if (mSelectedChatList.contains(chat)) {
-                mPositionIntegerList.remove(Integer.valueOf(itemPosition));
                 mSelectedChatList.remove(chat);
                 if (mSelectedChatList.isEmpty()) {
                     onDestroyActionMode(mActionMode);
@@ -399,7 +413,6 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
                 returnValue = false;
 
             } else {
-                mPositionIntegerList.add(itemPosition);
                 mSelectedChatList.add(chat);
                 mActionMode.setTitle(String.valueOf(mSelectedChatList.size()));
                 returnValue = true;
@@ -422,38 +435,63 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
 
     private static class StartupAsyncTask extends AsyncTask<Void,Void,List<Chat>> {
 
-        private WeakReference<ChatRoomActivity> mWeakReference;
+        private ChatRoom mChatRoom;
 
-        private StartupAsyncTask(ChatRoomActivity chatRoomActivity) {
-            mWeakReference = new WeakReference<>(chatRoomActivity);
+        private StartupAsyncTask() {
         }
 
         @Override
         protected List<Chat> doInBackground(Void... voids) {
 
             ApplicationDatabase applicationDatabase
-                    = ApplicationDatabase.build(mWeakReference.get());
+                    = ApplicationDatabase.build(sWeakReference.get());
 
+            Log.i(TAG,sWeakReference.get().mChatRoomUniqueTopic + "Topic" );
+
+            mChatRoom = applicationDatabase.chatRoomDao().get(sWeakReference.get().mChatRoomUniqueTopic);
+
+            Log.i(TAG, (mChatRoom == null) + "");
+
+            //Inform the chat room that is open is a group or private
+            sWeakReference.get().mIsThisAGroupChatRoom =
+                    mChatRoom.getChatRoomType().equals(ChatRoom.GROUP_CHAT_ROOM);
+
+            sWeakReference.get().mGroupStatus = mChatRoom.getStatus();
 
             return applicationDatabase.chatDao()
-                    .getChatFromChatRoom(mWeakReference.get().mChatRoomIdLong);
+                    .getChatFromChatRoom(sWeakReference.get().mChatRoomIdLong);
         }
 
         @Override
         protected void onPostExecute(List<Chat> chatList) {
             super.onPostExecute(chatList);
 
-            // FIXME: this place got bug every time start instant run
-            try {
-                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(
-                        mWeakReference.get(), LinearLayoutManager.VERTICAL, false
-                );
-                linearLayoutManager.setStackFromEnd(true);
-                mWeakReference.get().mRecyclerView.setLayoutManager(linearLayoutManager);
-                mWeakReference.get().mRecyclerView.setHasFixedSize(true);
+            if (mChatRoom.getChatRoomType().equals(ChatRoom.GROUP_CHAT_ROOM)) {
+                if (sWeakReference.get().mGroupStatus.equals(ChatRoom.CHAT_ROOM_JOINED)) {
+                    sWeakReference.get().mMessageBoxEditText.setFocusable(true);
+                    sWeakReference.get().mMessageBoxEditText.setEnabled(true);
+                    sWeakReference.get().mMessageBoxEditText.setCursorVisible(true);
+                } else {
+                    sWeakReference.get().mMessageBoxEditText.setFocusable(false);
+                    sWeakReference.get().mMessageBoxEditText.setEnabled(false);
+                    sWeakReference.get().mMessageBoxEditText.setCursorVisible(false);
 
-                mWeakReference.get().mRecyclerView.setAdapter(
-                        new RecyclerViewAdapter(chatList, mWeakReference.get()));
+                }
+            }
+
+            try {
+                sWeakReference.get().setTitle(mChatRoom.getName());
+                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(
+                        sWeakReference.get(), LinearLayoutManager.VERTICAL, true
+                );
+                linearLayoutManager.setStackFromEnd(false);
+                sWeakReference.get().mRecyclerView.setLayoutManager(linearLayoutManager);
+                sWeakReference.get().mRecyclerView.setHasFixedSize(true);
+
+
+
+                sWeakReference.get().mRecyclerView.setAdapter(
+                        new RecyclerViewAdapter(chatList));
 
             } catch (NullPointerException e) {
                 e.printStackTrace();
@@ -463,33 +501,41 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
 
     }
 
-    private static class UpdateAsyncTask extends AsyncTask<Void,Void,Void> {
+    public static class UpdateAsyncTask extends AsyncTask<Void,Void,Void> {
 
-        private WeakReference<ChatRoomActivity> mWeakReference;
         private Chat mChat;
+        private long mChatRoomIdLong;
 
-        private UpdateAsyncTask(ChatRoomActivity chatRoomActivity, Chat chat) {
-            mWeakReference = new WeakReference<>(chatRoomActivity);
+        /*
+         *   Would have used weak reference but one part in notification can only provide context
+        */
+        
+        private Context mContext;
+
+        public UpdateAsyncTask(Context context, Chat chat, long chatRoomLongId) {
+
+            mContext = context;
             mChat = chat;
+            mChatRoomIdLong = chatRoomLongId;
         }
 
         @Override
         protected Void doInBackground(Void... voids) {
 
             ApplicationDatabase applicationDatabase
-                    = ApplicationDatabase.build(mWeakReference.get());
+                    = ApplicationDatabase.build(mContext);
 
             applicationDatabase.chatDao().insert(mChat);
 
             //This call the chatRoom data for update
             ChatRoom chatRoom = applicationDatabase.chatRoomDao()
-                    .searchExistingChatRoom(mWeakReference.get().mChatRoomIdLong);
+                    .get(mChatRoomIdLong);
 
             chatRoom.setLatestMessage(mChat.getMessage());
             chatRoom.setDateTimeMessageReceived(mChat.getDate());
+            chatRoom.setComparingDateTime(mChat.getComparingDateTime());
 
             applicationDatabase.chatRoomDao().updateChatRoom(chatRoom);
-
             return null;
         }
 
@@ -498,7 +544,17 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
             super.onPostExecute(aVoid);
 
             // Refer back to the resume part to reload the data from database
-            mWeakReference.get().onPostResume();
+            switch (mContext.getSharedPreferences(ChatFragment.CHAT_ENGINE_SHARE_PREFERENCES, MODE_PRIVATE)
+                    .getString(ChatFragment.CHAT_ENGINE_MESSAGE_RECEIVED, "Nothing")) {
+                case ChatFragment.TAG:
+                    ChatFragment.refreshPage();
+                    Log.i(TAG, "Entered Chat Fragment");
+                    break;
+                case ChatRoomActivity.TAG:
+                    ChatRoomActivity.refreshPage();
+                    Log.i(TAG, "Entered Chat Room Activity");
+                    break;
+            }
 
         }
 
@@ -508,13 +564,13 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
 
         private WeakReference<ChatRoomActivity> mWeakReference;
         private ActionMode mActionMode;
-        private List<Chat> mChatList;
+        private List<Chat> mChatList = new ArrayList<>();
 
         private DeleteAsyncTask(List<Chat> chatList, ActionMode actionMode,
                                 ChatRoomActivity chatRoomActivity) {
             mWeakReference = new WeakReference<>(chatRoomActivity);
             mActionMode = actionMode;
-            mChatList = chatList;
+            mChatList.addAll(chatList);
         }
 
         @Override
@@ -522,6 +578,19 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
 
             ApplicationDatabase applicationDatabase =
                     ApplicationDatabase.build(mWeakReference.get());
+
+            ChatRoom chatRoom = applicationDatabase.chatRoomDao().get(mWeakReference.get().mChatRoomUniqueTopic);
+            // Check if user wish to delete all the chat
+            if (RecyclerViewAdapter.sSizeOfChat == mChatList.size()) {
+                chatRoom.setLatestMessage("");
+                chatRoom.setDateTimeMessageReceived("");
+            } else {
+                List<Chat> chatList = applicationDatabase.chatDao().getChatFromChatRoom(mWeakReference.get().mChatRoomIdLong);
+                chatRoom.setLatestMessage(chatList.get(chatList.size()-1).getMessage());
+                chatRoom.setDateTimeMessageReceived(chatList.get(chatList.size()-1).getDate());
+            }
+
+            applicationDatabase.chatRoomDao().updateChatRoom(chatRoom);
 
             // Remove chat
             applicationDatabase.chatDao().deleteAllSelectedChat(mChatList);
@@ -532,7 +601,7 @@ public class ChatRoomActivity extends AppCompatActivity implements View.OnClickL
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            mWeakReference.get().onPostResume();
+            mWeakReference.get().onResume();
             mActionMode.finish();
         }
     }

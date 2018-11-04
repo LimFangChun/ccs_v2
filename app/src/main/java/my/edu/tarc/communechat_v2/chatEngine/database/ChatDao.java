@@ -22,7 +22,7 @@ public interface ChatDao {
     @Insert
     void insert(Chat chat);
 
-    @Query("SELECT * FROM Chat WHERE roomId = :chatRoomId")
+    @Query("SELECT * FROM Chat WHERE roomId = :chatRoomId ORDER BY comparingDateTime DESC")
     List<Chat> getChatFromChatRoom(long chatRoomId);
 
     @Query("DELETE FROM Chat WHERE id = :id")

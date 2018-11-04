@@ -38,10 +38,14 @@ dependencies {
     implementation 'com.android.support:design:26.1.0'
     implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.0'
     implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
+    implementation 'de.hdodenhof:circleimageview:2.2.0'
 
     //3rd party library
     //github: https://github.com/timigod/android-chat-ui
     implementation 'com.github.timigod:android-chat-ui:v0.1.4'
+
+    //github: https://github.com/amulyakhare/TextDrawable/blob/master/README.md
+    implementation 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
 
     //Room
     def room_version = "1.1.1"

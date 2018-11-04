@@ -16,9 +16,13 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.amulyakhare.textdrawable.TextDrawable;
+import com.amulyakhare.textdrawable.util.ColorGenerator;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -57,6 +61,7 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
         ImageButton buttonDirection;
         ProgressBar progressBarAddFriend;
         RelativeLayout layoutFindResult;
+        ImageView imageViewProfilePicture;
     }
 
     public FindResultAdapter(@NonNull Context context, int resource, @NonNull ArrayList<Student> objects) {
@@ -104,6 +109,7 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
             holder.progressBarAddFriend = convertView.findViewById(R.id.progressBar_addFriend);
             holder.progressBarAddFriend.setVisibility(View.GONE);
             holder.layoutFindResult = convertView.findViewById(R.id.layout_findResult);
+            holder.imageViewProfilePicture = convertView.findViewById(R.id.imageView_profilePic);
             convertView.setTag(holder);
 
             //a simple animation to load the items in list view
@@ -124,6 +130,11 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
             //blue button
             status = "\uD83D\uDD35";
         }
+
+        //github: https://github.com/amulyakhare/TextDrawable/blob/master/README.md
+        ColorGenerator colorGenerator = ColorGenerator.MATERIAL;
+        TextDrawable drawable = TextDrawable.builder().buildRound(student.getDisplay_name().substring(0, 1), colorGenerator.getRandomColor());
+        holder.imageViewProfilePicture.setImageDrawable(drawable);
 
         holder.textViewUserID.setText(String.valueOf(student.getUser_id()));
 

@@ -43,6 +43,12 @@ public class ChatFragment extends Fragment {
     private ProgressBar progressBarChat;
     private TextView textViewNoHistory;
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        initializeChatRoom();
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

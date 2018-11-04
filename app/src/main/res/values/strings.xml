@@ -200,4 +200,8 @@
     <string name="add_people">Add people</string>
     <string name="remove_people">Remove people</string>
     <string name="see_group_info">See group info</string>
+    <string name="exit_group_desc">Are you sure? This can\'t be undone</string>
+    <string name="yes">Yes</string>
+    <string name="exit_group_success_desc">You have exited from this group</string>
+    <string name="participants">Participants</string>
 </resources>

@@ -23,6 +23,10 @@ public final class MqttHeader {
     public static final String ROOM_MESSAGE_ARRIVE = "ROOM_MESSAGE_ARRIVE";
     public static final String CREATE_CHAT_ROOM = "CREATE_CHAT_ROOM";
     public static final String CREATE_CHAT_ROOM_REPLY = "CREATE_CHAT_ROOM_REPLY";
+    public static final String DELETE_CHAT_ROOM = "DELETE_CHAT_ROOM";
+    public static final String DELETE_CHAT_ROOM_REPLY = "DELETE_CHAT_ROOM_REPLY";
+    public static final String GET_ROOM_INFO = "GET_ROOM_INFO";
+    public static final String GET_ROOM_INFO_REPLY = "GET_ROOM_INFO_REPLY";
 
     //Friend Management module
     public static final String COUNT_FRIEND_REQUEST = "COUNT_FRIEND_REQUEST";

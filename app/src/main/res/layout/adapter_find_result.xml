@@ -4,39 +4,47 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout_findResult"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:descendantFocusability="blocksDescendants">
+    android:layout_height="wrap_content"
+    android:descendantFocusability="blocksDescendants"
+    android:gravity="center|start">
 
     <ImageView
         android:id="@+id/imageView_profilePic"
-        android:layout_width="60dp"
-        android:layout_height="70dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_margin="3dp"
         android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
         android:contentDescription="@string/default_image"
-        app:srcCompat="@drawable/ic_person" />
-
-    <TextView
-        android:id="@+id/textView_username"
-        android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:layout_alignParentTop="true"
-        android:layout_toEndOf="@+id/imageView_profilePic"
-        android:text="Text1"
-        android:textSize="18sp"
-        tools:ignore="HardcodedText" />
-
-    <TextView
-        android:id="@+id/textView_description"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_alignBottom="@+id/imageView_profilePic"
-        android:layout_toEndOf="@+id/imageView_profilePic"
-        android:text="Text2"
-        android:textSize="14sp"
-        tools:ignore="HardcodedText" />
+        app:srcCompat="@drawable/ic_person"
+        android:layout_centerVertical="true" />
 
     <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/imageView_profilePic"
+        android:layout_toStartOf="@id/layout_button"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textView_username"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:text="Text1"
+            android:textSize="18sp"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/textView_description"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:text="Text2"
+            android:ellipsize="none"
+            android:textSize="14sp"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_button"
         android:layout_width="wrap_content"
         android:layout_height="70dp"
         android:layout_alignParentEnd="true"

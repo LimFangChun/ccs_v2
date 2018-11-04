@@ -1,8 +1,10 @@
 package my.edu.tarc.communechat_v2;
 
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -68,7 +70,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                 Toast.makeText(this, "Remove people", Toast.LENGTH_LONG).show();
                 break;
             case R.id.nav_exit_group:
-                Toast.makeText(this, "Exit group", Toast.LENGTH_LONG).show();
+                exitGroup();
                 break;
             case R.id.nav_group_info:
                 Toast.makeText(this, "See group info", Toast.LENGTH_LONG).show();
@@ -249,6 +251,59 @@ public class ChatRoomActivity extends AppCompatActivity {
 
     private boolean hasRoomID() {
         return getIntent().getIntExtra(Chat_Room.COL_ROOM_ID, -1) != -1;
+    }
+
+    private void exitGroup() {
+        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        alertDialog.setTitle(getString(R.string.exit_group));
+        alertDialog.setMessage(R.string.exit_group_desc);
+        alertDialog.setNegativeButton(getString(R.string.cancel), null);
+        alertDialog.setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                confirmedExitGroup(alertDialog);
+            }
+        });
+        alertDialog.show();
+    }
+
+    private void confirmedExitGroup(final AlertDialog.Builder alertDialog) {
+        String topic = "exitGroup/" + pref.getInt(User.COL_USER_ID, -1);
+        String header = MqttHeader.DELETE_CHAT_ROOM;
+        Participant participant = new Participant();
+        participant.setRoom_id(chatRoom.getRoom_id());
+        participant.setUser_id(pref.getInt(User.COL_USER_ID, -1));
+        mqttHelper.connectPublishSubscribe(this, topic, header, participant);
+        mqttHelper.getMqttClient().setCallback(new MqttCallback() {
+            @Override
+            public void connectionLost(Throwable cause) {
+
+            }
+
+            @Override
+            public void messageArrived(String topic, MqttMessage message) throws Exception {
+                mqttHelper.decode(message.toString());
+                if (mqttHelper.getReceivedHeader().equals(MqttHeader.DELETE_CHAT_ROOM_REPLY)) {
+                    if (mqttHelper.getReceivedResult().equals(MqttHeader.SUCCESS)) {
+                        alertDialog.setTitle(getString(R.string.success));
+                        alertDialog.setMessage(R.string.exit_group_success_desc);
+                        alertDialog.setNeutralButton(getString(R.string.ok), null);
+                        alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                            @Override
+                            public void onDismiss(DialogInterface dialogInterface) {
+                                finish();
+                            }
+                        });
+                        alertDialog.show();
+                    }
+                }
+            }
+
+            @Override
+            public void deliveryComplete(IMqttDeliveryToken token) {
+
+            }
+        });
     }
 
     @Override

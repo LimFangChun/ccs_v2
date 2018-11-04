@@ -17,6 +17,7 @@ import org.json.JSONObject;
 import my.edu.tarc.communechat_v2.model.Chat_Room;
 import my.edu.tarc.communechat_v2.model.Friendship;
 import my.edu.tarc.communechat_v2.model.Message;
+import my.edu.tarc.communechat_v2.model.Participant;
 import my.edu.tarc.communechat_v2.model.Student;
 import my.edu.tarc.communechat_v2.model.User;
 
@@ -37,8 +38,8 @@ public class MqttHelper {
 
     //change MQTT broker IP address here
 
-    //private static final String serverUri = "tcp://172.16.105.38:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
-    private static final String serverUri = "tcp://broker.hivemq.com:1883";
+    private static final String serverUri = "tcp://192.168.0.110:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
+    //private static final String serverUri = "tcp://broker.hivemq.com:1883";
     private static final String mqttUsername = "leo477831@gmail.com";
     private static final String mqttPassword = "ba6acd07";
 
@@ -63,7 +64,7 @@ public class MqttHelper {
                 token.setActionCallback(new IMqttActionListener() {
                     @Override
                     public void onSuccess(IMqttToken asyncActionToken) {
-                        Log.i(TAG, mqttAndroidClient.getClientId() + " has connected to MQTT broker");
+                        Log.i(TAG, mqttAndroidClient.getClientId() + " has connected to MQTT broker: " + serverUri);
                     }
 
                     @Override
@@ -312,6 +313,24 @@ public class MqttHelper {
                 temp.append(MqttHeader.SEND_ROOM_MESSAGE)
                         .append(",")
                         .append(messageJSON.toString());
+                result = temp.toString();
+                break;
+            }
+            case MqttHeader.DELETE_CHAT_ROOM: {
+                Participant participant = (Participant) data;
+                temp.append(MqttHeader.DELETE_CHAT_ROOM)
+                        .append(",")
+                        .append(participant.getRoom_id())
+                        .append(",")
+                        .append(participant.getUser_id());
+                result = temp.toString();
+                break;
+            }
+            case MqttHeader.GET_ROOM_INFO: {
+                Chat_Room room = (Chat_Room) data;
+                temp.append(MqttHeader.GET_ROOM_INFO)
+                        .append(",")
+                        .append(room.getRoom_id());
                 result = temp.toString();
                 break;
             }

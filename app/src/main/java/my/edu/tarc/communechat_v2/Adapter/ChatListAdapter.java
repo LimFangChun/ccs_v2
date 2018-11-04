@@ -14,6 +14,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.amulyakhare.textdrawable.TextDrawable;
+import com.amulyakhare.textdrawable.util.ColorGenerator;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Objects;
@@ -86,7 +89,7 @@ public class ChatListAdapter extends ArrayAdapter<Chat_Room> {
         StringBuilder date = new StringBuilder();
         date.append(chatRoom.getLast_update().get(Calendar.DAY_OF_MONTH))
                 .append("/")
-                .append(chatRoom.getLast_update().get(Calendar.MONTH))
+                .append(chatRoom.getLast_update().get(Calendar.MONTH) + 1)
                 .append("/")
                 .append(chatRoom.getLast_update().get(Calendar.YEAR))
                 .append(" ")
@@ -96,6 +99,12 @@ public class ChatListAdapter extends ArrayAdapter<Chat_Room> {
         holder.textViewContent.setText("");
         holder.textViewRoomID.setText(String.valueOf(chatRoom.getRoom_id()));
         holder.textViewRole.setText(chatRoom.getRole());
+
+        //make default image for each chat room
+        //github: https://github.com/amulyakhare/TextDrawable/blob/master/README.md
+        ColorGenerator colorGenerator = ColorGenerator.MATERIAL;
+        TextDrawable drawable = TextDrawable.builder().buildRound(chatRoom.getRoom_name().substring(0, 1), colorGenerator.getRandomColor());
+        holder.imageViewRoomPicture.setImageDrawable(drawable);
 
         return convertView;
     }

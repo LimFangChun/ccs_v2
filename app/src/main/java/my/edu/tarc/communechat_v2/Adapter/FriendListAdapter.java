@@ -11,6 +11,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.amulyakhare.textdrawable.TextDrawable;
+import com.amulyakhare.textdrawable.util.ColorGenerator;
+
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -68,6 +71,11 @@ public class FriendListAdapter extends ArrayAdapter<Student> {
         } else {
             status = "\uD83D\uDD35";
         }
+
+        //github: https://github.com/amulyakhare/TextDrawable/blob/master/README.md
+        ColorGenerator colorGenerator = ColorGenerator.MATERIAL;
+        TextDrawable drawable = TextDrawable.builder().buildRound(user.getDisplay_name().substring(0, 1), colorGenerator.getRandomColor());
+        holder.imageViewProfilePic.setImageDrawable(drawable);
 
         holder.textViewUserID.setText(String.valueOf(user.getUser_id()));
         holder.textViewUsername.setText(Html.fromHtml(status + user.getDisplay_name()));

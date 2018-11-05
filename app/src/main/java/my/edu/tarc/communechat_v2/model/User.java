@@ -240,6 +240,12 @@ public class User {
         }
     }
 
+    public String formatLastOnline() {
+        return getLast_online().get(Calendar.DAY_OF_MONTH) + "/" +
+                getLast_online().get(Calendar.MONTH) + "/" +
+                getLast_online().get(Calendar.YEAR);
+    }
+
     public String getPublic_key() {
         return public_key;
     }

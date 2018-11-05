@@ -27,6 +27,14 @@ public final class MqttHeader {
     public static final String DELETE_CHAT_ROOM_REPLY = "DELETE_CHAT_ROOM_REPLY";
     public static final String GET_ROOM_INFO = "GET_ROOM_INFO";
     public static final String GET_ROOM_INFO_REPLY = "GET_ROOM_INFO_REPLY";
+    public static final String GET_PARTICIPANT_LIST_REMOVE = "GET_PARTICIPANT_LIST_REMOVE";
+    public static final String GET_PARTICIPANT_LIST_REMOVE_REPLY = "GET_PARTICIPANT_LIST_REMOVE_REPLY";
+    public static final String GET_FRIEND_LIST_FOR_PARTICIPANT_ADD = "GET_FRIEND_LIST_FOR_PARTICIPANT_ADD";
+    public static final String GET_FRIEND_LIST_FOR_PARTICIPANT_ADD_REPLY = "GET_FRIEND_LIST_FOR_PARTICIPANT_ADD_REPLY";
+    public static final String ADD_PEOPLE_TO_GROUP = "ADD_PEOPLE_TO_GROUP";
+    public static final String ADD_PEOPLE_TO_GROUP_REPLY = "ADD_PEOPLE_TO_GROUP_REPLY";
+    public static final String REMOVE_PEOPLE_FROM_GROUP = "REMOVE_PEOPLE_FROM_GROUP";
+    public static final String REMOVE_PEOPLE_FROM_GROUP_REPLY = "REMOVE_PEOPLE_FROM_GROUP_REPLY";
 
     //Friend Management module
     public static final String COUNT_FRIEND_REQUEST = "COUNT_FRIEND_REQUEST";

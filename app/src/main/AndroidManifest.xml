@@ -92,6 +92,7 @@
         <activity
             android:name=".GroupInfoActivity"
             android:parentActivityName=".GroupInfoActivity" />
+        <activity android:name=".AddPeopleToChatActivity"></activity>
     </application>
 
 </manifest>

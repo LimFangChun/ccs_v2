@@ -204,4 +204,6 @@
     <string name="yes">Yes</string>
     <string name="exit_group_success_desc">You have exited from this group</string>
     <string name="participants">Participants</string>
+    <string name="no_result">No result</string>
+    <string name="get_participant_add_desc">Did not find any available friend to add into the group chat</string>
 </resources>

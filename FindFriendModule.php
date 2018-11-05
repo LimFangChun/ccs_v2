@@ -8,7 +8,7 @@ function FIND_BY_ADDRESS($msg){
 	$city_id = $receivedData[2];
 	$sql = "SELECT
 				User.user_id, User.display_name, User.status, User.last_online, 
-				Student.course, Student.academic_year, Student.tutorial_group
+				Student.course, Student.academic_year, Student.tutorial_group, last_latitude, last_longitude
 				FROM User 
 					INNER JOIN City ON User.city_id = City.city_id 
 					INNER JOIN State ON City.state_id = State.state_id 
@@ -62,7 +62,7 @@ function FIND_BY_PROGRAMME($msg){
 	$tutorial_group = $receivedData[4];
 	$sql = "SELECT
 				User.user_id, User.display_name, User.status, User.last_online, 
-				Student.course, Student.academic_year, Student.tutorial_group
+				Student.course, Student.academic_year, Student.tutorial_group, last_latitude, last_longitude
 			FROM Student INNER JOIN User ON User.user_id = Student.user_id 
 			WHERE 
 				faculty = '$faculty' AND 
@@ -122,7 +122,7 @@ function FIND_BY_TUTORIAL_GROUP($msg){
 	$academic_year = $receivedData[6];
 	$sql = "SELECT
 				User.user_id, User.display_name, User.status, User.last_online, 
-				Student.course, Student.academic_year, Student.tutorial_group
+				Student.course, Student.academic_year, Student.tutorial_group, last_latitude, last_longitude
 			FROM Student INNER JOIN User ON User.user_id = Student.user_id 
 			WHERE 
 				faculty = '$faculty' AND 
@@ -172,7 +172,7 @@ function FIND_BY_AGE($msg){
 	
 	$sql = "SELECT
 				User.user_id, User.display_name, User.status, User.last_online, 
-				Student.course, Student.academic_year, Student.tutorial_group
+				Student.course, Student.academic_year, Student.tutorial_group, last_latitude, last_longitude
 			FROM Student INNER JOIN User ON User.user_id = Student.user_id 
 			WHERE 
 				CAST(SUBSTRING(nric, 1, 2) AS INTEGER) = '$year' AND 
@@ -215,8 +215,6 @@ function FIND_BY_AGE($msg){
 }
 
 //source for formula to calculate distance between 2 longitude and latitude
-//NOTE: the one in below link is using longitude and latitude in radian
-//		and in our database is not radian value, so we need to convert to radian
 //https://gist.github.com/Usse/4086343
 function FIND_BY_LOCATION($msg){
 	echo "\nFinding nearest friends by longitude and latitude...\n";
@@ -229,12 +227,12 @@ function FIND_BY_LOCATION($msg){
 	
 	$sql = "SELECT 
 				User.user_id, User.display_name, User.status, User.last_online, 
-				Student.course, Student.academic_year, Student.tutorial_group, 
-				(((acos(sin((RADIANS($latitude) * pi()/180)) 
-					* sin((RADIANS(last_latitude) * pi()/180))
-					+ cos((RADIANS($latitude) * pi()/180)) 
-					* cos((RADIANS(last_latitude) * pi()/180))
-					* cos(((RADIANS($longitude) - RADIANS(last_longitude)) * pi()/180)))) * 180/pi())*60*1.1515) AS distance
+				Student.course, Student.academic_year, Student.tutorial_group, last_latitude, last_longitude, 
+				(((acos(sin(($latitude * pi()/180)) 
+					* sin((last_latitude * pi()/180))
+					+ cos(($latitude * pi()/180)) 
+					* cos((last_latitude * pi()/180))
+					* cos((($longitude - last_longitude) * pi()/180)))) * 180/pi())*60*1.1515) AS distance
 			FROM Student INNER JOIN User ON User.user_id = Student.user_id  
 			WHERE
 				User.user_id <> $user_id AND 
@@ -270,7 +268,7 @@ function FIND_BY_LOCATION($msg){
 function UPDATE_LOCATION($msg){
 	echo "\nUpdating user's longitude and latitude...\n";
 	
-	$ack_message = "UPDATE_LOCATION_REPLY, ";
+	$ack_message = "NO_PUB, ";
 	
 	$receivedData = explode(',', $msg);
 	$user_id = $receivedData[1];

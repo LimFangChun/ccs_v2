@@ -8,6 +8,8 @@ include dirname(__DIR__)."\htdocs\FindFriendModule.php";
 chmod (dirname(__DIR__)."\htdocs\FindFriendModule.php", 0740);
 include dirname(__DIR__)."\htdocs\FriendManagementModule.php";
 chmod (dirname(__DIR__)."\htdocs\FriendManagementModule.php", 0740);
+include dirname(__DIR__)."\htdocs\ChatModule.php";
+chmod (dirname(__DIR__)."\htdocs\ChatModule.php", 0740);
 
 //MQTT Server setup 
 //**Change in MQTT broker address will require you to update the address in publishMessage function too.
@@ -85,24 +87,41 @@ Again, make sure to change the server ip address to your ip everytime before u s
 Good luck!
 find me at https://www.facebook.com/leo477831
 if you need any more help
------
-Hi there I'm Gan Zhen Jie, another member in the team
-also find me at https://www.facebook.com/juz.ppl.3
-although i contribute almost nothing lul.
------
 */
 
-$server = "192.168.0.6";     		// change to your broker's ip
+/* $server = "172.16.122.93";     		// change to your broker's ip
 $port = 1883;                     		// change if necessary, default is 1883
 $username = "root";                 // set your username
 $password = "";             // set your password
 $client_id = "CCS_SERVER"; 				// make sure this is unique for connecting to sever - you could use uniqid()
+  */
+ 
+/* $server = "m14.cloudmqtt.com";     		// change if necessary
+$port = 16672;                     		// change if necessary
+$username = "vwkohpay";                 // set your username
+$password = "JPG3F4XUHjRv";             // set your password
+$client_id = "SERVER_1"; 
+ */
+
+/* $server = "mqtt.dioty.co";     		// change to your broker's ip
+$port = 1883;                     		// change if necessary, default is 1883
+$username = "leo477831@gmail.com";                 // set your username
+$password = "ba6acd07";             // set your password
+$client_id = "CCS_SERVER";
+ */
+ 
+//$server = "broker.hivemq.com";     		// change to your broker's ip
+$server = "192.168.0.110";
+$port = 1883;                     		// change if necessary, default is 1883
+$username = "";                 // set your username
+$password = "";             // set your password
+$client_id = "CCS_SERVER";
 
 $QOS = 1;
 
 //Note: Very important, this topic prefix must be same as the prefix in your android project
 //and the # indicates that this server will subscribe to any new topic in this directory
-$subscribeTopic = "MY/TARUC/CCS/000000001/PUB/#";
+$subscribeTopic = "/MY/TARUC/CCS/000000001/PUB/#";
 
 //-<<<<<<<<<<<<<<<<<<<<<<<--Do not modify---
 $mqtt = new phpMQTT($server, $port, $client_id);
@@ -111,9 +130,6 @@ if(!$mqtt->connect(true, NULL, $username, $password)) {
 	exit(1);
 }
 echo "Connected to MQTT Broker @ ".$server.":".$port."\n";
-echo "\n===============================\n";
-echo "Hello world!";
-echo "\n===============================\n";
 $topics[$subscribeTopic] = array("qos" => '$QOS', "function" => "procmsg");
 $mqtt->subscribe($topics, $QOS);
 
@@ -123,10 +139,12 @@ $mqtt->close();
 //->>>>>>>>>>>>>>>>>>>>>>--Do not modify--- END
 
 //Server Responses
+//add your new function to here
 function procmsg($topic, $msg){		
 		$ack_message = "";
+		echo "=====================================================";
 		echo "\nReceiving message:";
-		echo "\nTopic ".$topic;
+		echo "\nTopic: ".$topic;
 		echo "\nReceived Message: ".$msg."\n";
 		
 		if(!empty($msg)){
@@ -138,6 +156,26 @@ function procmsg($topic, $msg){
 					$ack_message = REGISTER_USER($msg); break;}
 				case "UPDATE_USER_STATUS": {
 					$ack_message = UPDATE_USER_STATUS($msg); break;}
+				case "GET_CHAT_ROOM": {
+					$ack_message = GET_CHAT_ROOM($msg); break;}
+				case "GET_ROOM_MESSAGE": {
+					$ack_message = GET_ROOM_MESSAGE($msg); break;}
+				case "SEND_ROOM_MESSAGE": {
+					$ack_message = SEND_ROOM_MESSAGE($msg); break;}
+				case "DELETE_CHAT_ROOM":{
+					$ack_message = DELETE_CHAT_ROOM($msg); break;}
+				case "GET_ROOM_INFO":{
+					$ack_message = GET_ROOM_INFO($msg); break;}
+				case "ADD_PEOPLE_TO_GROUP":{
+					$ack_message = ADD_PEOPLE_TO_GROUP($msg); break;}
+				case "REMOVE_PEOPLE_FROM_GROUP":{
+					$ack_message = REMOVE_PEOPLE_FROM_GROUP($msg); break;}
+				case "GET_FRIEND_LIST_FOR_PARTICIPANT_ADD":{
+					$ack_message = GET_FRIEND_LIST_FOR_PARTICIPANT_ADD($msg); break;}
+				case "GET_PARTICIPANT_LIST_REMOVE":{
+					$ack_message = GET_PARTICIPANT_LIST_REMOVE($msg); break;}
+				case "CREATE_CHAT_ROOM":{
+					$ack_message = CREATE_CHAT_ROOM($msg); break;}
 				case "GET_FRIEND_LIST":	{
 					$ack_message = GET_FRIEND_LIST($msg); break;}
 				case "FIND_BY_ADDRESS":	{
@@ -164,8 +202,6 @@ function procmsg($topic, $msg){
 					$ack_message = UPDATE_LOCATION($msg); break;}
 				case "FIND_BY_LOCATION": {
 					$ack_message = FIND_BY_LOCATION($msg); break;}
-				case "UPDATE_PUBLIC_KEY": {
-					$ack_message = UPDATE_PUBLIC_KEY($msg); break;}
 				//case "003810":	{$ack_message = fn003810($msg);publishMessage($topic, $ack_message); break;}  				
 				// case "003812":	{$ack_message = fn003812($msg);publishMessage($topic, $ack_message); break;}
 				// case "003814":	{$ack_message = fn003814($msg);publishMessage($topic, $ack_message); break;}
@@ -182,8 +218,18 @@ function procmsg($topic, $msg){
 				// case "003836": 	{$ack_message = fn003836($msg);publishMessage($topic, $ack_message); break;}
 				// case "003999":	{fn003999($msg); break;}
 			}
-			publishMessage($topic, $ack_message);
-			echo "\nReturning to Topic :".$topic."\nAckMessage: \"".$ack_message."\"" ." \n";
+			
+			$temp = explode(',', $ack_message);
+			if($temp[0] != 'NO_PUB'){
+				publishMessage($topic, $ack_message);
+				echo "\nReturning to Topic :".$topic;
+			}
+			
+			if(strlen($ack_message) > 300){
+				$ack_message = substr($ack_message, 0, 300);
+				$ack_message .= "...";
+			}
+			echo "\nAckMessage: \"".$ack_message."\"" ." \n";
 		}
 }
 
@@ -220,52 +266,33 @@ function dbResult($sql){
 			}
 }	
 
-function dbResult_stmt($sql, $types, $params){
-	$hostname_localhost = "localhost";
-	$database_localhost = "ccs_master";//change to your database name
-	$username_localhost = "ccs_main";//change to your database username, it is recommended to add a new user with password
-	$password_localhost = "123456";//change to user's password
-		$link = mysqli_connect($hostname_localhost, $username_localhost, $password_localhost, $database_localhost);
-			// Check connection
-			if($link === false){
-				echo("ERROR: Could not connect. " . mysqli_connect_error());
-			}
-			else{
-				mysqli_set_charset($link, "UTF8");	
-				$query = mysqli_prepare($link, $sql);
-				$sql_params_array = array();
-				array_push($sql_params_array, $query, $types);
-				for($x = 0; $x<count($params);$x++){
-					array_push($sql_params_array, $params[$x]);
-				}
-				call_user_func_array("mysqli_stmt_bind_param",$sql_params_array);
-				$result = mysqli_stmt_execute($sql_params_array[0]);
-				//$result = mysqli_query($link, $sql);
-				if($result)
-					return $result;
-				else
-					echo mysqli_error($link);
-				return $result;
-			// Close connection
-			mysqli_close($link);
-			}
-}	
-
 //MQTT publish message
 //DO NOT MODIFY, except ip address
 function publishMessage($topic, $ack_message){
-$server = "192.168.0.6";     		// change if necessary
+	$server = "192.168.0.110";     		// change if necessary
+	$port = 1883;                     		// change if necessary
+	$username = "";                 // set your username
+	$password = "";             // set your password
+	$client_id = "CCS_SERVER"; 
+	/* $server = "172.16.122.93";     		// change if necessary
+	$port = 1883;                     		// change if necessary
+	$username = "";                 // set your username
+	$password = "";             // set your password
+	$client_id = "CCS_SERVER";  */				// make sure this is unique for connecting to sever - you could use uniqid()
+	
+/* $server = "mqtt.dioty.co";     		// change if necessary
 $port = 1883;                     		// change if necessary
-$username = "";                 // set your username
-$password = "";             // set your password
+$username = "leo477831@gmail.com";                 // set your username
+$password = "ba6acd07";             // set your password
 $client_id = "CCS_SERVER"; 				// make sure this is unique for connecting to sever - you could use uniqid()
-/*
-$server = "m14.cloudmqtt.com";     		// change if necessary
+  */
+
+/* $server = "m14.cloudmqtt.com";     		// change if necessary
 $port = 16672;                     		// change if necessary
 $username = "vwkohpay";                 // set your username
 $password = "JPG3F4XUHjRv";             // set your password
 $client_id = "SERVER_1"; 				// make sure this is unique for connecting to sever - you could use uniqid()
-*/
+ */
 $QOS = 1;
 	$mqtt = new phpMQTT($server, $port, $client_id);
 	if(!$mqtt->connect(true, NULL, $username, $password)) {
@@ -347,7 +374,7 @@ function REGISTER_USER($msg){
 
 function UPDATE_USER_STATUS(){
 	$temp = func_get_arg(0);
-	$ack_message = "UPDATE_USER_STATUS_REPLY, ";
+	$ack_message = "NO_PUB, ";
 	
 	$temp = explode(',', $temp);
 	$user_id = $temp[1];
@@ -368,57 +395,10 @@ function UPDATE_USER_STATUS(){
 
 function UPDATE_STUDENT($msg){
 	//TODO: GAN DO this
-	//update student table, everything (except user_id) from null to something
-	$receivedData = explode(',', $msg);	// 1=user_id, 2...=faculty, course, tutorial_group, intake, academic_year
-	$user_id = $receivedData[1];
-	$faculty = $receivedData[2];
-	$course = $receivedData[3];
-	$tutorial_group = $receivedData[4];
-	$intake = $receivedData[5];
-	$academic_year = $receivedData[6];
-
-	$sql = "UPDATE Student SET faculty = 'faculty', course = '$course', tutorial_group = '$tutorial_group', intake = '$intake', academic_year = '$academic_year'
-			WHERE user_id = '$user_id'";
-	$result = dbResult($sql);
-
-	if(mysqli_affected_rows($result) > 0){
-		echo "\nUpdated student: $user_id\n";
-	}else{
-		echo "\nFailed to update student: $user_id, $status\n";
-		echo mysqli_error($result)."\n";
-	}
 }
 
 function UPDATE_USER($msg){
 	//TODO: GAN DO this
-	//update everything except user_id, status, last_online
-	//position = student by default
-	//username, nric, phone_number, email requires validation
-
-	$receivedData = explode(',', $msg);	// 1,...=user_id, username, display_name, position, password, gender, nric, phone_number, email, address, city_id
-	$user_id = $receivedData[1];
-	$username = $receivedData[2];
-	$display_name = $receivedData[3];
-	$position = $receivedData[4];
-	$password = $receivedData[5];
-	$gender = $receivedData[6];
-	$nric = $receivedData[7];
-	$phone_number = $receivedData[8];
-	$email = $receivedData[9];
-	$address = $receivedData[10];
-	$city_id = $receivedData[11];
-	//if position="Student", create student table with user_id=[received user_id] (postponed, not now :P)
-	//$sql = "INSERT INTO Student (user_id) VALUES ('$user_id');";
-
-	$sql = "UPDATE User SET username = '$username', display_name = '$display_name', position = '$position', password = '$password',
-	gender = '$gender', nric = '$nric', phone_number = '$phone_number', email = '$email', address = '$address', city_id = '$city_id' WHERE user_id = 'user_id'";
-	$result = dbResult($sql);
-		if(mysqli_affected_rows($result) > 0){
-		echo "\nUpdated user: $user_id\n";
-	}else{
-		echo "\nFailed to user: $user_id, $status\n";
-		echo mysqli_error($result)."\n";
-	}
 }
 
 function SEARCH_USER($msg){
@@ -448,29 +428,6 @@ function SEARCH_USER($msg){
 	return $ack_message;
 }
 
-function UPDATE_PUBLIC_KEY(){
-	$temp = func_get_arg(0);
-	$ack_message = "UPDATE_PUBLIC_KEY_REPLY, ";
-	
-	$temp = explode(',', $temp, 3); //user_id, public_key
-	$user_id = $temp[1];
-	$public_key = $temp[2];
-	
-	$sql = "UPDATE User SET public_key = ? WHERE user_id = ?";
-	$types = "si";
-	$params = array($public_key, $user_id);
-	$param_count = count($params);
-	$result = dbResult_stmt($sql, $types, $params);
-	if($result){
-		echo "\nUpdated user public_key: $user_id\n";
-		$ack_message .= "SUCCESS";
-	}else{
-		echo "\nFailed to update user public_key: $user_id\n";
-		echo mysqli_error($result)."\n";
-		$ack_message .= "FAILED";
-	}
-	return $ack_message;
-}
 
 //The following functions are
 //Done by 1st generation seniors

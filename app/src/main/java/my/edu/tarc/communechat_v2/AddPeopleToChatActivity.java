@@ -37,6 +37,9 @@ public class AddPeopleToChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_people_to_chat);
 
+        assert getSupportActionBar() != null;
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         progressBarAddPeople = findViewById(R.id.progressBar_addPeople);
         progressBarAddPeople.setVisibility(View.VISIBLE);

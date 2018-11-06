@@ -111,7 +111,7 @@ CREATE TABLE Chat_Room(
 CREATE TABLE Participant(
 	room_id 	int(10) NOT NULL,
 	user_id 	int(10) NOT NULL,
-	role 		varchar(20) NOT NULL,
+	role 		varchar(20) NOT NULL DEFAULT 'Member',
 	PRIMARY KEY (room_id, user_id),
 	FOREIGN KEY (room_id) REFERENCES Chat_Room(room_id),
 	FOREIGN KEY (user_id) REFERENCES User(user_id)
@@ -466,6 +466,14 @@ insert into Student (student_id, faculty, course, tutorial_group, intake, academ
 insert into Friendship (user_id, friend_id, status, date_created, sender_id) values (1, 2, 'Friend', '2018-10-01 14:59:01', 1);
 insert into Friendship (user_id, friend_id, status, date_created, sender_id) values (1, 3, 'Friend', '2018-10-01 11:12:01', 1);
 insert into Friendship (user_id, friend_id, status, date_created, sender_id) values (1, 4, 'Friend', '2018-10-01 14:59:01', 1);
+insert into Friendship (user_id, friend_id, status, sender_id) values (1, 14, 'Friend', 1);
+insert into Friendship (user_id, friend_id, status, sender_id) values (1, 66, 'Friend', 1);
+insert into Friendship (user_id, friend_id, status, sender_id) values (1, 33, 'Friend', 1);
+insert into Friendship (user_id, friend_id, status, sender_id) values (1, 54, 'Friend', 1);
+insert into Friendship (friend_id, user_id, status, sender_id) values (1, 14, 'Friend', 1);
+insert into Friendship (friend_id, user_id, status, sender_id) values (1, 66, 'Friend', 1);
+insert into Friendship (friend_id, user_id, status, sender_id) values (1, 33, 'Friend', 1);
+insert into Friendship (friend_id, user_id, status, sender_id) values (1, 54, 'Friend', 1);
 insert into Friendship (user_id, friend_id, status, date_created, sender_id) values (2, 1, 'Friend', '2018-10-01 14:59:01', 1);
 insert into Friendship (user_id, friend_id, status, date_created, sender_id) values (3, 1, 'Friend', '2018-10-01 11:12:01', 1);
 insert into Friendship (user_id, friend_id, status, date_created, sender_id) values (4, 1, 'Friend', '2018-10-01 14:59:01', 1);
@@ -506,13 +514,13 @@ insert into Message (message, sender_id, date_created, room_id) values ("Kappa",
 
 
 -- Setup necessary triggers
-
+-- drop the triggers first, like we drop table before creating
 DROP TRIGGER IF EXISTS Trg_Insert_New_Supply;
 DROP TRIGGER IF EXISTS Trg_Log_User_Activity;
 DROP TRIGGER IF EXISTS Trg_Insert_New_Message;
 
---create a temporary student record for new user
---otherwise would cause error
+-- create a temporary student record for new user
+-- otherwise would cause error
 DELIMITER //
 CREATE TRIGGER Trg_Insert_New_Supply
 AFTER INSERT ON User
@@ -522,6 +530,8 @@ BEGIN
 END;
 //
 
+-- this trigger is to track user activity
+-- you may add more conditions in future
 CREATE TRIGGER Trg_Log_User_Activity
 AFTER UPDATE ON User
 FOR EACH ROW
@@ -544,6 +554,7 @@ BEGIN
 END;
 //
 
+-- update chat_room last_update everytime a new message is inserted
 CREATE TRIGGER Trg_Insert_New_Message
 AFTER INSERT ON Message
 FOR EACH ROW

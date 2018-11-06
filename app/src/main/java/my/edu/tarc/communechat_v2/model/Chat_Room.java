@@ -103,6 +103,7 @@ public class Chat_Room {
     }
 
     public void setDate_created(String date_created) {
+        date_created = date_created.replace("T", " ");
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         try {
             this.date_created.setTime(dateFormat.parse(date_created));
@@ -120,6 +121,7 @@ public class Chat_Room {
     }
 
     public void setLast_update(String last_update) {
+        last_update = last_update.replace("T", " ");
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         try {
             this.last_update.setTime(dateFormat.parse(last_update));

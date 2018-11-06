@@ -317,6 +317,56 @@ public class MqttHelper {
                 result = temp.toString();
                 break;
             }
+            case MqttHeader.CREATE_CHAT_ROOM: {
+                Chat_Room chatRoom = (Chat_Room) data;
+                temp.append(MqttHeader.CREATE_CHAT_ROOM)
+                        .append(",")
+                        .append(chatRoom.getOwner_id())
+                        .append(",")
+                        .append(chatRoom.getRoom_name());
+                result = temp.toString();
+                break;
+            }
+            case MqttHeader.ADD_PEOPLE_TO_GROUP: {
+                Participant participant = (Participant) data;
+                temp.append(MqttHeader.ADD_PEOPLE_TO_GROUP)
+                        .append(",")
+                        .append(participant.getRoom_id())
+                        .append(",")
+                        .append(participant.getUser_id());
+                result = temp.toString();
+                break;
+            }
+            case MqttHeader.REMOVE_PEOPLE_FROM_GROUP: {
+                Participant participant = (Participant) data;
+                temp.append(MqttHeader.REMOVE_PEOPLE_FROM_GROUP)
+                        .append(",")
+                        .append(participant.getRoom_id())
+                        .append(",")
+                        .append(participant.getUser_id());
+                result = temp.toString();
+                break;
+            }
+            case MqttHeader.GET_FRIEND_LIST_FOR_PARTICIPANT_ADD: {
+                Participant participant = (Participant) data;
+                temp.append(MqttHeader.GET_FRIEND_LIST_FOR_PARTICIPANT_ADD)
+                        .append(",")
+                        .append(participant.getRoom_id())
+                        .append(",")
+                        .append(participant.getUser_id());
+                result = temp.toString();
+                break;
+            }
+            case MqttHeader.GET_PARTICIPANT_LIST_REMOVE: {
+                Participant participant = (Participant) data;
+                temp.append(MqttHeader.GET_PARTICIPANT_LIST_REMOVE)
+                        .append(",")
+                        .append(participant.getRoom_id())
+                        .append(",")
+                        .append(participant.getUser_id());
+                result = temp.toString();
+                break;
+            }
             case MqttHeader.DELETE_CHAT_ROOM: {
                 Participant participant = (Participant) data;
                 temp.append(MqttHeader.DELETE_CHAT_ROOM)

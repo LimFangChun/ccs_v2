@@ -190,6 +190,7 @@ public class User {
     @SuppressLint("NewApi")
     public void setLast_online(String last_online) {
         try{
+            last_online = last_online.replace("T", " ");
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
             this.last_online.setTime(dateFormat.parse(last_online));
         }catch (NullPointerException|ParseException e){
@@ -242,6 +243,12 @@ public class User {
         } else {
             return Math.abs(lastOnlineAgo / 1000) + " second(s) ago";
         }
+    }
+
+    public String formatLastOnline() {
+        return getLast_online().get(Calendar.DAY_OF_MONTH) + "/" +
+                getLast_online().get(Calendar.MONTH) + "/" +
+                getLast_online().get(Calendar.YEAR);
     }
 
     public String getPublic_key() {

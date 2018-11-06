@@ -129,6 +129,12 @@ public class RegisterUserActivity extends AppCompatActivity {
                     finish();
                 }
             });
+            alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialogInterface) {
+                    finish();
+                }
+            });
             alertDialog.show();
         }
     }

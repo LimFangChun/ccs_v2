@@ -52,7 +52,6 @@ public class ChatFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        sleep(0.5);
 
         View view = inflater.inflate(R.layout.fragment_chat, container, false);
 
@@ -65,7 +64,6 @@ public class ChatFragment extends Fragment {
         progressBarChat.getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(getContext(), R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
         textViewNoHistory = view.findViewById(R.id.textView_chatFragment_Description);
 
-        initializeChatRoom();
         initializeListViewListener();
         return view;
     }

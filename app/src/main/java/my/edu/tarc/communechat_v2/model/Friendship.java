@@ -65,6 +65,7 @@ public class Friendship {
 
     public void setDateCreated(String date_created){
         try{
+            date_created = date_created.replace("T", " ");
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
             this.date_created = (Date) dateFormat.parse(date_created);
         }catch (NullPointerException|ParseException e){

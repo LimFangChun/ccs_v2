@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView_userID"
+        android:visibility="gone"
+        android:enabled="false" />
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:id="@+id/imageView_profilePic"
+        tools:ignore="ContentDescription"
+        android:src="@drawable/dog_face"
+        android:layout_centerVertical="true" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/imageView_profilePic"
+        android:layout_toStartOf="@id/button_add"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView_displayName"
+            android:textSize="18sp"
+            android:text="display name"
+            tools:ignore="HardcodedText"
+            android:padding="3dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView_lastOnline"
+            android:text="Last online"
+            tools:ignore="HardcodedText"
+            android:padding="3dp" />
+    </LinearLayout>
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toStartOf="@id/button_add"
+        android:layout_centerVertical="true"
+        android:id="@+id/progressBar_addPeople" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/button_add"
+        tools:ignore="ContentDescription"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:background="@drawable/round_image_button"
+        app:srcCompat="@drawable/ic_person_add_white_24dp"
+        android:layout_margin="5dp" />
+</RelativeLayout>

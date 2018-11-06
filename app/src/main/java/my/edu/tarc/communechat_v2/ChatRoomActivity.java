@@ -3,7 +3,6 @@ package my.edu.tarc.communechat_v2;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
@@ -12,7 +11,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.amulyakhare.textdrawable.util.ColorGenerator;
 
@@ -65,20 +63,23 @@ public class ChatRoomActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
+        Intent intent;
         switch (itemId) {
             case R.id.nav_add_people:
-                //TODO add people
-                Toast.makeText(this, "Add people", Toast.LENGTH_LONG).show();
+                intent = new Intent(ChatRoomActivity.this, AddPeopleToChatActivity.class);
+                intent.putExtra(Chat_Room.COL_ROOM_ID, chatRoom.getRoom_id());
+                startActivity(intent);
                 break;
             case R.id.nav_remove_people:
-                //TODO remove people
-                Toast.makeText(this, "Remove people", Toast.LENGTH_LONG).show();
+                intent = new Intent(ChatRoomActivity.this, RemovePeopleFromChatActivity.class);
+                intent.putExtra(Chat_Room.COL_ROOM_ID, chatRoom.getRoom_id());
+                startActivity(intent);
                 break;
             case R.id.nav_exit_group:
                 exitGroup();
                 break;
             case R.id.nav_group_info:
-                Intent intent = new Intent(ChatRoomActivity.this, GroupInfoActivity.class);
+                intent = new Intent(ChatRoomActivity.this, GroupInfoActivity.class);
                 intent.putExtra(Chat_Room.COL_ROOM_ID, chatRoom.getRoom_id());
                 startActivity(intent);
                 break;
@@ -112,7 +113,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         if (hasRoomID()) {
             initializeChatRoomByRoomID();
         } else {
-            //todo init room by user id and target user id, private chat room
+            //todo init room by user id and target user id, new chat room
         }
 
         chatViewRoom.setOnSentMessageListener(new ChatView.OnSentMessageListener() {
@@ -239,13 +240,6 @@ public class ChatRoomActivity extends AppCompatActivity {
                                             : temp.getString(User.COL_DISPLAY_NAME)//sender name
                             );
 
-                            int color;
-                            if (pref.getInt(User.COL_USER_ID, -1) == room_message.getSender_id()) {
-                                color = Color.WHITE;
-                            } else {
-                                color = colorGenerator.getColor(temp.getString(User.COL_DISPLAY_NAME));
-                            }
-                            chatViewRoom.setBackgroundColor(color);
                             messages.add(chatMessage);
                         }
                         chatViewRoom.addMessages(messages);

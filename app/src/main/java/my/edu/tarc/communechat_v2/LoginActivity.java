@@ -216,77 +216,76 @@ public class LoginActivity extends AppCompatActivity {
         progressBar.setVisibility(View.INVISIBLE);
         //Log.i("[MqttHelper]", "Received header: " + mqttHelper.getReceivedHeader());
         //Log.i("[MqttHelper]", "Received result: " + mqttHelper.getReceivedResult());
-        if (mqttHelper.getReceivedHeader().equals(MqttHeader.LOGIN_REPLY) &&
-                mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
+        if (mqttHelper.getReceivedHeader().equals(MqttHeader.LOGIN_REPLY)) {
+            //unsub from the topic
+            mqttHelper.unsubscribe(topic);
+            if (mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
+                alertDialog.setTitle(R.string.wrong_username_password);
+                alertDialog.setMessage(R.string.check_username_password);
+                alertDialog.setNeutralButton(R.string.ok, null);
+                alertDialog.show();
+            } else {
+                try {
+                    JSONArray userData = new JSONArray(mqttHelper.getReceivedResult());
+                    JSONObject temp = userData.getJSONObject(0);
 
-            alertDialog.setTitle(R.string.wrong_username_password);
-            alertDialog.setMessage(R.string.check_username_password);
-            alertDialog.setNeutralButton(R.string.ok, null);
-            alertDialog.show();
-        } else {
-            try {
-                JSONArray userData = new JSONArray(mqttHelper.getReceivedResult());
-                JSONObject temp = userData.getJSONObject(0);
+                    //put user data into shared preference
+                    editor.putInt(User.COL_USER_ID, temp.getInt(User.COL_USER_ID));
+                    editor.putString(User.COL_DISPLAY_NAME, temp.getString(User.COL_DISPLAY_NAME));
+                    editor.putString(User.COL_USERNAME, temp.getString(User.COL_USERNAME));
+                    editor.putString(User.COL_PASSWORD, temp.getString(User.COL_PASSWORD));
+                    editor.putString(User.COL_POSITION, temp.getString(User.COL_POSITION));
+                    editor.putString(User.COL_GENDER, temp.getString(User.COL_GENDER));
+                    editor.putString(User.COL_NRIC, temp.getString(User.COL_NRIC));
+                    editor.putString(User.COL_PHONE_NUMBER, temp.getString(User.COL_PHONE_NUMBER));
+                    editor.putString(User.COL_EMAIL, temp.getString(User.COL_EMAIL));
+                    editor.putString(User.COL_ADDRESS, temp.getString(User.COL_ADDRESS));
+                    editor.putString(User.COL_CITY_ID, temp.getString(User.COL_CITY_ID));
+                    editor.putString(User.COL_STATUS, temp.getString(User.COL_STATUS));
+                    editor.putString(User.COL_LAST_ONLINE, temp.getString(User.COL_LAST_ONLINE));
+                    editor.putString(Student.COL_FACULTY, temp.getString(Student.COL_FACULTY));
+                    editor.putString(Student.COL_COURSE, temp.getString(Student.COL_COURSE));
 
-                //put user data into shared preference
-                editor.putInt(User.COL_USER_ID, temp.getInt(User.COL_USER_ID));
-                editor.putString(User.COL_DISPLAY_NAME, temp.getString(User.COL_DISPLAY_NAME));
-                editor.putString(User.COL_USERNAME, temp.getString(User.COL_USERNAME));
-                editor.putString(User.COL_PASSWORD, temp.getString(User.COL_PASSWORD));
-                editor.putString(User.COL_POSITION, temp.getString(User.COL_POSITION));
-                editor.putString(User.COL_GENDER, temp.getString(User.COL_GENDER));
-                editor.putString(User.COL_NRIC, temp.getString(User.COL_NRIC));
-                editor.putString(User.COL_PHONE_NUMBER, temp.getString(User.COL_PHONE_NUMBER));
-                editor.putString(User.COL_EMAIL, temp.getString(User.COL_EMAIL));
-                editor.putString(User.COL_ADDRESS, temp.getString(User.COL_ADDRESS));
-                editor.putString(User.COL_CITY_ID, temp.getString(User.COL_CITY_ID));
-                editor.putString(User.COL_STATUS, temp.getString(User.COL_STATUS));
-                editor.putString(User.COL_LAST_ONLINE, temp.getString(User.COL_LAST_ONLINE));
-                editor.putString(Student.COL_FACULTY, temp.getString(Student.COL_FACULTY));
-                editor.putString(Student.COL_COURSE, temp.getString(Student.COL_COURSE));
+                    //getting a non-string value in JSON object can cause crash
+                    //an extra validation is required
+                    if (temp.isNull(User.COL_LAST_LONGITUDE)) {
+                        editor.putFloat(User.COL_LAST_LONGITUDE, 0);
+                    } else {
+                        editor.putFloat(User.COL_LAST_LONGITUDE, (float) temp.getDouble(User.COL_LAST_LONGITUDE));
+                    }
 
-                //getting a non-string value in JSON object can cause crash
-                //an extra validation is required
-                if (temp.isNull(User.COL_LAST_LONGITUDE)) {
-                    editor.putFloat(User.COL_LAST_LONGITUDE, 0);
-                } else {
-                    editor.putFloat(User.COL_LAST_LONGITUDE, (float) temp.getDouble(User.COL_LAST_LONGITUDE));
+                    if (temp.isNull(User.COL_LAST_LATITUDE)) {
+                        editor.putFloat(User.COL_LAST_LATITUDE, 0);
+                    } else {
+                        editor.putFloat(User.COL_LAST_LATITUDE, (float) temp.getDouble(User.COL_LAST_LATITUDE));
+                    }
+
+                    if (temp.isNull(Student.COL_TUTORIAL_GROUP)) {
+                        editor.putInt(Student.COL_TUTORIAL_GROUP, 0);
+                    } else {
+                        editor.putInt(Student.COL_TUTORIAL_GROUP, temp.getInt(Student.COL_TUTORIAL_GROUP));
+                    }
+
+                    editor.putString(Student.COL_INTAKE, temp.getString(Student.COL_INTAKE));
+
+                    if (temp.isNull(Student.COL_TUTORIAL_GROUP)) {
+                        editor.putInt(Student.COL_ACADEMIC_YEAR, 0);
+                    } else {
+                        editor.putInt(Student.COL_ACADEMIC_YEAR, temp.getInt(Student.COL_ACADEMIC_YEAR));
+                    }
+
+                    editor.commit();
+
+
+                    //check if RSA keys are generated
+                    //generate one if none
+                    setupRSA();
+                    finish();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-
-                if (temp.isNull(User.COL_LAST_LATITUDE)) {
-                    editor.putFloat(User.COL_LAST_LATITUDE, 0);
-                } else {
-                    editor.putFloat(User.COL_LAST_LATITUDE, (float) temp.getDouble(User.COL_LAST_LATITUDE));
-                }
-
-                if (temp.isNull(Student.COL_TUTORIAL_GROUP)) {
-                    editor.putInt(Student.COL_TUTORIAL_GROUP, 0);
-                } else {
-                    editor.putInt(Student.COL_TUTORIAL_GROUP, temp.getInt(Student.COL_TUTORIAL_GROUP));
-                }
-
-                editor.putString(Student.COL_INTAKE, temp.getString(Student.COL_INTAKE));
-
-                if (temp.isNull(Student.COL_TUTORIAL_GROUP)) {
-                    editor.putInt(Student.COL_ACADEMIC_YEAR, 0);
-                } else {
-                    editor.putInt(Student.COL_ACADEMIC_YEAR, temp.getInt(Student.COL_ACADEMIC_YEAR));
-                }
-
-                editor.commit();
-
-                //check if RSA keys are generated
-                //generate one if none
-                setupRSA();
-
-                //unsub from the topic
-                mqttHelper.unsubscribe(uniqueTopic);
-                finish();
-            } catch (Exception e) {
-                e.printStackTrace();
             }
         }
-        mqttHelper.unsubscribe(uniqueTopic);
     }
 
     @Override

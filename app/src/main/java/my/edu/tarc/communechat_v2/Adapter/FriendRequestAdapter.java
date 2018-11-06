@@ -196,7 +196,6 @@ public class FriendRequestAdapter extends ArrayAdapter<Student> {
         holder.buttonDetail.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO intent to profile activity to view selected user profile
                 //Toast.makeText(getContext(), "friend_id2: " + holder.textViewUserID.getText().toString(), Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(getContext(), ProfileActivity.class);
                 intent.putExtra(User.COL_USER_ID, Integer.parseInt(holder.textViewUserID.getText().toString()));

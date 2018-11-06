@@ -11,7 +11,7 @@ chmod (dirname(__DIR__)."\htdocs\FriendManagementModule.php", 0740);
 include dirname(__DIR__)."\htdocs\ChatModule.php";
 chmod (dirname(__DIR__)."\htdocs\ChatModule.php", 0740);
 
-//MQTT Server setup 
+//MQTT Server setup
 //**Change in MQTT broker address will require you to update the address in publishMessage function too.
 /*
 $server = "m14.cloudmqtt.com";     		// change if necessary
@@ -63,12 +63,12 @@ To setup your server and database locally, you need to do this:
 	12. now open cmd again and type START C:\xampp\php\php.exe C:\xampp\htdocs\mqtt_server.php
 	13. now you should see a php terminal open
 	14. make sure the php terminal says something like "Connected to MQTT Broker @ x.x.x.x:xxxx"
-		*if it does not or the php terminal shutdown, then either your broker hasn't setup or 
+		*if it does not or the php terminal shutdown, then either your broker hasn't setup or
 		you are having errors in this file, go to below session and see how to debug
 	15. and tada your server is up
-	16. everytime client sent something to the server, 
+	16. everytime client sent something to the server,
 	17. the php terminal should show some text regarding message received from client
-	
+
 Now make your android project connect to this local server
 	1. Open android studio
 	2. Go to MQTTHelper and change the ip address like above
@@ -82,25 +82,25 @@ Now, to find the syntax error in this entire server script
 	5. if you get message like maximum 30 seconds, then you are most likely no error
 	6. that 30 seconds message is just a restriction on Chrome
 	7. now go back to cmd and start the server
-	
+
 Again, make sure to change the server ip address to your ip everytime before u start
 Good luck!
 find me at https://www.facebook.com/leo477831
 if you need any more help
 */
 
-/* $server = "172.16.122.93";     		// change to your broker's ip
+$server = "192.168.0.15";     		// change to your broker's ip
 $port = 1883;                     		// change if necessary, default is 1883
 $username = "root";                 // set your username
 $password = "";             // set your password
 $client_id = "CCS_SERVER"; 				// make sure this is unique for connecting to sever - you could use uniqid()
   */
- 
+
 /* $server = "m14.cloudmqtt.com";     		// change if necessary
 $port = 16672;                     		// change if necessary
 $username = "vwkohpay";                 // set your username
 $password = "JPG3F4XUHjRv";             // set your password
-$client_id = "SERVER_1"; 
+$client_id = "SERVER_1";
  */
 
 /* $server = "mqtt.dioty.co";     		// change to your broker's ip
@@ -109,7 +109,7 @@ $username = "leo477831@gmail.com";                 // set your username
 $password = "ba6acd07";             // set your password
 $client_id = "CCS_SERVER";
  */
- 
+
 //$server = "broker.hivemq.com";     		// change to your broker's ip
 $server = "192.168.0.110";
 $port = 1883;                     		// change if necessary, default is 1883
@@ -140,15 +140,15 @@ $mqtt->close();
 
 //Server Responses
 //add your new function to here
-function procmsg($topic, $msg){		
+function procmsg($topic, $msg){
 		$ack_message = "";
 		echo "=====================================================";
 		echo "\nReceiving message:";
 		echo "\nTopic: ".$topic;
 		echo "\nReceived Message: ".$msg."\n";
-		
+
 		if(!empty($msg)){
-			$commandmsg = explode(",", $msg);				
+			$commandmsg = explode(",", $msg);
 			switch($commandmsg[0]){
 				case "LOGIN":	{
 					$ack_message = LOGIN($msg); break;}
@@ -196,10 +196,14 @@ function procmsg($topic, $msg){
 					$ack_message = UPDATE_LOCATION($msg); break;}
 				case "FIND_BY_LOCATION": {
 					$ack_message = FIND_BY_LOCATION($msg); break;}
-				//case "003810":	{$ack_message = fn003810($msg);publishMessage($topic, $ack_message); break;}  				
+				case "UPDATE_PUBLIC_KEY": {
+					$ack_message = UPDATE_PUBLIC_KEY($msg); break;}
+				case "GET_USER_PROFILE":	{
+					$ack_message = GET_USER_PROFILE($msg); break;}
+				//case "003810":	{$ack_message = fn003810($msg);publishMessage($topic, $ack_message); break;}
 				// case "003812":	{$ack_message = fn003812($msg);publishMessage($topic, $ack_message); break;}
 				// case "003814":	{$ack_message = fn003814($msg);publishMessage($topic, $ack_message); break;}
-				// case "003816":	{$ack_message = fn003816($msg);publishMessage($topic, $ack_message); break;}			
+				// case "003816":	{$ack_message = fn003816($msg);publishMessage($topic, $ack_message); break;}
 				// case "003818":	{$ack_message = fn003818($msg);publishMessage($topic, $ack_message); break;}
 				// case "003820":	{fn003820($msg); break;}
 				// case "003822": 	{$ack_message = fn003822($msg);publishMessage($topic, $ack_message); break;}
@@ -212,13 +216,13 @@ function procmsg($topic, $msg){
 				// case "003836": 	{$ack_message = fn003836($msg);publishMessage($topic, $ack_message); break;}
 				// case "003999":	{fn003999($msg); break;}
 			}
-			
+
 			$temp = explode(',', $ack_message);
 			if($temp[0] != 'NO_PUB'){
 				publishMessage($topic, $ack_message);
 				echo "\nReturning to Topic :".$topic;
 			}
-			
+
 			if(strlen($ack_message) > 300){
 				$ack_message = substr($ack_message, 0, 300);
 				$ack_message .= "...";
@@ -248,7 +252,7 @@ function dbResult($sql){
 				echo("ERROR: Could not connect. " . mysqli_connect_error());
 			}
 			else{
-				mysqli_set_charset($link, "UTF8");	
+				mysqli_set_charset($link, "UTF8");
 				$result = mysqli_query($link, $sql);
 				if($result)
 					return $result;
@@ -258,23 +262,44 @@ function dbResult($sql){
 			// Close connection
 			mysqli_close($link);
 			}
-}	
+}
+
+function dbResult_stmt($sql, $types, $params, $param_count){
+	$hostname_localhost = "localhost";
+	$database_localhost = "ccs_master";//change to your database name
+	$username_localhost = "ccs_main";//change to your database username, it is recommended to add a new user with password
+	$password_localhost = "123456";//change to user's password
+		$link = mysqli_connect($hostname_localhost, $username_localhost, $password_localhost, $database_localhost);
+			// Check connection
+			if($link === false){
+				echo("ERROR: Could not connect. " . mysqli_connect_error());
+			}
+			else{
+				mysqli_set_charset($link, "UTF8");
+				$query = mysqli_prepare($link, $sql);
+				$sql_params_array = array();
+				array_push($sql_params_array, $query, $types);
+				for($x = 0; $x<count($params);$x++){
+					array_push($sql_params_array, $params[$x]);
+				}
+				call_user_func_array("mysqli_stmt_bind_param",$sql_params_array);
+				$result = mysqli_stmt_execute($sql_params_array[0]);
+				//$result = mysqli_query($link, $sql);
+				if($result)
+					return $result;
+				else
+					echo mysqli_error($link);
+				return $result;
+			// Close connection
+			mysqli_close($link);
+			}
+}
 
 //MQTT publish message
 //DO NOT MODIFY, except ip address
 function publishMessage($topic, $ack_message){
-	$server = "192.168.0.110";     		// change if necessary
-	$port = 1883;                     		// change if necessary
-	$username = "";                 // set your username
-	$password = "";             // set your password
-	$client_id = "CCS_SERVER"; 
-	/* $server = "172.16.122.93";     		// change if necessary
-	$port = 1883;                     		// change if necessary
-	$username = "";                 // set your username
-	$password = "";             // set your password
-	$client_id = "CCS_SERVER";  */				// make sure this is unique for connecting to sever - you could use uniqid()
-	
-/* $server = "mqtt.dioty.co";     		// change if necessary
+$server = "192.168.0.15";     		// change if necessary
+
 $port = 1883;                     		// change if necessary
 $username = "leo477831@gmail.com";                 // set your username
 $password = "ba6acd07";             // set your password
@@ -301,22 +326,22 @@ $QOS = 1;
 //Update: For student LOGIN only
 function LOGIN($msg){
 	$ack_message = "";
-	$receivedData = explode(',', $msg);		 
-	echo "\nHeader: ".$receivedData[0]."\n"; 
-	echo "\nUsername: ".$receivedData[1]."\n"; 
+	$receivedData = explode(',', $msg);
+	echo "\nHeader: ".$receivedData[0]."\n";
+	echo "\nUsername: ".$receivedData[1]."\n";
 	echo "\nPassword: ".$receivedData[2]."\n";
 	$username = $receivedData[1];
 	$password = $receivedData[2];
 
 	$ack_message = "LOGIN_REPLY,";
 	$sql ="SELECT *
-			FROM `user` 
+			FROM `user`
 			INNER JOIN `student` ON `user`.`user_id` = `student`.`user_id`
-			WHERE BINARY `User`.`username` = '$username' 
+			WHERE BINARY `User`.`username` = '$username'
 			AND BINARY `User`.`password` = '$password'
 			AND user.status = 'Offline'";
 	//Note: BINARY to toggle case sensitive, by default not case sensitive
-	
+
 	$result = dbResult($sql);
 	if(mysqli_num_rows($result) > 0){
 		$temp = array();
@@ -337,24 +362,24 @@ function LOGIN($msg){
 
 function REGISTER_USER($msg){
 	echo "\nRegistering new user...\n";
-	
+
 	//clean $ack_message
 	$ack_message = "REGISTER_USER_REPLY,";
-	
-	$receivedData = explode(',', $msg);		 
+
+	$receivedData = explode(',', $msg);
 	$username = $receivedData[1];
 	$password = $receivedData[2];
-	
+
 	$sql = "SELECT * FROM User WHERE BINARY username = '$username'";
 	$result = dbResult($sql);
 	if(mysqli_num_rows($result) == 0){
 		echo "Registering user:".$username;
-		
+
 		$sql = "INSERT INTO User (username, password, display_name) VALUES ('$username', '$password', '$username');";
 		$result = dbResult($sql);
 		if($result){
 			echo "\nNew user registered:".$username."\n";
-			$ack_message .= "SUCCESS";		
+			$ack_message .= "SUCCESS";
 		}else{
 			echo "\nCannot register user:".$username."\n";
 			$ack_message .= "NO_RESULT";
@@ -368,12 +393,12 @@ function REGISTER_USER($msg){
 
 function UPDATE_USER_STATUS(){
 	$temp = func_get_arg(0);
-	$ack_message = "NO_PUB, ";
-	
+	$ack_message = "UPDATE_USER_STATUS_REPLY, ";
+
 	$temp = explode(',', $temp);
 	$user_id = $temp[1];
 	$status = $temp[2];
-	
+
 	$sql = "UPDATE User SET status = '$status', last_online = CURRENT_TIMESTAMP WHERE user_id = '$user_id'";
 	$result = dbResult($sql);
 	if($result){
@@ -393,18 +418,73 @@ function UPDATE_STUDENT($msg){
 
 function UPDATE_USER($msg){
 	//TODO: GAN DO this
+	//update everything except user_id, status, last_online
+	//position = student by default
+	//username, nric, phone_number, email requires validation
+
+	echo "\nupdating user...\n";
+	$receivedData = explode(',', $msg);	// 1,...=user_id, username, display_name, position, password, gender, nric, phone_number, email, address, city_id
+	$user_id = $receivedData[1];
+	$username = $receivedData[2];
+	$display_name = $receivedData[3];
+	$position = $receivedData[4];
+	$password = $receivedData[5];
+	$gender = $receivedData[6];
+	$nric = $receivedData[7];
+	$phone_number = $receivedData[8];
+	$email = $receivedData[9];
+	$address = $receivedData[10];
+	$city_id = $receivedData[11];
+	//if position="Student", create student table with user_id=[received user_id] (postponed, not now :P)
+	//$sql = "INSERT INTO Student (user_id) VALUES ('$user_id');";
+
+	$sql = "UPDATE User SET username = '$username', display_name = '$display_name', position = '$position', password = '$password',
+	gender = '$gender', nric = '$nric', phone_number = '$phone_number', email = '$email', address = '$address', city_id = '$city_id' WHERE user_id = 'user_id'";
+	$result = dbResult($sql);
+		if(mysqli_affected_rows($result) > 0){
+		echo "\nUpdated user: $user_id\n";
+	}else{
+		echo "\nFailed to user: $user_id, $status\n";
+		echo mysqli_error($result)."\n";
+	}
 }
+
+function GET_USER_PROFILE($msg){
+	$temp = func_get_arg(0);
+	$ack_message = "GET_USER_PROFILE_REPLY, ";
+
+	$temp = explode(',', $temp); //user_id
+	$user_id = $temp[1];
+	$sql = "SELECT display_name, student.student_id, student.faculty, student.course, student.tutorial_group, student.intake, student.academic_year
+			FROM User INNER JOIN Student ON User.user_id = Student.user_id
+			WHERE user.user_id = '$user_id'";
+	$result = dbResult($sql);
+	if(mysqli_num_rows($result) > 0){
+		$temp = array();
+		while($row = mysqli_fetch_array($result)){
+			$temp[] = $row;
+		}
+		echo "\nUser profile found: ".$user_id."\n";
+		$ack_message .= json_encode($temp);
+	}else{
+		echo "\nUser profile not found: ".$user_id."\n";
+		$ack_message .= "NO_RESULT";
+	}
+	echo "\n".$ack_message;
+	return $ack_message;
+}
+
 
 function SEARCH_USER($msg){
 	echo "\nSearching user...\n";
 	$ack_message = "SEARCH_USER_REPLY,";
-	
+
 	$receivedData = explode(',', $msg);
 	$user_id = $receivedData[1];
 	$target_username = $receivedData[2];
-	
+
 	$sql = "SELECT user.user_id, display_name, student.course, student.tutorial_group
-			FROM User INNER JOIN Student ON User.user_id = Student.user_id 
+			FROM User INNER JOIN Student ON User.user_id = Student.user_id
 			WHERE display_name LIKE '%$target_username%' OR username LIKE '$target_username'";
 	$result = dbResult($sql);
 	if(mysqli_num_rows($result) > 0){
@@ -422,6 +502,29 @@ function SEARCH_USER($msg){
 	return $ack_message;
 }
 
+function UPDATE_PUBLIC_KEY(){
+	$temp = func_get_arg(0);
+	$ack_message = "UPDATE_PUBLIC_KEY_REPLY, ";
+
+	$temp = explode(',', $temp, 3); //user_id, public_key
+	$user_id = $temp[1];
+	$public_key = $temp[2];
+
+	$sql = "UPDATE User SET public_key = ? WHERE user_id = ?";
+	$types = "si";
+	$params = array($public_key, $user_id);
+	$param_count = count($params);
+	$result = dbResult_stmt($sql, $types, $params, $param_count);
+	if($result){
+		echo "\nUpdated user public_key: $user_id\n";
+		$ack_message .= "SUCCESS";
+	}else{
+		echo "\nFailed to update user public_key: $user_id\n";
+		echo mysqli_error($result)."\n";
+		$ack_message .= "FAILED";
+	}
+	return $ack_message;
+}
 
 //The following functions are
 //Done by 1st generation seniors
@@ -434,20 +537,20 @@ function SEARCH_USER($msg){
 	// $ack_message = "";
 	// $ack_message.="003811";
 	// $sql =
-		// "SELECT 
-		// `friendship`.`fid` AS 'fid' , 
+		// "SELECT
+		// `friendship`.`fid` AS 'fid' ,
 
 		// CHAR_LENGTH(`user`.`nickname`) AS 'nickname_length',
-		// `user`.`nickname` AS 'nickname', 
+		// `user`.`nickname` AS 'nickname',
 
 		// CHAR_LENGTH(`user`.`status`) AS 'status_length',
 		// `user`.`status` AS 'status'
 
 		// FROM `user`,`friendship`
-		// WHERE `user`.`uid` = `friendship`.`fid` 
-		// AND `friendship`.`uid` = '$commandData' 
+		// WHERE `user`.`uid` = `friendship`.`fid`
+		// AND `friendship`.`uid` = '$commandData'
 		// AND `friendship`.`status` = '1'";
-		
+
 	// $result = dbResult($sql);
 		// if(mysqli_num_rows($result) > 0){
 			// while($row = mysqli_fetch_array($result)){
@@ -455,48 +558,48 @@ function SEARCH_USER($msg){
 
 					// $ack_message .= str_pad($row['nickname_length'], 3, '0', STR_PAD_LEFT);
 					// $ack_message .= $row['nickname'];
-					
+
 					// $ack_message .= str_pad($row['status_length'], 3, '0', STR_PAD_LEFT);
 					// $ack_message .= $row['status'];
-					
+
 			// }
 		// } else{
 			// echo "\nNo records matching your query were found.";
 		// }
 	// return $ack_message;
-// }		
+// }
 
 // //from client request contact details
 // function fn003812($msg){
 	// $ack_message = "";
 	// $reservedString = "000000000000000000000000";
-	
-	// $commandData = mb_substr($msg,30); 
+
+	// $commandData = mb_substr($msg,30);
 	// $ack_message.="003813".$reservedString;
 	// $sql =
-		// "SELECT 
+		// "SELECT
 		// `uid`, `gender`, `last_online`, `nickname`, `username`, `status`
 		// FROM `user`
 		// WHERE `user`.`uid` = $commandData";
-		
+
 	// $result = dbResult($sql);
 		// if(mysqli_num_rows($result) > 0){
 			// while($row = mysqli_fetch_array($result)){
 					// $ack_message .= $row['uid'];
 					// $ack_message .= $row['gender'];
 					// $ack_message .= $row['last_online'];
-					
+
 					// $ack_message .= str_pad(mb_strlen($row['username'],'utf8'), 3, '0', STR_PAD_LEFT);
 					// $ack_message .= $row['username'];
-										
+
 					// $ack_message .= str_pad(mb_strlen($row['nickname'],'utf8'), 3, '0', STR_PAD_LEFT);
 					// $ack_message .= $row['nickname'];
-					
+
 					// $ack_message .= str_pad(mb_strlen($row['status'],'utf8'), 3, '0', STR_PAD_LEFT);
 					// $ack_message .= $row['status'];
-					
+
 			// }
-		// } 
+		// }
 	// return $ack_message;
 // }
 
@@ -504,11 +607,11 @@ function SEARCH_USER($msg){
 // function fn003814($msg){
 	// $ack_message = "";
 	// $reservedString = "000000000000000000000000";
-	// $commandData = mb_substr($msg,30); 
+	// $commandData = mb_substr($msg,30);
 	// $ack_message .="003815".$reservedString;
-	
+
 	// $uid = $commandData;
-	
+
 	// $sql = "SELECT `latitude`, `longitude` FROM `user` WHERE `uid` = $uid";
 	// $result = dbResult($sql);
 		// if($result)
@@ -516,11 +619,11 @@ function SEARCH_USER($msg){
 				// $row = mysqli_fetch_array($result);
 					// $source_latitude = $row['latitude'];
 					// $source_longitude = $row['longitude'];
-	
+
 	// $search_radius_km = 3;
 	// $date_range = strtotime("-1 week");
 	// $result_limit = 15;
-	
+
 	// $sql = "SELECT 	u.`uid`, u.`nickname`, (p.distance_unit
 													 // * DEGREES(ACOS(COS(RADIANS(p.latpoint))
 													 // * COS(RADIANS(u.latitude))
@@ -528,10 +631,10 @@ function SEARCH_USER($msg){
 													 // + SIN(RADIANS(p.latpoint))
 													 // * SIN(RADIANS(u.latitude))))) * 1000 AS distance_in_metre
 			// FROM 	`user` AS u
-			// JOIN	( SELECT  
-					// '$source_latitude' AS latpoint, 
+			// JOIN	( SELECT
+					// '$source_latitude' AS latpoint,
 					// '$source_longitude' AS longpoint,
-					// '$search_radius_km' AS radius, 
+					// '$search_radius_km' AS radius,
 					// 111.045 AS distance_unit
 					// ) AS p ON 1=1
 			// WHERE 	u.latitude
@@ -553,7 +656,7 @@ function SEARCH_USER($msg){
 				// $ack_message .= $row['uid'];
 				// $ack_message .= str_pad(mb_strlen($row['nickname'], "UTF8"), 3, '0', STR_PAD_LEFT);
 				// $ack_message .= $row['nickname'];
-				
+
 				// $temp = round($row['distance_in_metre']);
 				// $ack_message .= mb_strlen($temp, "UTF8");
 				// $ack_message .= $temp;
@@ -566,8 +669,8 @@ function SEARCH_USER($msg){
 // function fn003816($msg){
 	// $ack_message = "";
 	// $reservedString = "000000000000000000000000";
-	
-	// $commandData = mb_substr($msg,30); 
+
+	// $commandData = mb_substr($msg,30);
 	// $commandData = $commandData."%";
 	// $ack_message.="003817".$reservedString;
 	// $sql = "
@@ -584,13 +687,13 @@ function SEARCH_USER($msg){
 					// $ack_message .= $row['uid'];
 					// $ack_message .= $row['gender'];
 					// $ack_message .= $row['last_online'];
-		
+
 					// $ack_message .= str_pad(mb_strlen($row['username'], "utf8"), 3, '0', STR_PAD_LEFT);
 					// $ack_message .= $row['username'];
-					
+
 					// $ack_message .= str_pad(mb_strlen($row['nickname'], "utf8"), 3, '0', STR_PAD_LEFT);
 					// $ack_message .= $row['nickname'];
-					
+
 					// $ack_message .= str_pad(mb_strlen($row['status'], "utf8"), 3, '0', STR_PAD_LEFT);
 					// $ack_message .= $row['status'];
 			// }
@@ -603,68 +706,68 @@ function SEARCH_USER($msg){
 // $ack_message = "";
 // $reservedString = "000000000000000000000000";
 
-// $commandData = mb_substr($msg,30); 
+// $commandData = mb_substr($msg,30);
 // $ack_message .="003819".$reservedString;
 
 // $graph = array();
-// $edge = 2; //Depth of Graph network. **Do not modify. 
+// $edge = 2; //Depth of Graph network. **Do not modify.
 // $sql = "SELECT `uid`,`fid` FROM `friendship` WHERE `uid` = '$commandData' AND status = 1";
 
 // $result = dbResult($sql);
 	// if(mysqli_num_rows($result) > 0){
-		
+
 		// //Push user's UID into array
 		// $graph = array_push_assoc($graph, $commandData, array());
-		
+
 		// while($row = mysqli_fetch_array($result)){
-			
+
 			// //Push user's friends into array
 			// $graph = array_push_assoc($graph, $row['fid'], array());
 		// }
-		
-		// //for each friend in the array 
+
+		// //for each friend in the array
 		// foreach($graph as $source => $destination){
 			// $sql = "SELECT `fid` FROM `friendship` WHERE `uid` = '$source' AND status = 1";
 			// $result = dbResult($sql);
 			// if(mysqli_num_rows($result) > 0){
 				// while($row = mysqli_fetch_array($result)){
-					
+
 					// //Push user's friends of friends into the array
 					// $graph[$source] = array_push_assoc($graph[$source], $row['fid'] , $row['fid']);
-					
+
 				// }
 			// }
 		// }
 	// }
 	// $res = array();
-	
+
 	// //this is used for changing the array format to adapt the Graph library function
 	// foreach($graph as $source => $destination){
 		// if($source != $commandData){
 			// $res = array_merge($res,$graph[$source]);
 		// }
 	// }
-	
+
 	// //Clear user id and duplicated id
 	// $res = array_diff($res, [$commandData]);
 	// $res = array_unique($res);
-	
+
 	// //Construct graph network with 2d array/matrix using the Graph Library function
 	// $g = new Graph($graph);
-	
+
 	// $sortedList=array();
 	// foreach($res as $id){
-		
-		// //countpath() function is used to count 
+
+		// //countpath() function is used to count
 		// //number of indirect relationship between User and friend of friend
 		// //also known as mutual friend relationship
 		// $sortedList = array_push_assoc($sortedList, $id , $g->countpath($commandData, $id, $edge));
 	// }
 	// arsort($sortedList);
-	
+
 	// //construct response message to client
 	// foreach($sortedList as $id => $walks){
-		// $sql = "SELECT `uid`, `nickname` 
+		// $sql = "SELECT `uid`, `nickname`
 				// FROM `user`
 				// WHERE `uid` = '$id'";
 		// $result = dbResult($sql);
@@ -680,7 +783,7 @@ function SEARCH_USER($msg){
 
 // //from client send friend request
 // function fn003820($msg){
-										
+
 // $commandData = mb_substr($msg,30);
 // $uid = mb_substr($commandData,0,10);
 // $commandData = mb_substr($commandData,10);
@@ -690,14 +793,14 @@ function SEARCH_USER($msg){
 
 // $time = mb_substr($commandData,0,10);
 
-	// $sql = "SELECT * 
-			// FROM `friendship` 
+	// $sql = "SELECT *
+			// FROM `friendship`
 			// WHERE `uid` = '$uid'
 			// AND	`fid` = '$fid'";
-		
+
 	// $result = dbResult($sql);
 	// if(mysqli_num_rows($result)>0){
-		// $sql = "UPDATE `friendship` 
+		// $sql = "UPDATE `friendship`
 				// SET `date_action` = '$time',
 					// `status` = 2
 				// WHERE `uid` = '$uid'
@@ -706,7 +809,7 @@ function SEARCH_USER($msg){
 		// $sql = "INSERT INTO `friendship` (`uid`, `fid`, `status`, `date_action`)
 				// VALUES ('$uid', '$fid', 2, '$time')";
 	// }
-	
+
 	// $result= dbResult($sql);
 // }
 
@@ -714,26 +817,26 @@ function SEARCH_USER($msg){
 // function fn003822($msg){
 // $status = 2;
 // $ack_message = "";
-// $reservedString = "000000000000000000000000"; 
+// $reservedString = "000000000000000000000000";
 // $ack_message .="003823".$reservedString;
 // $uid = mb_substr($msg,30);
 
 	// $sql = "SELECT `friendship`.`uid` AS uid, `user`.`nickname` AS nickname, `user`.`status` AS status
 			// FROM `user`, `friendship`
-			// WHERE `friendship`.`uid` = `user`.`uid` 
+			// WHERE `friendship`.`uid` = `user`.`uid`
 				// AND `friendship`.`fid` = '$uid'
 				// AND `friendship`.`status` = $status
 			// ORDER BY `friendship`.`date_action` DESC
 			// ";
-			
+
 	// $result = dbResult($sql);
 		// if(mysqli_num_rows($result)>0){
 			// while($row = mysqli_fetch_array($result)){
 				// $ack_message .= $row['uid'];
-				
+
 				// $ack_message .= str_pad(mb_strlen($row['nickname'],"utf8"), 3, '0', STR_PAD_LEFT);
 				// $ack_message .= $row['nickname'];
-				
+
 				// $ack_message .= str_pad(mb_strlen($row['status'],"utf8"), 3, '0', STR_PAD_LEFT);
 				// $ack_message .= $row['status'];			}
 		// }
@@ -744,13 +847,13 @@ function SEARCH_USER($msg){
 // function fn003824($msg){
 // $ack_message = "";
 // $reservedString = "000000000000000000000000";
-// $ack_message .="003825".$reservedString; 		
+// $ack_message .="003825".$reservedString;
 // $commandData = mb_substr($msg,30);
-		
+
 	// $uid = mb_substr($commandData, 0 , 10);
 	// $fid = mb_substr($commandData, 10, 20);
 	// $date = strtotime("now");
-	
+
 	// $sql = "UPDATE `friendship`
 			// SET `status` = 1,
 				// `date_action` = $date
@@ -760,7 +863,7 @@ function SEARCH_USER($msg){
 	// if($result){
 		// $sql = "INSERT INTO `friendship` (`uid`,`fid`,`status`,`date_action`) values ('$fid','$uid','1','$date')";
 		// $result = dbResult($sql);
-		
+
 		// if($result){
 			// $ack_message .= 1;
 		// }
@@ -777,18 +880,18 @@ function SEARCH_USER($msg){
 // function fn003826($msg){
 // $ack_message = "";
 // $reservedString = "000000000000000000000000";
-// $ack_message .="003827".$reservedString; 		
+// $ack_message .="003827".$reservedString;
 // $commandData = mb_substr($msg,30);
-	
+
 	// $sql = "SELECT `faculty` FROM `student` GROUP BY `faculty`";
-			
+
 	// $result = dbResult($sql);
 		// if(mysqli_num_rows($result)>0){
 			// while($row = mysqli_fetch_array($result)){
-				// $ack_message .= $row['faculty'];		
+				// $ack_message .= $row['faculty'];
 			// }
 		// }
-		
+
 	// return $ack_message;
 // }
 
@@ -796,23 +899,23 @@ function SEARCH_USER($msg){
 // function fn003828($msg){
 // $ack_message = "";
 // $reservedString = "000000000000000000000000";
-// $ack_message .="003829".$reservedString; 		
-	
+// $ack_message .="003829".$reservedString;
+
 	// $faculty = mb_substr($msg,30);
-	
-	// $sql = "SELECT `academic_year` 
-			// FROM `student` 
-			// WHERE `student`.`faculty` = '$faculty' 
+
+	// $sql = "SELECT `academic_year`
+			// FROM `student`
+			// WHERE `student`.`faculty` = '$faculty'
 			// GROUP BY `academic_year`
 			// ORDER BY `academic_year` DESC";
-			
+
 	// $result = dbResult($sql);
 		// if(mysqli_num_rows($result)>0){
 			// while($row = mysqli_fetch_array($result)){
-				// $ack_message .= $row['academic_year'];		
+				// $ack_message .= $row['academic_year'];
 			// }
 		// }
-		
+
 	// return $ack_message;
 // }
 
@@ -820,27 +923,27 @@ function SEARCH_USER($msg){
 // function fn003830($msg){
 // $ack_message = "";
 // $reservedString = "000000000000000000000000";
-// $ack_message .="003831".$reservedString; 		
-	
+// $ack_message .="003831".$reservedString;
+
 	// $commandData = mb_substr($msg, 30);
 	// $faculty = mb_substr($commandData,0,4);
 	// $commandData = mb_substr($commandData, 4);
 	// $year = mb_substr($commandData,0,4);
 
-	// $sql = "SELECT `intake` 
-			// FROM `student` 
-			// WHERE `student`.`faculty` = '$faculty' 
+	// $sql = "SELECT `intake`
+			// FROM `student`
+			// WHERE `student`.`faculty` = '$faculty'
 			// AND	`student`.`academic_year` = '$year'
 			// GROUP BY `intake`
 			// ORDER BY `intake` DESC";
-			
+
 	// $result = dbResult($sql);
 		// if(mysqli_num_rows($result)>0){
 			// while($row = mysqli_fetch_array($result)){
-				// $ack_message .= $row['intake'];		
+				// $ack_message .= $row['intake'];
 			// }
 		// }
-		
+
 	// return $ack_message;
 // }
 
@@ -848,7 +951,7 @@ function SEARCH_USER($msg){
 // function fn003832($msg){
 // $ack_message = "";
 // $reservedString = "000000000000000000000000";
-// $ack_message .="003833".$reservedString; 			
+// $ack_message .="003833".$reservedString;
 
 	// $commandData = mb_substr($msg, 30);
 	// $faculty = mb_substr($commandData,0,4);
@@ -857,21 +960,21 @@ function SEARCH_USER($msg){
 	// $commandData = mb_substr($commandData, 4);
 	// $session = mb_substr($commandData,0,6);
 
-	// $sql = "SELECT `course` 
-			// FROM `student` 
-			// WHERE `student`.`faculty` = '$faculty' 
+	// $sql = "SELECT `course`
+			// FROM `student`
+			// WHERE `student`.`faculty` = '$faculty'
 			// AND	`student`.`academic_year` = '$year'
 			// AND `student`.`intake` = '$session'
 			// GROUP BY `course`
 			// ORDER BY `course`";
-			
+
 	// $result = dbResult($sql);
 		// if(mysqli_num_rows($result)>0){
 			// while($row = mysqli_fetch_array($result)){
-				// $ack_message .= $row['course'];		
+				// $ack_message .= $row['course'];
 			// }
 		// }
-		
+
 	// return $ack_message;
 // }
 
@@ -879,7 +982,7 @@ function SEARCH_USER($msg){
 // function fn003834($msg){
 // $ack_message = "";
 // $reservedString = "000000000000000000000000";
-// $ack_message .="003835".$reservedString; 			
+// $ack_message .="003835".$reservedString;
 
 	// $commandData = mb_substr($msg, 30);
 	// $faculty = mb_substr($commandData,0,4);
@@ -890,30 +993,30 @@ function SEARCH_USER($msg){
 	// $commandData = mb_substr($commandData, 6);
 	// $course = mb_substr($commandData,0,3);
 
-	// $sql = "SELECT `tutorial_group` 
-			// FROM `student` 
-			// WHERE `student`.`faculty` = '$faculty' 
+	// $sql = "SELECT `tutorial_group`
+			// FROM `student`
+			// WHERE `student`.`faculty` = '$faculty'
 			// AND	`student`.`academic_year` = '$year'
 			// AND `student`.`intake` = '$session'
 			// AND `student`.`course` = '$course'
 			// GROUP BY `tutorial_group`
 			// ORDER BY `tutorial_group`";
-			
+
 	// $result = dbResult($sql);
 		// if(mysqli_num_rows($result)>0){
 			// while($row = mysqli_fetch_array($result)){
-				// $ack_message .= str_pad($row['tutorial_group'],2,'0',STR_PAD_LEFT);		
+				// $ack_message .= str_pad($row['tutorial_group'],2,'0',STR_PAD_LEFT);
 			// }
 		// }
-		
+
 	// return $ack_message;
 // }
 
-// //From client request user list based on faculty,year,session,course,group	
+// //From client request user list based on faculty,year,session,course,group
 // function fn003836($msg){
 // $ack_message = "";
 // $reservedString = "000000000000000000000000";
-// $ack_message .="003837".$reservedString; 		
+// $ack_message .="003837".$reservedString;
 
 	// $commandData = mb_substr($msg, 30);
 	// $faculty = mb_substr($commandData,0,4);
@@ -929,52 +1032,52 @@ function SEARCH_USER($msg){
 	// $sql = "SELECT `user`.`uid`,`user`.`nickname`,`user`.`student_id`
 			// FROM `student`,`user`
 			// WHERE `student`.`student_id` = `user`.`student_id`
-			// AND `student`.`faculty` = '$faculty' 
+			// AND `student`.`faculty` = '$faculty'
 			// AND	`student`.`academic_year` = '$year'
 			// AND `student`.`intake` = '$session'
 			// AND `student`.`course` = '$course'
 			// AND `student`.`tutorial_group` = $group
 			// ORDER BY `user`.`student_id`";
-			
+
 	// $result = dbResult($sql);
 		// if(mysqli_num_rows($result)>0){
 			// while($row = mysqli_fetch_array($result)){
-				// $ack_message .= $row['uid'];	
-				
+				// $ack_message .= $row['uid'];
+
 				// $ack_message .= str_pad(mb_strlen($row['nickname'], "utf8"), 3, '0', STR_PAD_LEFT);
-				// $ack_message .= $row['nickname'];					
+				// $ack_message .= $row['nickname'];
 			// }
 		// }
-	
+
 	// return $ack_message;
 // }
 
 // //From client KeepAlive
 // function fn003999($msg){
 	// $commandData = mb_substr($msg,30);
-	
+
 	// $uid = mb_substr($commandData,0,10);
 	// $commandData = mb_substr($commandData,10);
-	
+
 	// $time = mb_substr($commandData,0,10);
 	// $commandData = mb_substr($commandData,10);
-	
+
 	// $temp = mb_substr($commandData, 0, 2);
 	// $commandData = mb_substr($commandData, 2);
 	// $latitude = mb_substr($commandData, 0, (int)$temp);
 	// $commandData = mb_substr($commandData, (int)$temp);
-	
+
 	// $temp = mb_substr($commandData, 0, 2);
 	// $commandData = mb_substr($commandData, 2);
 	// $longitude = mb_substr($commandData, 0, (int)$temp);
 	// $commandData = mb_substr($commandData, (int)$temp);
-	
-	// $sql = "UPDATE `user` 
+
+	// $sql = "UPDATE `user`
 	// SET `last_online` = '$time',
 		// `latitude` = $latitude,
 		// `longitude` = $longitude
 	// WHERE `user`.`uid` = '$uid'";
-	
+
 	// $result = dbResult($sql);
 	// if($result)
 		// echo "\n[Success] Updated UID:$uid @ lat $latitude long $longitude";

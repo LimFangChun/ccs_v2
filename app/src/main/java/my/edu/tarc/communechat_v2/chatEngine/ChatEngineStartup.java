@@ -25,10 +25,8 @@ public class ChatEngineStartup extends AsyncTask<Void,Void,Void> {
 
         ApplicationDatabase applicationDatabase = ApplicationDatabase.build(mWeakReference.get());
 
-        Log.i("CHECKER", "INININI");
-
         // Get a list to unsubscribe
-        List<ChatRoom> unSubscribeChatRoomList = applicationDatabase.chatRoomDao().getUnsubscriptionChatRoom(ChatRoom.GROUP_CHAT_ROOM, ChatRoom.CHAT_ROOM_JOINED);
+        List<ChatRoom> unSubscribeChatRoomList = applicationDatabase.chatRoomDao().getUnsubscriptionChatRoom(ChatRoom.PRIVATE_CHAT_ROOM, ChatRoom.CHAT_ROOM_JOINED);
         for (int i = 0; i < unSubscribeChatRoomList.size(); i++) {
             //Only Group Chat Room Require Separate Calculation
             MainActivity.mqttHelper.unsubscribe(unSubscribeChatRoomList.get(i).getChatRoomUniqueTopic());

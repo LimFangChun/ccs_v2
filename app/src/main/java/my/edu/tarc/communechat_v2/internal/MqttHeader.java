@@ -61,6 +61,9 @@ public final class MqttHeader {
     public static final String UPDATE_PUBLIC_KEY = "UPDATE_PUBLIC_KEY";
     public static final String UPDATE_PUBLIC_KEY_REPLY = "UPDATE_PUBLIC_KEY_REPLY";
 
+    //profile module
+    public static final String GET_USER_PROFILE = "GET_USER_PROFILE";
+    public static final String GET_USER_PROFILE_REPLY = "GET_USER_PROFILE_REPLY";
     //TODO remove this
 //    public static final String CHAT_ROOM = "CHAT_ROOM";
 //    public static final String RECEIVE_MESSAGE = "RECEIVE_MESSAGE";

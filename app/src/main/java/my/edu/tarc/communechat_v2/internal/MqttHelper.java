@@ -37,9 +37,10 @@ public class MqttHelper {
     private String receivedResult;
 
     //change MQTT broker IP address here
-
-    private static final String serverUri = "tcp://192.168.0.110:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
-    //private static final String serverUri = "tcp://broker.hivemq.com:1883";
+    //private static final String serverUri = "tcp://192.168.0.110:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
+    private static final String serverUri = "tcp://broker.hivemq.com:1883";
+    //private static String mqttUsername = "";
+    //private static String mqttPassword = "";
     private static final String mqttUsername = "leo477831@gmail.com";
     private static final String mqttPassword = "ba6acd07";
 
@@ -478,6 +479,14 @@ public class MqttHelper {
                         .append(",")
                         .append(user.getPublic_key());
                 result = temp.toString();
+                break;
+            }
+            case MqttHeader.GET_USER_PROFILE:{
+                User user = (User)data;
+                temp.append(MqttHeader.GET_USER_PROFILE)
+                        .append(",")
+                        .append(user.getUser_id());
+                result=temp.toString();
                 break;
             }
         }

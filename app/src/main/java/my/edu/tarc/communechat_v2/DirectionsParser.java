@@ -14,7 +14,7 @@ import java.util.List;
  * Created by NgocTri on 12/11/2017.
  */
 
-public class DirectionsParser {
+public class  DirectionsParser {
     /**
      * Returns a list of lists containing latitude and longitude from a JSONObject
      */

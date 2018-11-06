@@ -128,6 +128,7 @@ public class NotificationView extends Application {
     public static void sendNotification(Activity activity, Chat chat, ChatRoom chatRoom) {
         String str = "";
         String notificationType="";
+        NOTIFICATION_ID = (int) chat.getRoomId();
 
         List<String> oldMessage=loadArray(String.valueOf(chat.getRoomId()),activity);
         setPendingNotificationsCount(oldMessage.size()+1);
@@ -205,8 +206,10 @@ public class NotificationView extends Application {
             }
 
             Intent dismissIntent = new Intent(activity, NotificationBroadcastReceiver.class);
+            dismissIntent.putExtra("notificationID",NOTIFICATION_ID);
             dismissIntent.setAction(NOTIFICTION_DISMISS);
-            PendingIntent dismissNotification = PendingIntent.getBroadcast(activity, 100, dismissIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            dismissIntent.putExtra(SELECTED_CHAT_ROOM_ID, chat.getRoomId());
+            PendingIntent dismissNotification = PendingIntent.getBroadcast(activity, NOTIFICATION_ID, dismissIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
             PendingIntent contentIntent = getPendingIntent(activity, chat);
             Intent notificationIntent = new Intent(activity, NotificationBroadcastReceiver.class);
@@ -218,6 +221,7 @@ public class NotificationView extends Application {
             }
             notificationIntent.setAction(NOTIFICTION_TAPS);
             notificationIntent.putExtra(KEY_MESSAGE_ID, chat.getId());
+            notificationIntent.putExtra("notificationID",NOTIFICATION_ID);
 
             notificationIntent.putExtra("SENDER_ID", chat.getSenderId());
             notificationIntent.putExtra(SELECTED_CHAT_ROOM_ID, chat.getRoomId());
@@ -231,7 +235,7 @@ public class NotificationView extends Application {
 
 
             notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            PendingIntent chatIntent = PendingIntent.getBroadcast(activity, 100, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent chatIntent = PendingIntent.getBroadcast(activity, NOTIFICATION_ID, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             String replyLabel = "Reply";
 
             RemoteInput remoteInput = new RemoteInput.Builder(KEY_REPLY)
@@ -255,7 +259,7 @@ public class NotificationView extends Application {
 
 
             if (chatRoom.getChatRoomType().equals(PRIVATE_CHAT_ROOM)) {
-                NOTIFICATION_ID = (int) chat.getRoomId();
+                setNotifID(NOTIFICATION_ID);
                 popUp = pref.getBoolean("pop_up", true);
                 if(popUp){
                     priority=NotificationCompat.PRIORITY_HIGH;
@@ -277,12 +281,12 @@ public class NotificationView extends Application {
                         .setVisibility(Notification.VISIBILITY_PUBLIC)
                         .setStyle(inboxStyle)
                         .build();
-                setNotifID(NOTIFICATION_ID);
-
+                Log.v("testingNO", String.valueOf(getNotifID()));
                 mNotificationManager.notify(getNotifID(), mNotification);
 
             } else {
-                NOTIFICATION_ID = (int) chat.getRoomId();
+                setNotifID(NOTIFICATION_ID);
+                Log.v("testingGNO", String.valueOf(getNotifID()));
                 popUp = pref.getBoolean("group_pop_up", true);
                 if(popUp){
                     priority=NotificationCompat.PRIORITY_HIGH;
@@ -301,7 +305,7 @@ public class NotificationView extends Application {
                         .addAction(replyAction)
                         .setDeleteIntent(dismissNotification)
                         .setVisibility(Notification.VISIBILITY_PUBLIC);
-                setNotifID(NOTIFICATION_ID);
+
 
 
                 mNotificationManager.notify(getNotifID(), mNotification.build());
@@ -326,6 +330,7 @@ public class NotificationView extends Application {
             notificationIntent = new Intent(activity, NotificationBroadcastReceiver.class);
             notificationIntent.setAction(REPLY_ACTION);
             notificationIntent.putExtra(KEY_MESSAGE_ID, chat.getId());
+            notificationIntent.putExtra("notificationID",NOTIFICATION_ID);
             notificationIntent.putExtra(SELECTED_CHAT_ROOM_ID, chat.getRoomId());
             if (chat.getChatRoomUniqueTopic().equals(String.valueOf(ChatFragment.CURRENT_USER_ID))) {
                 notificationIntent.putExtra(SELECTED_CHAT_ROOM_UNIQUE_TOPIC, chat.getSenderId());
@@ -333,11 +338,12 @@ public class NotificationView extends Application {
                 notificationIntent.putExtra(SELECTED_CHAT_ROOM_UNIQUE_TOPIC, chat.getChatRoomUniqueTopic());
             }
             notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            return PendingIntent.getBroadcast(activity, 100, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            return PendingIntent.getBroadcast(activity, NOTIFICATION_ID, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         } else {
 
             notificationIntent = new Intent(activity, ChatRoomActivity.class);
             notificationIntent.setAction(REPLY_ACTION);
+            notificationIntent.putExtra("notificationID",NOTIFICATION_ID);
             notificationIntent.putExtra(KEY_MESSAGE_ID, chat.getId());
             notificationIntent.putExtra(SELECTED_CHAT_ROOM_ID, chat.getRoomId());
             if (chat.getChatRoomUniqueTopic().equals(String.valueOf(ChatFragment.CURRENT_USER_ID))) {
@@ -346,7 +352,7 @@ public class NotificationView extends Application {
                 notificationIntent.putExtra(SELECTED_CHAT_ROOM_UNIQUE_TOPIC, chat.getChatRoomUniqueTopic());
             }
             notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            return PendingIntent.getActivity(activity, 100, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            return PendingIntent.getActivity(activity, NOTIFICATION_ID, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         }
     }
 
@@ -362,6 +368,7 @@ public class NotificationView extends Application {
         SharedPreferences prefs = mContext.getSharedPreferences("message", 0);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putInt(arrayName + "_size", message.size());
+
         for (int i = 0; i < message.size(); i++)
             editor.putString(arrayName + "_" + i, message.get(i));
         return editor.commit();
@@ -383,8 +390,12 @@ public class NotificationView extends Application {
     public static void clearMessage(String arrayName, Context mContext) {
         SharedPreferences prefs = mContext.getSharedPreferences("message", 0);
         SharedPreferences.Editor editor=prefs.edit();
-        editor.clear();
+        editor.putInt(arrayName + "_size", 0);
+        editor.remove(arrayName);
+        editor.apply();
         editor.commit();
+
+
     }
 
     public static int getPendingNotificationsCount() {

@@ -186,6 +186,7 @@ public class User {
     @SuppressLint("NewApi")
     public void setLast_online(String last_online) {
         try{
+            last_online = last_online.replace("T", " ");
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
             this.last_online.setTime(dateFormat.parse(last_online));
         }catch (NullPointerException|ParseException e){

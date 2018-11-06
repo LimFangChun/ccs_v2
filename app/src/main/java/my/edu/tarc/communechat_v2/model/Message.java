@@ -72,6 +72,7 @@ public class Message {
     }
 
     public void setDate_created(String date_created){
+        date_created = date_created.replace("T", " ");
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         try {
             this.date_created.setTime(dateFormat.parse(date_created));

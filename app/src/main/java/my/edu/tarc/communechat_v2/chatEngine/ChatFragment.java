@@ -74,6 +74,8 @@ public class ChatFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
+        new ChatEngineStartup(getActivity()).execute();
+        
         if (SelectContactActivity.sChatRoomId != -1) {
 
             Intent intent = new Intent(getContext(), ChatRoomActivity.class);

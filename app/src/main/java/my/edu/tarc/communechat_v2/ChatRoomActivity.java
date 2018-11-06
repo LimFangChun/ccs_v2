@@ -11,7 +11,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.amulyakhare.textdrawable.util.ColorGenerator;
 
@@ -72,8 +71,9 @@ public class ChatRoomActivity extends AppCompatActivity {
                 startActivity(intent);
                 break;
             case R.id.nav_remove_people:
-                //TODO remove people
-                Toast.makeText(this, "Remove people", Toast.LENGTH_LONG).show();
+                intent = new Intent(ChatRoomActivity.this, RemovePeopleFromChatActivity.class);
+                intent.putExtra(Chat_Room.COL_ROOM_ID, chatRoom.getRoom_id());
+                startActivity(intent);
                 break;
             case R.id.nav_exit_group:
                 exitGroup();
@@ -113,7 +113,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         if (hasRoomID()) {
             initializeChatRoomByRoomID();
         } else {
-            //todo init room by user id and target user id, private chat room
+            //todo init room by user id and target user id, new chat room
         }
 
         chatViewRoom.setOnSentMessageListener(new ChatView.OnSentMessageListener() {

@@ -2,10 +2,10 @@ package my.edu.tarc.communechat_v2;
 
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -18,43 +18,42 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-import my.edu.tarc.communechat_v2.Adapter.AddPeopleAdapter;
+import my.edu.tarc.communechat_v2.Adapter.RemovePeopleAdapter;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
 import my.edu.tarc.communechat_v2.model.Chat_Room;
 import my.edu.tarc.communechat_v2.model.Participant;
 import my.edu.tarc.communechat_v2.model.User;
 
-import static my.edu.tarc.communechat_v2.MainActivity.mqttHelper;
+import static my.edu.tarc.communechat_v2.MainActivity.*;
 
-public class AddPeopleToChatActivity extends AppCompatActivity {
-
+public class RemovePeopleFromChatActivity extends AppCompatActivity {
     private SharedPreferences pref;
-    private ProgressBar progressBarAddPeople;
-    private ListView listViewAddPeople;
+    private ProgressBar progressBarRemovePeople;
+    private ListView listViewParticipantList;
     private Participant participant;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_people_to_chat);
+        setContentView(R.layout.activity_remove_people_from_chat);
 
         assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        progressBarAddPeople = findViewById(R.id.progressBar_addPeople);
-        progressBarAddPeople.setVisibility(View.VISIBLE);
-        listViewAddPeople = findViewById(R.id.listView_userList);
+        progressBarRemovePeople = findViewById(R.id.progressBar_removePeople);
+        progressBarRemovePeople.setVisibility(View.VISIBLE);
+        listViewParticipantList = findViewById(R.id.listView_participantList);
         participant = new Participant();
         participant.setRoom_id(getIntent().getIntExtra(Chat_Room.COL_ROOM_ID, -1));
         participant.setUser_id(pref.getInt(User.COL_USER_ID, -1));
 
-        initializeList();
+        initializeListView();
     }
 
-    private void initializeList() {
-        String header = MqttHeader.GET_FRIEND_LIST_FOR_PARTICIPANT_ADD;
-        String topic = header + "/" + participant.getUser_id();
+    private void initializeListView() {
+        String header = MqttHeader.GET_PARTICIPANT_LIST_REMOVE;
+        String topic = header + "/" + participant.getRoom_id();
         mqttHelper.connectPublishSubscribe(this, topic, header, participant);
         mqttHelper.getMqttClient().setCallback(new MqttCallback() {
             @Override
@@ -65,11 +64,12 @@ public class AddPeopleToChatActivity extends AppCompatActivity {
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception {
                 mqttHelper.decode(message.toString());
-                if (mqttHelper.getReceivedHeader().equals(MqttHeader.GET_FRIEND_LIST_FOR_PARTICIPANT_ADD_REPLY)) {
+                if (mqttHelper.getReceivedHeader().equals(MqttHeader.GET_PARTICIPANT_LIST_REMOVE_REPLY)) {
+                    mqttHelper.unsubscribe(topic);
                     if (mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(AddPeopleToChatActivity.this);
+                        AlertDialog.Builder builder = new AlertDialog.Builder(RemovePeopleFromChatActivity.this);
                         builder.setTitle(R.string.no_result);
-                        builder.setMessage(R.string.get_participant_add_desc);
+                        builder.setMessage(R.string.remove_participant_from_chat_desc);
                         builder.setNeutralButton(R.string.ok, null);
                         builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
                             @Override
@@ -81,9 +81,6 @@ public class AddPeopleToChatActivity extends AppCompatActivity {
                     } else {
                         processResult(mqttHelper.getReceivedResult());
                     }
-
-                    mqttHelper.unsubscribe(topic);
-                    progressBarAddPeople.setVisibility(View.GONE);
                 }
             }
 
@@ -108,16 +105,16 @@ public class AddPeopleToChatActivity extends AppCompatActivity {
 
                 resultList.add(user);
             }
-            AddPeopleAdapter adapter = new AddPeopleAdapter(
-                    AddPeopleToChatActivity.this,
-                    R.layout.adapter_add_people_to_group,
+            RemovePeopleAdapter adapter = new RemovePeopleAdapter(
+                    RemovePeopleFromChatActivity.this,
+                    R.layout.adapter_remove_people_from_group,
                     resultList,
                     participant);
-            listViewAddPeople.setAdapter(adapter);
+            listViewParticipantList.setAdapter(adapter);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            progressBarAddPeople.setVisibility(View.GONE);
+            progressBarRemovePeople.setVisibility(View.GONE);
         }
     }
 }

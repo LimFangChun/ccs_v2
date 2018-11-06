@@ -64,7 +64,6 @@ public class ChatFragment extends Fragment {
         progressBarChat.getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(getContext(), R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
         textViewNoHistory = view.findViewById(R.id.textView_chatFragment_Description);
 
-        initializeChatRoom();
         initializeListViewListener();
         return view;
     }

@@ -206,4 +206,5 @@
     <string name="participants">Participants</string>
     <string name="no_result">No result</string>
     <string name="get_participant_add_desc">Did not find any available friend to add into the group chat</string>
+    <string name="remove_participant_from_chat_desc">Did not find any available participant in this chat group</string>
 </resources>

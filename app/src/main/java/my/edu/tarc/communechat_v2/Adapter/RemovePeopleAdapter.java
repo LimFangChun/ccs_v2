@@ -31,7 +31,7 @@ import my.edu.tarc.communechat_v2.model.User;
 
 import static my.edu.tarc.communechat_v2.MainActivity.mqttHelper;
 
-public class AddPeopleAdapter extends ArrayAdapter<User> {
+public class RemovePeopleAdapter extends ArrayAdapter<User> {
     private Context mContext;
     private int mResource;
     private ArrayList<User> mObject;
@@ -42,11 +42,11 @@ public class AddPeopleAdapter extends ArrayAdapter<User> {
         TextView textViewDisplayName;
         TextView textViewLastOnline;
         TextView textViewUserID;
-        ImageButton buttonAdd;
+        ImageButton buttonRemove;
         ProgressBar progressBarAdd;
     }
 
-    public AddPeopleAdapter(@NonNull Context context, int resource, @NonNull ArrayList<User> objects, Participant participant) {
+    public RemovePeopleAdapter(@NonNull Context context, int resource, @NonNull ArrayList<User> objects, Participant participant) {
         super(context, resource, objects);
         mContext = context;
         mResource = resource;
@@ -59,15 +59,15 @@ public class AddPeopleAdapter extends ArrayAdapter<User> {
     public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         LayoutInflater inflater = LayoutInflater.from(mContext);
         final ViewHolder holder;
-
         if (convertView == null) {
             convertView = inflater.inflate(mResource, parent, false);
+
             holder = new ViewHolder();
             holder.imageViewProfilePic = convertView.findViewById(R.id.imageView_profilePic);
             holder.textViewDisplayName = convertView.findViewById(R.id.textView_displayName);
             holder.textViewLastOnline = convertView.findViewById(R.id.textView_lastOnline);
             holder.textViewUserID = convertView.findViewById(R.id.textView_userID);
-            holder.buttonAdd = convertView.findViewById(R.id.button_add);
+            holder.buttonRemove = convertView.findViewById(R.id.button_remove);
             holder.progressBarAdd = convertView.findViewById(R.id.progressBar_addPeople);
 
             convertView.setTag(holder);
@@ -91,19 +91,30 @@ public class AddPeopleAdapter extends ArrayAdapter<User> {
         holder.imageViewProfilePic.setImageDrawable(drawable);
 
         holder.progressBarAdd.setVisibility(View.GONE);
-        holder.buttonAdd.setOnClickListener(new View.OnClickListener() {
+        holder.buttonRemove.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                addUserToGroup(user, holder, position);
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setTitle(R.string.remove_people);
+                builder.setTitle("Confirm remove " + user.getDisplay_name() + " from the chat room?");
+                builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        removePeople(user, holder, position);
+                    }
+                });
+                builder.setNegativeButton(R.string.cancel, null);
+                builder.show();
             }
         });
+
         return convertView;
     }
 
-    private void addUserToGroup(final User user, final ViewHolder holder, final int position) {
+    private void removePeople(final User user, final ViewHolder holder, final int position) {
         holder.progressBarAdd.setVisibility(View.VISIBLE);
-        holder.buttonAdd.setEnabled(false);
-        String header = MqttHeader.ADD_PEOPLE_TO_GROUP;
+        holder.buttonRemove.setEnabled(false);
+        String header = MqttHeader.REMOVE_PEOPLE_FROM_GROUP;
         String topic = header + "/" + user.getUser_id();
 
         Participant participant = new Participant();
@@ -119,15 +130,17 @@ public class AddPeopleAdapter extends ArrayAdapter<User> {
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception {
                 mqttHelper.decode(message.toString());
-                AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
-                if (mqttHelper.getReceivedHeader().equals(MqttHeader.ADD_PEOPLE_TO_GROUP_REPLY)) {
+                if (mqttHelper.getReceivedHeader().equals(MqttHeader.REMOVE_PEOPLE_FROM_GROUP_REPLY)) {
+                    mqttHelper.unsubscribe(topic);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                    builder.setNeutralButton(R.string.ok, null);
                     if (mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
-                        alertDialog.setTitle(R.string.failed);
-                        alertDialog.setMessage("Failed to add " + user.getDisplay_name() + " to the group chat");
+                        builder.setTitle(R.string.failed);
+                        builder.setMessage("Failed to remove " + user.getDisplay_name() + " from the chat room");
                     } else {
-                        alertDialog.setTitle(R.string.success);
-                        alertDialog.setMessage("Added " + user.getDisplay_name() + " to the group chat");
-                        alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        builder.setTitle(R.string.success);
+                        builder.setMessage("User " + user.getDisplay_name() + " has been removed from the chat");
+                        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
                             @Override
                             public void onDismiss(DialogInterface dialogInterface) {
                                 mObject.remove(position);
@@ -135,11 +148,9 @@ public class AddPeopleAdapter extends ArrayAdapter<User> {
                             }
                         });
                     }
-                    alertDialog.setNeutralButton(R.string.ok, null);
-                    alertDialog.show();
-                    mqttHelper.unsubscribe(topic);
+                    builder.show();
                     holder.progressBarAdd.setVisibility(View.GONE);
-                    holder.buttonAdd.setEnabled(true);
+                    holder.buttonRemove.setEnabled(true);
                 }
             }
 

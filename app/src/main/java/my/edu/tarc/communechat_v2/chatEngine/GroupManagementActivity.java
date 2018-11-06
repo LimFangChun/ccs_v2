@@ -65,6 +65,8 @@ public class GroupManagementActivity extends AppCompatActivity implements View.O
     private String mNewMemberDetail;
 
     private String mExistingMemberDetail;
+    
+    private Menu mMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,6 +151,7 @@ public class GroupManagementActivity extends AppCompatActivity implements View.O
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.ce_chat_room_group_management_menu, menu);
 
+        mMenu = menu;
         menu.findItem(R.id.ce_menu_groupManagement_disbandGroup).setVisible(isAdmin);
         menu.findItem(R.id.ce_menu_groupManagement_addMember).setVisible(isAdmin);
         return true;
@@ -398,6 +401,10 @@ public class GroupManagementActivity extends AppCompatActivity implements View.O
                 //Check whether user is the admin of this group
                 sWeakReference.get().isAdmin = adminList.contains(String.valueOf(ChatFragment.CURRENT_USER_ID));
 
+                sWeakReference.get().mMenu.findItem(R.id.ce_menu_groupManagement_disbandGroup).setVisible(adminList.contains(String.valueOf(ChatFragment.CURRENT_USER_ID)));
+                sWeakReference.get().mMenu.findItem(R.id.ce_menu_groupManagement_addMember).setVisible(adminList.contains(String.valueOf(ChatFragment.CURRENT_USER_ID)));
+
+                
 
             } catch (NullPointerException e) {
                 e.printStackTrace();

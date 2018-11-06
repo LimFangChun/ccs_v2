@@ -24,11 +24,17 @@ public class TestEncryptionActivity extends AppCompatActivity {
 		Button buttonTestRSA = findViewById(R.id.button_testRSA);
 		buttonTestRSA.setOnClickListener(testRSA);
 		uniqueTopic = UUID.randomUUID().toString().substring(0, 8);
+
+
 	}
 
 	private View.OnClickListener testRSA = new View.OnClickListener() {
 		@Override
 		public void onClick(View view) {
+//			List<Chat_Room> chatrooms = chatRoomRepository.getAllChatrooms();
+//			Chat_Room lul = chatrooms.get(0);
+//			String lql = new String(lul.getSecret_key());
+//			Toast.makeText(TestEncryptionActivity.this, lql, Toast.LENGTH_SHORT).show();
 //			RSA rsa = new RSA();
 //			SharedPreferences.Editor editor = pref.edit();
 //			String pubKeyString = new String(rsa.getPubKey());
@@ -61,7 +67,7 @@ public class TestEncryptionActivity extends AppCompatActivity {
 //
 //				}
 //			});
-
+//
 		}
 	};
 }

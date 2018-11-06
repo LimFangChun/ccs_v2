@@ -1,6 +1,9 @@
 package my.edu.tarc.communechat_v2.model;
 
 import android.annotation.SuppressLint;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -28,7 +31,8 @@ public class User {
     public static final String COL_LAST_LONGITUDE = "last_longitude";
     public static final String COL_LAST_LATITUDE = "last_latitude";
     public static final String COL_DISTANCE = "distance";
-    public static final String COL_PUBLIC_KEY = "public_key";
+	public static final String COL_PUBLIC_KEY = "public_key";
+	public static final String COL_PRIVATE_KEY = "private_key";
 
     //variables for encapsulation
     private int user_id;

@@ -70,6 +70,7 @@ public final class MqttHeader {
     public static final String UPDATE_PUBLIC_KEY_REPLY = "UPDATE_PUBLIC_KEY_REPLY";
     public static final String GET_PUBLIC_KEY = "GET_PUBLIC_KEY";
     public static final String GET_PUBLIC_KEY_REPLY = "GET_PUBLIC_KEY_REPLY";
+    public static final String CHATROOM_SECRET = "CHATROOM_SECRET";
 
     //profile module
     public static final String GET_USER_PROFILE = "GET_USER_PROFILE";

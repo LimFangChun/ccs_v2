@@ -111,7 +111,7 @@ $client_id = "CCS_SERVER";
  */
 
 //$server = "broker.hivemq.com";     		// change to your broker's ip
-$server = "192.168.0.110";
+$server = "192.168.0.6";
 $port = 1883;                     		// change if necessary, default is 1883
 $username = "";                 // set your username
 $password = "";             // set your password
@@ -206,6 +206,8 @@ function procmsg($topic, $msg){
 					$ack_message = UPDATE_PUBLIC_KEY($msg); break;}
 				case "GET_USER_PROFILE":	{
 					$ack_message = GET_USER_PROFILE($msg); break;}
+				case "GET_PUBLIC_KEY":	{
+					$ack_message = GET_PUBLIC_KEY($msg); break;}
 				//case "003810":	{$ack_message = fn003810($msg);publishMessage($topic, $ack_message); break;}
 				// case "003812":	{$ack_message = fn003812($msg);publishMessage($topic, $ack_message); break;}
 				// case "003814":	{$ack_message = fn003814($msg);publishMessage($topic, $ack_message); break;}
@@ -304,7 +306,7 @@ function dbResult_stmt($sql, $types, $params, $param_count){
 //MQTT publish message
 //DO NOT MODIFY, except ip address
 function publishMessage($topic, $ack_message){
-	$server = "192.168.0.110";     		// change if necessary
+	$server = "192.168.0.6";     		// change if necessary
 	$port = 1883;                     		// change if necessary
 	$username = "";                 // set your username
 	$password = "";             // set your password
@@ -430,6 +432,25 @@ function UPDATE_USER_STATUS(){
 
 function UPDATE_STUDENT($msg){
 	//TODO: GAN DO this
+	//update student table, everything (except user_id) from null to something
+	$receivedData = explode(',', $msg);	// 1=user_id, 2...=faculty, course, tutorial_group, intake, academic_year
+	$user_id = $receivedData[1];
+	$faculty = $receivedData[2];
+	$course = $receivedData[3];
+	$tutorial_group = $receivedData[4];
+	$intake = $receivedData[5];
+	$academic_year = $receivedData[6];
+
+	$sql = "UPDATE Student SET faculty = 'faculty', course = '$course', tutorial_group = '$tutorial_group', intake = '$intake', academic_year = '$academic_year'
+			WHERE user_id = '$user_id'";
+	$result = dbResult($sql);
+
+	if(mysqli_affected_rows($result) > 0){
+		echo "\nUpdated student: $user_id\n";
+	}else{
+		echo "\nFailed to update student: $user_id, $status\n";
+		echo mysqli_error($result)."\n";
+	}
 }
 
 function UPDATE_USER($msg){
@@ -539,6 +560,32 @@ function UPDATE_PUBLIC_KEY(){
 		echo mysqli_error($result)."\n";
 		$ack_message .= "FAILED";
 	}
+	return $ack_message;
+}
+
+function GET_PUBLIC_KEY($msg){
+	echo "\nGetting public key...\n";
+	$ack_message = "GET_PUBLIC_KEY_REPLY,";
+
+	$receivedData = explode(',', $msg); //user_id
+	$user_id = $receivedData[1];
+
+	$sql = "SELECT user.public_key
+			FROM User
+			WHERE user.user_id LIKE '%$user_id%'";
+	$result = dbResult($sql);
+	if(mysqli_num_rows($result) > 0){
+		$temp = array();
+		while($row = mysqli_fetch_array($result)){
+			$temp[] = $row;
+		}
+		echo "\nPublic key found\n";
+		$ack_message .= json_encode($temp);
+	}else{
+		echo "\nNo result\n";
+		$ack_message .= "NO_RESULT";
+	}
+	echo "\n".$ack_message;
 	return $ack_message;
 }
 

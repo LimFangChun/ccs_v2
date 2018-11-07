@@ -320,30 +320,11 @@ public class LoginActivity extends AppCompatActivity {
             user.setPublic_key(pubKeyString);
 
             final String uniqueTopic = UUID.randomUUID().toString().substring(0, 8);
-            mqttHelper.connectPublishSubscribe(getApplicationContext(), uniqueTopic, MqttHeader.UPDATE_PUBLIC_KEY, user);
-            mqttHelper.getMqttClient().setCallback(new MqttCallback() {
-                @Override
-                public void connectionLost(Throwable cause) {
-
-                }
-
-                @Override
-                public void messageArrived(String topic, MqttMessage message) throws Exception {
-                    mqttHelper.decode(message.toString());
-                    if (mqttHelper.getReceivedHeader().equals(MqttHeader.UPDATE_PUBLIC_KEY_REPLY) && mqttHelper.getReceivedResult().equals(MqttHeader.SUCCESS)) {
-                        SharedPreferences.Editor editor1 = pref.edit();
-                        editor1.putString(User.COL_PUBLIC_KEY, pubKeyString);
-                        editor1.putString(User.COL_PRIVATE_KEY, new String(rsa.getPrivateKey()));
-                        editor1.apply();
-                    }
-                    mqttHelper.unsubscribe(uniqueTopic);
-                }
-
-                @Override
-                public void deliveryComplete(IMqttDeliveryToken token) {
-
-                }
-            });
+            SharedPreferences.Editor editor1 = pref.edit();
+            editor1.putString(User.COL_PUBLIC_KEY, pubKeyString);
+            editor1.putString(User.COL_PRIVATE_KEY, new String(rsa.getPrivateKey()));
+            editor1.apply();
+            mqttHelper.connectPublish(getApplicationContext(), uniqueTopic, MqttHeader.UPDATE_PUBLIC_KEY, user);
         }
     }
 }

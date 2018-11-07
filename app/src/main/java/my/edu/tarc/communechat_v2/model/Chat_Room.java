@@ -184,12 +184,12 @@ public class Chat_Room {
         this.secret_key = secret_key;
     }
 
-    private String decryptMessage(String msg){
+    public String decryptMessage(String msg){
         CryptoDecryptInterface decryptor = new AdvancedEncryptionStandard(secret_key);
         return new String(decryptor.decrypt(msg.getBytes()));
     }
 
-    private String encryptMessage(String msg){
+    public String encryptMessage(String msg){
         CryptoEncryptInterface encryptor = new AdvancedEncryptionStandard(secret_key);
         return new String(encryptor.encrypt(msg.getBytes()));
     }

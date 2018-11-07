@@ -96,8 +96,15 @@ public class ChatListAdapter extends ArrayAdapter<Chat_Room> {
         //make default image for each chat room
         //github: https://github.com/amulyakhare/TextDrawable/blob/master/README.md
         ColorGenerator colorGenerator = ColorGenerator.MATERIAL;
-        int color = colorGenerator.getColor(chatRoom.getRoom_name());
-        TextDrawable drawable = TextDrawable.builder().buildRound(chatRoom.getRoom_name().substring(0, 1), color);
+        int color;
+        TextDrawable drawable;
+        if ("".equals(chatRoom.getRoom_name())) {
+            color = colorGenerator.getRandomColor();
+            drawable = TextDrawable.builder().buildRound(String.valueOf(chatRoom.getRoom_id()), color);
+        } else {
+            color = colorGenerator.getColor(chatRoom.getRoom_name());
+            drawable = TextDrawable.builder().buildRound(chatRoom.getRoom_name().substring(0, 1), color);
+        }
         holder.imageViewRoomPicture.setImageDrawable(drawable);
 
         return convertView;

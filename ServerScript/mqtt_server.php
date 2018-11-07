@@ -111,7 +111,7 @@ $client_id = "CCS_SERVER";
  */
  
 //$server = "broker.hivemq.com";     		// change to your broker's ip
-$server = "192.168.0.110";
+$server = "192.168.0.17";
 $port = 1883;                     		// change if necessary, default is 1883
 $username = "";                 // set your username
 $password = "";             // set your password
@@ -288,7 +288,7 @@ function dbResult($sql){
 //MQTT publish message
 //DO NOT MODIFY, except ip address
 function publishMessage($topic, $ack_message){
-	$server = "192.168.0.110";     		// change if necessary
+	$server = "192.168.0.17";     		// change if necessary
 	$port = 1883;                     		// change if necessary
 	$username = "";                 // set your username
 	$password = "";             // set your password

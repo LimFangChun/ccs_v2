@@ -8,7 +8,8 @@ function GET_CHAT_ROOM($msg){
 	
 	$sql = "SELECT * 
 			FROM Chat_Room INNER JOIN Participant ON Chat_Room.room_id = Participant.room_id 
-			WHERE Participant.user_id = $user_id";
+			WHERE Participant.user_id = $user_id
+			ORDER BY last_update DESC";
 				
 	$result = dbResult($sql);
 	if(mysqli_num_rows($result) > 0){
@@ -282,17 +283,59 @@ function CREATE_CHAT_ROOM($msg){
 	//split received data
 	$receivedData = explode(',', $msg, 4);
 	$owner_id = $receivedData[1];
-	$room_name = $receivedData[2];
-	
-	$sql = "insert into Chat_Room (owner_id, room_name) values ($owner_id, $room_name);";
-		
+	$friend_id = $receivedData[2];
+
+	$sql = "SELECT chat_room.room_id from chat_room 
+			WHERE chat_room.room_id NOT in 
+				(SELECT DISTINCT chat_room.room_id 
+				FROM Chat_Room INNER JOIN Participant ON Participant.room_id = Chat_Room.room_id 
+				where participant.user_id not in 
+					(select participant.user_id 
+					from participant 
+					WHERE user_id = $owner_id or user_id = $friend_id))";
+
 	$result = dbResult($sql);
-	if($result){
-		echo "\n New chat room $room_name has been created \n";
-		$ack_message .= "SUCCESS";
+
+	if(mysqli_num_rows($result) == 1){
+		$row = mysqli_fetch_array($result);
+		$chat_room_id = $row['room_id'];
+		echo "\n User $owner_id and $friend_id already has chat room setup before\n";
+		echo "\n Returning chat room id $chat_room_id to client \n";
+		$ack_message .= $chat_room_id;
 	}else{
-		echo "\n Failed to create new chat room $room_name\n";
-		$ack_message .= "NO_RESULT";
+		$sql = "insert into Chat_Room (owner_id, room_name) values ($owner_id, '');";
+
+		$hostname_localhost = "localhost";
+		$database_localhost = "ccs_master";
+		$username_localhost = "ccs_main";
+		$password_localhost = "123456";
+		$link = mysqli_connect($hostname_localhost, $username_localhost, $password_localhost, $database_localhost);
+		// Check connection
+		if($link === false){
+			echo("ERROR: Could not connect. " . mysqli_connect_error());
+		}
+		else{
+			mysqli_set_charset($link, "UTF8");	
+			$result = mysqli_query($link, $sql);
+			
+			if($result){
+				$new_room_id = mysqli_insert_id($link);
+				$sql = "INSERT into participant(room_id, user_id, role) values ($new_room_id, $owner_id, 'Admin')";
+				if(mysqli_query($link, $sql)){
+					echo "\n$owner_id has been added into chat room $new_room_id\n";
+				}
+				$sql = "INSERT into participant(room_id, user_id, role) values ($new_room_id, $friend_id, 'Admin')";
+				if(mysqli_query($link, $sql)){
+					echo "\n$friend_id has been added into chat room $new_room_id\n";
+				}
+				echo "\n New chat room, ID ($new_room_id) has been created \n";
+				$ack_message .= $new_room_id;
+			}else{
+				echo "\n Failed to create new chat room $room_name\n";
+				$ack_message .= "NO_RESULT";
+			}
+		}
+		mysqli_close($link);
 	}
 	
 	return $ack_message;

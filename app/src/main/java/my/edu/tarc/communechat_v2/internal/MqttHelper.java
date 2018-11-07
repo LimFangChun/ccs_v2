@@ -37,7 +37,8 @@ public class MqttHelper {
     private String receivedResult;
 
     //change MQTT broker IP address here
-    private static final String serverUri = "tcp://192.168.0.6:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
+    private static final String serverUri = "tcp://192.168.0.17:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
+
     //private static final String serverUri = "tcp://broker.hivemq.com:1883";
     //private static String mqttUsername = "";
     //private static String mqttPassword = "";
@@ -129,6 +130,31 @@ public class MqttHelper {
             }
         } else {
             publish(topic, header, data);
+        }
+    }
+
+    public void connectSubscribe(Context context, final String topic) {
+        if (mqttAndroidClient == null || !mqttAndroidClient.isConnected()) {
+
+            mqttAndroidClient = new MqttAndroidClient(context, serverUri, clientId);
+            try {
+                IMqttToken token = mqttAndroidClient.connect();
+                token.setActionCallback(new IMqttActionListener() {
+                    @Override
+                    public void onSuccess(IMqttToken asyncActionToken) {
+                        subscribe(topic);
+                    }
+
+                    @Override
+                    public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                        Log.i(TAG, mqttAndroidClient.getClientId() + " failed to connect. " + exception);
+                    }
+                });
+            } catch (MqttException e) {
+                e.printStackTrace();
+            }
+        } else {
+            subscribe(topic);
         }
     }
 
@@ -318,12 +344,12 @@ public class MqttHelper {
                 break;
             }
             case MqttHeader.CREATE_CHAT_ROOM: {
-                Chat_Room chatRoom = (Chat_Room) data;
+                Friendship friendship = (Friendship) data;
                 temp.append(MqttHeader.CREATE_CHAT_ROOM)
                         .append(",")
-                        .append(chatRoom.getOwner_id())
+                        .append(friendship.getUser_id())
                         .append(",")
-                        .append(chatRoom.getRoom_name());
+                        .append(friendship.getFriend_id());
                 result = temp.toString();
                 break;
             }

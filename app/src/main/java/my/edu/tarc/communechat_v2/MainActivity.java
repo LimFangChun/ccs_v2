@@ -23,12 +23,19 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+
+import java.util.UUID;
+
 import my.edu.tarc.communechat_v2.Fragment.ChatFragment;
 import my.edu.tarc.communechat_v2.Fragment.FindFriendFragment;
 import my.edu.tarc.communechat_v2.Fragment.FriendListFragment;
 import my.edu.tarc.communechat_v2.Fragment.ProfileFragment;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
 import my.edu.tarc.communechat_v2.internal.MqttHelper;
+import my.edu.tarc.communechat_v2.model.RSA;
 import my.edu.tarc.communechat_v2.model.User;
 
 public class MainActivity extends AppCompatActivity {
@@ -82,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
         //check if user has GPS turn on
         //if not ask user if they want to turn on
         runLocationService();
+
 
         updateUserStatus("Online");
 
@@ -251,4 +259,5 @@ public class MainActivity extends AppCompatActivity {
         reminder.setTitle(R.string.gps_not_found);
         reminder.setMessage(R.string.gps_not_found_desc1);
     }
+
 }

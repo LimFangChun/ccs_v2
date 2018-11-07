@@ -4,7 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-public class Message {
+public class    Message {
     //variables that define column name
     public static final String COL_MESSAGE_ID = "message_id";
     public static final String COL_MESSAGE = "message";

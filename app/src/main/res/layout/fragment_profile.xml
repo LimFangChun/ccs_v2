@@ -3,225 +3,126 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:weightSum="1.0"
+    android:orientation="vertical"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <ProgressBar
+        android:id="@+id/progressBar_profile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <RelativeLayout
+        android:id="@+id/layout_profile"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        >
+        <ImageView
+            android:id="@+id/imageView_profilePic"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_centerInParent="true"
+            app:srcCompat="@drawable/ic_person"/>
+        <TextView
+            android:id="@+id/textView_displayName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/profile_placeholderName"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/imageView_profilePic"/>
+    </RelativeLayout>
 
-    <ScrollView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
-        <LinearLayout
+    <android.support.v7.widget.CardView
+        android:id="@+id/cardView_student"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/medium_margin"
+        app:cardCornerRadius="4dp">
+        <ScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <RelativeLayout
+            >
+            <TableLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <ImageView
-                    android:id="@+id/imageView_profilePic"
-                    android:layout_width="80dp"
-                    android:layout_height="100dp"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:contentDescription="@string/default_image"
-                    app:srcCompat="@drawable/ic_person" />
-                <TextView
-                    android:id="@+id/textView_displayName"
-                    android:layout_width="match_parent"
+                android:background="@drawable/bottom_border"
+                android:stretchColumns="*"
+                android:shrinkColumns="*">
+                <TableRow
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
-                    android:layout_toEndOf="@+id/imageView_profilePic"
-                    android:textSize="18sp"
-                    android:text="Gan Nar Psy"/>
-                <TextView
-                    android:id="@+id/textView_userID"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/textView_displayName"
-                    android:layout_toEndOf="@+id/imageView_profilePic"
-                    android:textSize="14sp"
-                    android:text="1" />
-                <TextView
-                    android:id="@+id/textView_gender"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/textView_userID"
-                    android:layout_toEndOf="@+id/imageView_profilePic"
-                    android:textSize="14sp"
-                    android:text="Not female" />
-            </RelativeLayout>
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <TextView android:id="@+id/textView_personalInfo"
-                    android:layout_height="50dp"
-                    android:layout_width="match_parent"
-                    android:textSize="25sp"
-                    android:text="@string/personal_information">
-                </TextView>
+                    android:minHeight="48dp"
+                    android:padding="5dp"
+                    android:background="@drawable/bottom_border">
+                    <ImageView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.15"
 
-                <TextView
-                    android:id="@+id/textView_nric"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/textView_personalInfo"
-                    android:layout_marginStart="15dp"
-                    android:text="@string/nric"
-                    android:textSize="15sp">
-                </TextView>
+                        app:srcCompat="@drawable/ic_contacts_black_36dp"
+                        />
+                    <TextView
+                        android:id="@+id/textView_studentID"
+                        android:text="@string/profile_placeholderStudentID"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:layout_marginLeft="5dp"
+                        android:layout_weight="0.85"/>
 
-                <EditText
-                    android:id="@+id/editText_nric"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/textView_nric"
-                    android:text="112233-44-5566"
-                    android:focusable="false"
-                    />
+                </TableRow>
+                <TableRow
+                    android:padding="5dp"
+                    android:minHeight="48dp"
+                    android:background="@drawable/bottom_border">
+                    <ImageView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.15"
+                        app:srcCompat="@drawable/ic_baseline_school_36px"
+                        />
+                    <TextView
+                        android:id="@+id/textView_faculty"
+                        android:text="@string/profile_placeholderFaculty"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:layout_marginLeft="5dp"
+                        android:layout_weight="0.85"/>
+                </TableRow>
+                <TableRow
+                    android:padding="5dp"
+                    android:minHeight="48dp"
+                    android:background="@drawable/bottom_border">
+                    <ImageView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.15"
 
-                <TextView
-                    android:id="@+id/textView_contactNum"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/editText_nric"
-                    android:layout_marginStart="15dp"
-                    android:text="@string/contact_number"
-                    android:textSize="15sp">
-                </TextView>
+                        app:srcCompat="@drawable/ic_group_black_36dp"
+                        />
+                    <TextView
+                        android:id="@+id/textView_courseYearGroupIntake"
+                        android:text="@string/profile_placeholderTutGroup"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="5dp"
+                        android:gravity="center_vertical"
+                        android:layout_weight="0.85"/>
+                </TableRow>
+            </TableLayout>
+        </ScrollView>
+    </android.support.v7.widget.CardView>
+    <Button
+        android:id="@+id/button_activity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="start profile activity"
+        android:visibility="visible"/>
+    <Button
+        android:id="@+id/button_activity1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="start test activity"
+        android:visibility="visible"/>
 
-                <EditText
-                    android:id="@+id/editText_contactNum"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/textView_contactNum"
-                    android:text="011-2233444"
-                    android:focusable="false"
-                    />
-
-                <TextView
-                    android:id="@+id/textView_email"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/editText_contactNum"
-                    android:layout_marginStart="15dp"
-                    android:text="@string/email"
-                    android:textSize="15sp">
-                </TextView>
-
-                <EditText
-                    android:id="@+id/editText_email"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/textView_email"
-                    android:text="samplEmail@sample.email.com"
-                    android:focusable="false"
-                    />
-
-                <TextView
-                    android:id="@+id/textView_address"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/editText_email"
-                    android:layout_marginStart="15dp"
-                    android:text="@string/address"
-                    android:textSize="15sp">
-                </TextView>
-
-                <EditText
-                    android:id="@+id/editText_address"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:minLines="2"
-                    android:lines="3"
-                    android:maxLines="4"
-                    android:layout_below="@id/textView_address"
-                    android:inputType="textPostalAddress|textMultiLine"
-                    android:text="3, Taman Sri Jempol, 72100 Bahau, Negeri Sembilan"
-                    android:focusable="false"
-                    />
-
-            </RelativeLayout>
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <TextView android:id="@+id/textView_studentDetails"
-                    android:layout_height="50dp"
-                    android:layout_width="match_parent"
-                    android:textSize="25sp"
-                    android:text="@string/student_details">
-                </TextView>
-
-                <TextView
-                    android:id="@+id/textView_studentID"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/textView_studentDetails"
-                    android:layout_marginStart="15dp"
-                    android:text="@string/student_id"
-                    android:textSize="15sp">
-                </TextView>
-
-                <EditText
-                    android:id="@+id/editText_studentID"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/textView_studentID"
-                    android:text="1709411"
-                    android:focusable="false"
-                    />
-
-                <TextView
-                    android:id="@+id/textView_faculty"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/editText_studentID"
-                    android:layout_marginStart="15dp"
-                    android:text="@string/faculty"
-                    android:textSize="15sp">
-                </TextView>
-
-                <EditText
-                    android:id="@+id/editText_faculty"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/textView_faculty"
-                    android:text="FOCS"
-                    android:focusable="false"
-                    />
-
-                <TextView
-                    android:id="@+id/textView_courseYearGroupIntake"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/editText_faculty"
-                    android:layout_marginStart="15dp"
-                    android:text="@string/tutorial_group"
-                    android:textSize="15sp">
-                </TextView>
-
-                <EditText
-                    android:id="@+id/editText_courseYearGroupIntake"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/textView_courseYearGroupIntake"
-                    android:text="RSD3 Group 2 May"
-                    android:focusable="false"
-                    />
-
-            </RelativeLayout>
-            <Button
-                android:id="@+id/button_activity"
-                android:layout_width="wrap_content"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:text="start profile activity" />
-            <Button
-                android:id="@+id/button_activity1"
-                android:layout_width="wrap_content"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:text="start test activity" />
-        </LinearLayout>
-    </ScrollView>
 </LinearLayout>

@@ -1,6 +1,6 @@
 var mysql = require('mysql');
 var mqtt = require('mqtt');
-var serverAddress = 'tcp://192.168.0.110:1883';
+var serverAddress = 'tcp://192.168.0.17:1883';
 var mqttClient = mqtt.connect(serverAddress);
 var DB_CONNECTION;
 

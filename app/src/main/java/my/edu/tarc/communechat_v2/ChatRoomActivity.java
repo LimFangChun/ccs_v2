@@ -13,8 +13,6 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.amulyakhare.textdrawable.util.ColorGenerator;
-
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
@@ -51,6 +49,7 @@ public class ChatRoomActivity extends AppCompatActivity {
     private ProgressBar progressBarChatRoom;
     private Chat_Room chatRoom;
     private MqttHelper chatMqttHelper;
+    private String topic;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -96,7 +95,6 @@ public class ChatRoomActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chat_room);
 
         chatMqttHelper = new MqttHelper();
-        chatMqttHelper.connect(this);
 
         assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -109,15 +107,12 @@ public class ChatRoomActivity extends AppCompatActivity {
         chatRoom = new Chat_Room();
         chatRoom.setRole(getIntent().getStringExtra(Participant.COL_ROLE));
         chatRoom.setRoom_id(getIntent().getIntExtra(Chat_Room.COL_ROOM_ID, -1));
-        chatMqttHelper.subscribe("sendMessage/room" + chatRoom.getRoom_id());
+        topic = "sendMessage/room" + chatRoom.getRoom_id();
+        chatMqttHelper.connectSubscribe(this, topic);
         chatMqttHelper.getMqttClient().setCallback(chatRoomCallback);
         chatRoom.setSecret_key(pref.getString(RoomSecretHelper.getRoomPrefKey(chatRoom.getRoom_id()),null).getBytes());
 
-        if (hasRoomID()) {
-            initializeChatRoomByRoomID();
-        } else {
-            //todo init room by user id and target user id, new chat room
-        }
+        initializeChatRoomByRoomID();
 
         chatViewRoom.setOnSentMessageListener(new ChatView.OnSentMessageListener() {
             @Override
@@ -186,6 +181,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                         received_message.getSender_name()
                 ));
 
+                //don't unsubscribe from the topic
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -204,8 +200,12 @@ public class ChatRoomActivity extends AppCompatActivity {
         final Chat_Room chatRoom = new Chat_Room();
         chatRoom.setRoom_id(getIntent().getIntExtra(Chat_Room.COL_ROOM_ID, -1));
         chatRoom.setRoom_name(getIntent().getStringExtra(Chat_Room.COL_ROOM_NAME));
+
+        if (!"".equals(chatRoom.getRoom_name())) {
+            setTitle(chatRoom.getRoom_name());
+        }
+
         chatRoom.setSecret_key(pref.getString(RoomSecretHelper.getRoomPrefKey(chatRoom.getRoom_id()),null).getBytes());
-        setTitle(chatRoom.getRoom_name());
 
         String topic = "getRoomMessage/room" + chatRoom.getRoom_id() + "_user" + pref.getInt(User.COL_USER_ID, -1);
         String header = MqttHeader.GET_ROOM_MESSAGE;
@@ -221,7 +221,6 @@ public class ChatRoomActivity extends AppCompatActivity {
 
         @Override
         public void messageArrived(String topic, MqttMessage message) throws Exception {
-            ColorGenerator colorGenerator = ColorGenerator.MATERIAL;
             mqttHelper.decode(message.toString());
             if (mqttHelper.getReceivedHeader().equals(MqttHeader.GET_ROOM_MESSAGE_REPLY)) {
                 if (!mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
@@ -246,7 +245,6 @@ public class ChatRoomActivity extends AppCompatActivity {
                                             ? getString(R.string.you)
                                             : temp.getString(User.COL_DISPLAY_NAME)//sender name
                             );
-
                             messages.add(chatMessage);
                         }
                         chatViewRoom.addMessages(messages);
@@ -254,10 +252,9 @@ public class ChatRoomActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }
+                progressBarChatRoom.setVisibility(View.GONE);
+                mqttHelper.unsubscribe(topic);
             }
-
-            progressBarChatRoom.setVisibility(View.GONE);
-            mqttHelper.unsubscribe(topic);
         }
 
         @Override
@@ -265,10 +262,6 @@ public class ChatRoomActivity extends AppCompatActivity {
 
         }
     };
-
-    private boolean hasRoomID() {
-        return getIntent().getIntExtra(Chat_Room.COL_ROOM_ID, -1) != -1;
-    }
 
     private void exitGroup() {
         final AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);

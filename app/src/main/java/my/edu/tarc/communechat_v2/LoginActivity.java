@@ -32,6 +32,7 @@ import org.json.JSONObject;
 import java.util.UUID;
 
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
+import my.edu.tarc.communechat_v2.model.RSA;
 import my.edu.tarc.communechat_v2.model.Student;
 import my.edu.tarc.communechat_v2.model.User;
 
@@ -276,6 +277,9 @@ public class LoginActivity extends AppCompatActivity {
                     editor.commit();
 
 
+                    //check if RSA keys are generated
+                    //generate one if none
+                    setupRSA();
                     finish();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -303,5 +307,24 @@ public class LoginActivity extends AppCompatActivity {
             activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         }
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+
+    private void setupRSA(){
+        if(pref.getString(User.COL_PRIVATE_KEY, "NULL").equals("NULL")) {
+            final RSA rsa = new RSA();
+            final String pubKeyString = new String(rsa.getPubKey());
+
+            User user = new User();
+            user.setUser_id(pref.getInt(User.COL_USER_ID, -1));
+            user.setPublic_key(pubKeyString);
+
+            final String uniqueTopic = UUID.randomUUID().toString().substring(0, 8);
+            SharedPreferences.Editor editor1 = pref.edit();
+            editor1.putString(User.COL_PUBLIC_KEY, pubKeyString);
+            editor1.putString(User.COL_PRIVATE_KEY, new String(rsa.getPrivateKey()));
+            editor1.apply();
+            mqttHelper.connectPublish(getApplicationContext(), uniqueTopic, MqttHeader.UPDATE_PUBLIC_KEY, user);
+        }
     }
 }

@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.amulyakhare.textdrawable.util.ColorGenerator;
 
@@ -27,6 +28,7 @@ import co.intentservice.chatui.ChatView;
 import co.intentservice.chatui.models.ChatMessage;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
 import my.edu.tarc.communechat_v2.internal.MqttHelper;
+import my.edu.tarc.communechat_v2.internal.RoomSecretHelper;
 import my.edu.tarc.communechat_v2.model.Chat_Room;
 import my.edu.tarc.communechat_v2.model.Message;
 import my.edu.tarc.communechat_v2.model.Participant;
@@ -99,16 +101,17 @@ public class ChatRoomActivity extends AppCompatActivity {
         assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        //init views
+        pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        chatViewRoom = findViewById(R.id.chatView_room);
+        progressBarChatRoom = findViewById(R.id.progressBar_chatRoom);
+
         chatRoom = new Chat_Room();
         chatRoom.setRole(getIntent().getStringExtra(Participant.COL_ROLE));
         chatRoom.setRoom_id(getIntent().getIntExtra(Chat_Room.COL_ROOM_ID, -1));
         chatMqttHelper.subscribe("sendMessage/room" + chatRoom.getRoom_id());
         chatMqttHelper.getMqttClient().setCallback(chatRoomCallback);
-
-        //init views
-        pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        chatViewRoom = findViewById(R.id.chatView_room);
-        progressBarChatRoom = findViewById(R.id.progressBar_chatRoom);
+        chatRoom.setSecret_key(pref.getString(RoomSecretHelper.getRoomPrefKey(chatRoom.getRoom_id()),null).getBytes());
 
         if (hasRoomID()) {
             initializeChatRoomByRoomID();
@@ -125,6 +128,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                 Message message = new Message();
                 message.setSender_id(pref.getInt(User.COL_USER_ID, -1));
                 message.setDate_created(calendar);
+                //message.setMessage(chatRoom.encryptMessage(chatViewRoom.getTypedMessage()));
                 message.setMessage(chatViewRoom.getTypedMessage());
                 message.setRoom_id(chatRoom.getRoom_id());
                 message.setMessage_type("Text");
@@ -168,6 +172,7 @@ public class ChatRoomActivity extends AppCompatActivity {
 
                 Message received_message = new Message();
                 received_message.setSender_id(result.getInt(Message.COL_SENDER_ID));
+                //received_message.setMessage(chatRoom.decryptMessage(result.getString(Message.COL_MESSAGE)));
                 received_message.setMessage(result.getString(Message.COL_MESSAGE));
                 received_message.setDate_created(result.getString(Message.COL_DATE_CREATED));
                 received_message.setMessage_type(result.getString(Message.COL_MESSAGE_TYPE));
@@ -199,6 +204,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         final Chat_Room chatRoom = new Chat_Room();
         chatRoom.setRoom_id(getIntent().getIntExtra(Chat_Room.COL_ROOM_ID, -1));
         chatRoom.setRoom_name(getIntent().getStringExtra(Chat_Room.COL_ROOM_NAME));
+        chatRoom.setSecret_key(pref.getString(RoomSecretHelper.getRoomPrefKey(chatRoom.getRoom_id()),null).getBytes());
         setTitle(chatRoom.getRoom_name());
 
         String topic = "getRoomMessage/room" + chatRoom.getRoom_id() + "_user" + pref.getInt(User.COL_USER_ID, -1);
@@ -230,6 +236,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                             room_message.setSender_id(temp.getInt(Message.COL_SENDER_ID));
 
                             ChatMessage chatMessage = new ChatMessage(
+                                    //chatRoom.decryptMessage(temp.getString(Message.COL_MESSAGE)), //message content
                                     temp.getString(Message.COL_MESSAGE), //message content
                                     room_message.getDate_created().getTimeInMillis(), //date
                                     pref.getInt(User.COL_USER_ID, -1) == room_message.getSender_id()

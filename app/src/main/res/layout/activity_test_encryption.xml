@@ -6,10 +6,26 @@
     android:layout_height="match_parent"
     tools:context=".TestEncryptionActivity">
 
-    <Button
+    <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:id="@+id/editText_testUid"
+        android:inputType="number"
+        android:hint="User id"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/editText_testRoomId"
+        android:inputType="number"
+        android:layout_below="@+id/editText_testUid"
+        android:hint="Room id"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/editText_testRoomId"
         android:id="@+id/button_testRSA"
-        android:text="Generate and update my public key"/>
+        android:text="Generate and send secret key!"/>
 
 </RelativeLayout>

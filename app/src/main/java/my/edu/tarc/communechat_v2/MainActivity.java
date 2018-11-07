@@ -22,6 +22,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -35,6 +36,7 @@ import my.edu.tarc.communechat_v2.Fragment.FriendListFragment;
 import my.edu.tarc.communechat_v2.Fragment.ProfileFragment;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
 import my.edu.tarc.communechat_v2.internal.MqttHelper;
+import my.edu.tarc.communechat_v2.internal.RoomSecretHelper;
 import my.edu.tarc.communechat_v2.model.RSA;
 import my.edu.tarc.communechat_v2.model.User;
 
@@ -90,7 +92,6 @@ public class MainActivity extends AppCompatActivity {
         //if not ask user if they want to turn on
         runLocationService();
 
-
         updateUserStatus("Online");
 
         bottomNavigationView.setOnNavigationItemSelectedListener(bottomNavListener);
@@ -109,6 +110,8 @@ public class MainActivity extends AppCompatActivity {
 //        if (pref == null || pref.getInt(User.COL_USER_ID, -1) == -1) {
 //            startActivity(new Intent(MainActivity.this, LoginActivity.class));
 //        }
+
+        //initializeEncryption();
         PreferenceManager.setDefaultValues(this, R.xml.settings, false);
     }
 
@@ -195,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
     }
 
-    private void updateUserStatus(String status) {
+	private void updateUserStatus(String status) {
         if (pref.getInt(User.COL_USER_ID, -1) == -1) {
             return;
         }
@@ -260,4 +263,10 @@ public class MainActivity extends AppCompatActivity {
         reminder.setMessage(R.string.gps_not_found_desc1);
     }
 
+//    private void initializeEncryption(){
+//        //listen to incoming secret key
+//        if(pref.getInt(User.COL_USER_ID, -1) != -1) {
+//            RoomSecretHelper.listenIncomingSecrets(getApplicationContext(), pref.getInt(User.COL_USER_ID, -1));
+//        }
+//    }
 }

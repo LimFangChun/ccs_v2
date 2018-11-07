@@ -112,17 +112,5 @@
             </TableLayout>
         </ScrollView>
     </android.support.v7.widget.CardView>
-    <Button
-        android:id="@+id/button_activity"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="start profile activity"
-        android:visibility="visible"/>
-    <Button
-        android:id="@+id/button_activity1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="start test activity"
-        android:visibility="visible"/>
 
 </LinearLayout>

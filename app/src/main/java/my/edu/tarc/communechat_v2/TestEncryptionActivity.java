@@ -49,11 +49,6 @@ public class TestEncryptionActivity extends AppCompatActivity {
 			user.setUser_id(userId);
 			Chat_Room chat_room = new Chat_Room();
 			chat_room.setRoom_id(roomId);
-			//chat_room.setSecret_key(pref.getString(RoomSecretHelper.getRoomPrefKey(chat_room.getRoom_id()),null));
-			chat_room.setSecret_key(new AdvancedEncryptionStandard().getKey());
-			SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
-			editor.putString(RoomSecretHelper.getRoomPrefKey(chat_room.getRoom_id()),chat_room.getSecret_key());
-			editor.commit();
 			RoomSecretHelper.sendRoomSecret(getApplicationContext(),user,chat_room);
 //			List<Chat_Room> chatrooms = chatRoomRepository.getAllChatrooms();
 //			Chat_Room lul = chatrooms.get(0);

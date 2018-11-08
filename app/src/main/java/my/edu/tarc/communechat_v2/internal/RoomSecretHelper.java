@@ -14,6 +14,7 @@ import org.json.JSONObject;
 
 import java.util.UUID;
 
+import my.edu.tarc.communechat_v2.MainActivity;
 import my.edu.tarc.communechat_v2.model.AdvancedEncryptionStandard;
 import my.edu.tarc.communechat_v2.model.Chat_Room;
 import my.edu.tarc.communechat_v2.model.RSA;
@@ -21,7 +22,6 @@ import my.edu.tarc.communechat_v2.model.User;
 
 
 public class RoomSecretHelper {
-
 
 	private static final String TAG = "[RoomSecretHelper]";
 	private static final MqttHelper roomSecretMqttHelper = new MqttHelper();
@@ -88,7 +88,7 @@ public class RoomSecretHelper {
 					JSONArray result = new JSONArray(roomSecretMqttHelper.getReceivedResult());
 					JSONObject temp = result.getJSONObject(0);
 					RSA rsa = new RSA(temp.getString(User.COL_PUBLIC_KEY), RSA.RSA_CONSTRUCT_WITH_PUBLIC);
-					Chat_Room chat_room1 = getOrGenerateRoomKey(context, chat_room);
+					Chat_Room chat_room1 = getOrGenerateRoomKey(context, chat_room.getRoom_id());
 					chat_room1.setSecret_key(rsa.encryptKey(chat_room1.getSecret_key()));
 					roomSecretMqttHelper.unsubscribe(topic);
 					roomSecretMqttHelper.connectPublish(context, userTopic(user.getUser_id()), MqttHeader.CHATROOM_SECRET, chat_room1);
@@ -114,21 +114,22 @@ public class RoomSecretHelper {
 		return Chat_Room.COL_SECRET_KEY.concat("/chatroom".concat(Integer.toString(room_id)));
 	}
 
-	private static Chat_Room getOrGenerateRoomKey(Context context, Chat_Room room_id){
+	private static Chat_Room getOrGenerateRoomKey(Context context, int room_id){
 		Chat_Room chat_room = new Chat_Room();
-		chat_room.setRoom_id(room_id.getRoom_id());
-		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
+		chat_room.setRoom_id(room_id);
+		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+		SharedPreferences.Editor editor = pref.edit();
 		String roomKey =  pref.getString(getRoomPrefKey(chat_room.getRoom_id()),"");
 		Log.i(TAG, "preference: "+ getRoomPrefKey(chat_room.getRoom_id()));
 		Log.i(TAG, "chatroom: "+ chat_room.getRoom_id());
 		Log.i(TAG, "roomKey value: "+ roomKey);
+		Log.i(TAG, "SharedPreference name:" + pref.toString());
 		if ( roomKey.equals("")){
 			//generate a new one if no room key is found
 			Log.i(TAG, "Generating a new room key.");
-			SharedPreferences.Editor editor = pref.edit();
 			AdvancedEncryptionStandard aes = new AdvancedEncryptionStandard();
 			roomKey = aes.getKey();
-			editor.putString(getRoomPrefKey(chat_room.getRoom_id()),chat_room.getSecret_key());
+			editor.putString(getRoomPrefKey(room_id), roomKey);
 			Log.i(TAG, "new key: " + aes.getKey());
 			boolean complete = editor.commit();
 			Log.i(TAG, "commit success: "+ Boolean.toString(complete));

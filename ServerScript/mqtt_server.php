@@ -241,6 +241,18 @@ function procmsg($topic, $msg){
 					$ack_message = SEARCH_USER($msg); 
 					publishMessage($topic, $ack_message);
 					break;}
+				case "UPDATE_PUBLIC_KEY": {
+					$ack_message = UPDATE_PUBLIC_KEY($msg);
+					publishMessage($topic, $ack_message);
+					break;}
+				case "GET_USER_PROFILE":	{
+					$ack_message = GET_USER_PROFILE($msg); 
+					publishMessage($topic, $ack_message);
+					break;}
+				case "GET_PUBLIC_KEY":	{
+					$ack_message = GET_PUBLIC_KEY($msg);
+					publishMessage($topic, $ack_message);
+					break;}
 				// case "UPDATE_LOCATION": {
 				// 	$ack_message = UPDATE_LOCATION($msg); break;}
 				// case "FIND_BY_LOCATION": {
@@ -285,6 +297,36 @@ function dbResult($sql){
 			}
 }	
 
+function dbResult_stmt($sql, $types, $params, $param_count){
+	$hostname_localhost = "localhost";
+	$database_localhost = "ccs_master";//change to your database name
+	$username_localhost = "ccs_main";//change to your database username, it is recommended to add a new user with password
+	$password_localhost = "123456";//change to user's password
+		$link = mysqli_connect($hostname_localhost, $username_localhost, $password_localhost, $database_localhost);
+			// Check connection
+			if($link === false){
+				echo("ERROR: Could not connect. " . mysqli_connect_error());
+			}
+			else{
+				mysqli_set_charset($link, "UTF8");
+				$query = mysqli_prepare($link, $sql);
+				$sql_params_array = array();
+				array_push($sql_params_array, $query, $types);
+				for($x = 0; $x<count($params);$x++){
+					array_push($sql_params_array, $params[$x]);
+				}
+				call_user_func_array("mysqli_stmt_bind_param",$sql_params_array);
+				$result = mysqli_stmt_execute($sql_params_array[0]);
+				//$result = mysqli_query($link, $sql);
+				if($result)
+					return $result;
+				else
+					echo mysqli_error($link);
+				return $result;
+			// Close connection
+			mysqli_close($link);
+			}
+}
 //MQTT publish message
 //DO NOT MODIFY, except ip address
 function publishMessage($topic, $ack_message){
@@ -415,10 +457,83 @@ function UPDATE_USER_STATUS(){
 
 function UPDATE_STUDENT($msg){
 	//TODO: GAN DO this
+	//update student table, everything (except user_id) from null to something
+	$receivedData = explode(',', $msg);	// 1=user_id, 2...=faculty, course, tutorial_group, intake, academic_year
+	$user_id = $receivedData[1];
+	$faculty = $receivedData[2];
+	$course = $receivedData[3];
+	$tutorial_group = $receivedData[4];
+	$intake = $receivedData[5];
+	$academic_year = $receivedData[6];
+
+	$sql = "UPDATE Student SET faculty = 'faculty', course = '$course', tutorial_group = '$tutorial_group', intake = '$intake', academic_year = '$academic_year'
+			WHERE user_id = '$user_id'";
+	$result = dbResult($sql);
+
+	if(mysqli_affected_rows($result) > 0){
+		echo "\nUpdated student: $user_id\n";
+	}else{
+		echo "\nFailed to update student: $user_id, $status\n";
+		echo mysqli_error($result)."\n";
+	}
 }
 
 function UPDATE_USER($msg){
 	//TODO: GAN DO this
+	//update everything except user_id, status, last_online
+	//position = student by default
+	//username, nric, phone_number, email requires validation
+
+	echo "\nupdating user...\n";
+	$receivedData = explode(',', $msg);	// 1,...=user_id, username, display_name, position, password, gender, nric, phone_number, email, address, city_id
+	$user_id = $receivedData[1];
+	$username = $receivedData[2];
+	$display_name = $receivedData[3];
+	$position = $receivedData[4];
+	$password = $receivedData[5];
+	$gender = $receivedData[6];
+	$nric = $receivedData[7];
+	$phone_number = $receivedData[8];
+	$email = $receivedData[9];
+	$address = $receivedData[10];
+	$city_id = $receivedData[11];
+	//if position="Student", create student table with user_id=[received user_id] (postponed, not now :P)
+	//$sql = "INSERT INTO Student (user_id) VALUES ('$user_id');";
+
+	$sql = "UPDATE User SET username = '$username', display_name = '$display_name', position = '$position', password = '$password',
+	gender = '$gender', nric = '$nric', phone_number = '$phone_number', email = '$email', address = '$address', city_id = '$city_id' WHERE user_id = 'user_id'";
+	$result = dbResult($sql);
+		if(mysqli_affected_rows($result) > 0){
+		echo "\nUpdated user: $user_id\n";
+	}else{
+		echo "\nFailed to user: $user_id, $status\n";
+		echo mysqli_error($result)."\n";
+	}
+}
+
+function GET_USER_PROFILE($msg){
+	$temp = func_get_arg(0);
+	$ack_message = "GET_USER_PROFILE_REPLY, ";
+
+	$temp = explode(',', $temp); //user_id
+	$user_id = $temp[1];
+	$sql = "SELECT display_name, student.student_id, student.faculty, student.course, student.tutorial_group, student.intake, student.academic_year
+			FROM User INNER JOIN Student ON User.user_id = Student.user_id
+			WHERE user.user_id = '$user_id'";
+	$result = dbResult($sql);
+	if(mysqli_num_rows($result) > 0){
+		$temp = array();
+		while($row = mysqli_fetch_array($result)){
+			$temp[] = $row;
+		}
+		echo "\nUser profile found: ".$user_id."\n";
+		$ack_message .= json_encode($temp);
+	}else{
+		echo "\nUser profile not found: ".$user_id."\n";
+		$ack_message .= "NO_RESULT";
+	}
+	echo "\n".$ack_message;
+	return $ack_message;
 }
 
 function SEARCH_USER($msg){
@@ -448,6 +563,56 @@ function SEARCH_USER($msg){
 	return $ack_message;
 }
 
+function UPDATE_PUBLIC_KEY(){
+	$temp = func_get_arg(0);
+	$ack_message = "UPDATE_PUBLIC_KEY_REPLY, ";
+
+	$temp = explode(',', $temp, 3); //user_id, public_key
+	$user_id = $temp[1];
+	$public_key = $temp[2];
+
+	$sql = "UPDATE User SET public_key = ? WHERE user_id = ?";
+	$types = "si";
+	$params = array($public_key, $user_id);
+	$param_count = count($params);
+	$result = dbResult_stmt($sql, $types, $params, $param_count);
+	if($result){
+		echo "\nUpdated user public_key: $user_id\n";
+		$ack_message .= "SUCCESS";
+	}else{
+		echo "\nFailed to update user public_key: $user_id\n";
+		echo mysqli_error($result)."\n";
+		$ack_message .= "FAILED";
+	}
+	return $ack_message;
+}
+
+function GET_PUBLIC_KEY(){
+	$temp = func_get_arg(0);
+	echo "\nGetting public key...\n";
+	$ack_message = "GET_PUBLIC_KEY_REPLY, ";
+
+	$temp = explode(',', $temp, 2); //user_id
+	$user_id = $temp[1];
+
+	$sql = "SELECT user.public_key
+			FROM User
+			WHERE user.user_id = '$user_id'";
+	$result = dbResult($sql);
+	if(mysqli_num_rows($result) > 0){
+		$temp = array();
+		while($row = mysqli_fetch_array($result)){
+			$temp[] = $row;
+		}
+		echo "\nPublic key found\n";
+		$ack_message .= json_encode($temp);
+	}else{
+		echo "\nNo result\n";
+		$ack_message .= "NO_RESULT";
+	}
+	echo "\n".$ack_message;
+	return $ack_message;
+}
 
 //The following functions are
 //Done by 1st generation seniors

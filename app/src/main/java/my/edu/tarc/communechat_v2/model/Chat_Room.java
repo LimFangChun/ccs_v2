@@ -1,9 +1,15 @@
 package my.edu.tarc.communechat_v2.model;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+@Entity(tableName = "Chat_Room")
 public class Chat_Room {
     //variables that define column name
     public static final String COL_ROOM_ID = "room_id";
@@ -14,12 +20,26 @@ public class Chat_Room {
     public static final String COL_TOPIC_ADDRESS = "topic_address";
 
     //variables for encapsulation
+    @PrimaryKey
+    @ColumnInfo(name = "room_id")
     private int room_id;
+
+    @ColumnInfo(name = "owner_id")
     private int owner_id;
+
+    @ColumnInfo(name = "room_name")
     private String room_name;
+
+    @ColumnInfo(name = "date_created")
     private Calendar date_created;
+
+    @ColumnInfo(name = "last_update")
     private Calendar last_update;
+
+    @ColumnInfo(name = "topic_address")
     private String topic_address;
+
+    @Ignore
     private String role;
 
     public Chat_Room(){
@@ -27,13 +47,24 @@ public class Chat_Room {
         last_update = Calendar.getInstance();
     }
 
-    public Chat_Room(int room_id, int owner_id, String room_name, Calendar date_created, Calendar last_update, String topic_address) {
+    public Chat_Room(int room_id, int owner_id, String room_name) {
+        this.room_id = room_id;
+        this.owner_id = owner_id;
+        this.room_name = room_name;
+        date_created = Calendar.getInstance();
+        last_update = Calendar.getInstance();
+        topic_address = "room/" + room_id;
+        role = "";
+    }
+
+    public Chat_Room(int room_id, int owner_id, String room_name, Calendar date_created, Calendar last_update, String topic_address, String role) {
         this.room_id = room_id;
         this.owner_id = owner_id;
         this.room_name = room_name;
         this.date_created = date_created;
         this.last_update = last_update;
         this.topic_address = topic_address;
+        this.role = role;
     }
 
     public int getRoom_id() {

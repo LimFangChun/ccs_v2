@@ -1,6 +1,9 @@
 package my.edu.tarc.communechat_v2.model;
 
 import android.annotation.SuppressLint;
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -10,6 +13,7 @@ import java.util.Calendar;
  * Created by Xeosz on 26-Sep-17.
  */
 
+@Entity
 public class User {
     //static final variables that define column name
     public static final String COL_USER_ID = "user_id";
@@ -31,22 +35,54 @@ public class User {
     public static final String COL_PUBLIC_KEY = "public_key";
 
     //variables for encapsulation
+    @PrimaryKey
+    @ColumnInfo(name = "user_id")
     private int user_id;
+
+    @ColumnInfo(name = "username")
     private String username;
+
+    @ColumnInfo(name = "display_name")
     private String display_name;
+
+    @ColumnInfo(name = "password")
     private String password;
+
+    @ColumnInfo(name = "position")
     private String position;
+
+    @ColumnInfo(name = "gender")
     private String gender;
+
+    @ColumnInfo(name = "nric")
     private String nric;
+
+    @ColumnInfo(name = "phone_number")
     private String phone_number;
+
+    @ColumnInfo(name = "email")
     private String email;
+
+    @ColumnInfo(name = "address")
     private String address;
+
+    @ColumnInfo(name = "city_id")
     private String city_id;
+
+    @ColumnInfo(name = "status")
     private String status;
+
+    @ColumnInfo(name = "last_online")
     private Calendar last_online;
+
+    @ColumnInfo(name = "last_longitude")
     private double last_longitude;
+
+    @ColumnInfo(name = "last_latitude")
     private double last_latitude;
     private double distance;
+
+    @ColumnInfo(name = "public_key")
     private String public_key;
 
     public  User(){

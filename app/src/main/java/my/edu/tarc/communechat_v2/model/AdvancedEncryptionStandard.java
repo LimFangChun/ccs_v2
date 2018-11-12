@@ -1,21 +1,23 @@
 package my.edu.tarc.communechat_v2.model;
 
+import android.util.Base64;
+
+import java.security.SecureRandom;
+
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import my.edu.tarc.communechat_v2.ADT.CryptoDecryptInterface;
-import my.edu.tarc.communechat_v2.ADT.CryptoEncryptInterface;
-
-public class AdvancedEncryptionStandard implements CryptoEncryptInterface, CryptoDecryptInterface {
+public class AdvancedEncryptionStandard{
 	private byte[] key;
 
 	private static final String ALGORITHM = "AES";
 
-	public AdvancedEncryptionStandard(byte[] key)
-	{
-		this.key = key;
+	public AdvancedEncryptionStandard(String key) {
+		byte[] keyBytes = Base64.decode(key, Base64.DEFAULT);
+		this.key = keyBytes;
 	}
 
 	public AdvancedEncryptionStandard()
@@ -38,21 +40,22 @@ public class AdvancedEncryptionStandard implements CryptoEncryptInterface, Crypt
 	 *
 	 * @param text The plain text to encrypt
 	 */
-	public byte[] encrypt(byte[] text) //byte[] str.getBytes() to convert from String to byte array
+	public String encrypt(String text) //byte[] str.getBytes() to convert from String to byte array
 	{
 		//getting an instance of "AES" will never result in an exception
 		//the try/catch block is just to deny the exception warning
 		byte[] encrypted = null;
+		byte[] textBytes = text.getBytes();
 		try {
 			SecretKeySpec secretKey = new SecretKeySpec(key, ALGORITHM);
 			Cipher cipher = Cipher.getInstance(ALGORITHM);
 			cipher.init(Cipher.ENCRYPT_MODE, secretKey);
 
-			encrypted = cipher.doFinal(text);
+			encrypted = cipher.doFinal(textBytes);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return encrypted;
+		return Base64.encodeToString(encrypted, Base64.DEFAULT);
 	}
 
 	/**
@@ -60,25 +63,26 @@ public class AdvancedEncryptionStandard implements CryptoEncryptInterface, Crypt
 	 *
 	 * @param cipherText The data to decrypt
 	 */
-	public byte[] decrypt(byte[] cipherText) //remember to cast to String using new String(byte[]) for messages
+	public String decrypt(String cipherText) //remember to cast to String using new String(byte[]) for messages
 	{
 		//getting an instance of "AES" will never result in an exception
 		//the try/catch block is just to deny the exception warning
 		byte[] decrypted = null;
+		byte[] encrypted = Base64.decode(cipherText, Base64.DEFAULT);
 		try{
 			SecretKeySpec secretKey = new SecretKeySpec(key, ALGORITHM);
 			Cipher cipher = Cipher.getInstance(ALGORITHM);
 			cipher.init(Cipher.DECRYPT_MODE, secretKey);
 
-			decrypted = cipher.doFinal(cipherText);
+			decrypted = cipher.doFinal(encrypted);
 		}catch (Exception e){
 			e.printStackTrace();
 		}
-		return decrypted;
+		return new String(decrypted);
 	}
 
-	public byte[] getKey() {
-		return key;
+	public String getKey() {
+		return Base64.encodeToString(key, Base64.DEFAULT);
 	}
 //    public static void main(String[] args) throws Exception {
 //		//test function

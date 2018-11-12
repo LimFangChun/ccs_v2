@@ -3,6 +3,7 @@ package my.edu.tarc.communechat_v2.Fragment;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -12,10 +13,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.amulyakhare.textdrawable.TextDrawable;
+import com.amulyakhare.textdrawable.util.ColorGenerator;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -38,6 +43,7 @@ import static my.edu.tarc.communechat_v2.MainActivity.mqttHelper;
 
 public class ProfileFragment extends Fragment {
 	private String uniqueTopic;
+	ImageView imageViewProfilePic;
 	TextView textViewCourseYearGroupIntake ;
 	TextView textViewDisplayName ;
 	TextView textViewStudentId ;
@@ -53,23 +59,20 @@ public class ProfileFragment extends Fragment {
         relativeLayoutProfile = view.findViewById(R.id.layout_profile);
         cardViewStudent = view.findViewById(R.id.cardView_student);
 		progressBar = view.findViewById(R.id.progressBar_profile);
-        //TODO: remove test buttons after integrate
-
-        Button button_activity = view.findViewById(R.id.button_activity);
-        button_activity.setOnClickListener(buttonListener);
-        Button button_activiy1 = view.findViewById(R.id.button_activity1);
-        button_activiy1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(view.getContext(), TestEncryptionActivity.class);
-                startActivity(intent);
-            }
-        });
+        imageViewProfilePic = view.findViewById(R.id.imageView_profilePic);
 		textViewCourseYearGroupIntake = view.findViewById(R.id.textView_courseYearGroupIntake);
 		textViewDisplayName = view.findViewById(R.id.textView_displayName);
 		textViewStudentId = view.findViewById(R.id.textView_studentID);
 		textViewFaculty = view.findViewById(R.id.textView_faculty);
 
+		imageViewProfilePic.setOnLongClickListener(new View.OnLongClickListener() {
+			@Override
+			public boolean onLongClick(View view) {
+				Intent intent = new Intent(getContext(), TestEncryptionActivity.class);
+				startActivity(intent);
+				return false;
+			}
+		});
 
         return view;
     }
@@ -78,14 +81,19 @@ public class ProfileFragment extends Fragment {
 	public void onStart() {
 		super.onStart();
 		progressBar.getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(getContext(), R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
+		relativeLayoutProfile.setVisibility(View.INVISIBLE);
+		cardViewStudent.setVisibility(View.INVISIBLE);
+		uniqueTopic = UUID.randomUUID().toString().substring(0, 8);
 		if(getActivity().getClass().equals(MainActivity.class)){
-			progressBar.setVisibility(View.GONE);
-			//TODO: load my own profile
+			int user_id = PreferenceManager.getDefaultSharedPreferences(getContext()).getInt(User.COL_USER_ID, -1);
+			if(user_id!=-1) {
+				User user = new User();
+				user.setUser_id(user_id);
+				mqttHelper.connectPublishSubscribe(getContext(), uniqueTopic, MqttHeader.GET_USER_PROFILE, user);
+				mqttHelper.getMqttClient().setCallback(mqttCallback);
+			}
 		}
 		else{
-			relativeLayoutProfile.setVisibility(View.INVISIBLE);
-			cardViewStudent.setVisibility(View.INVISIBLE);
-			uniqueTopic = UUID.randomUUID().toString().substring(0, 8);
 			Intent passedIntent = getActivity().getIntent();
 			int user_id = passedIntent.getIntExtra(User.COL_USER_ID, -1);
 			User user = new User();
@@ -95,14 +103,6 @@ public class ProfileFragment extends Fragment {
 			mqttHelper.getMqttClient().setCallback(mqttCallback);
 		}
 	}
-
-	private Button.OnClickListener buttonListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            Intent intent = new Intent(view.getContext(), ProfileActivity.class);
-            startActivity(intent);
-        }
-    };
 
     private MqttCallback mqttCallback = new MqttCallback() {
 		@Override
@@ -117,9 +117,8 @@ public class ProfileFragment extends Fragment {
 				try{
 					JSONArray result = new JSONArray(mqttHelper.getReceivedResult());
 					JSONObject temp = result.getJSONObject(0);
-					User user1 = new User();
-					user1.setDisplay_name(temp.getString(User.COL_DISPLAY_NAME));
 					Student student = new Student();
+					student.setDisplay_name(temp.getString(User.COL_DISPLAY_NAME));
 					student.setAcademic_year(temp.getInt(Student.COL_ACADEMIC_YEAR));
 					student.setCourse(temp.getString(Student.COL_COURSE));
 					student.setFaculty(temp.getString(Student.COL_FACULTY));
@@ -127,10 +126,17 @@ public class ProfileFragment extends Fragment {
 					student.setStudent_id(temp.getString(Student.COL_STUDENT_ID));
 					student.setTutorial_group(temp.getInt(Student.COL_TUTORIAL_GROUP));
 
-					textViewDisplayName.setText(user1.getDisplay_name());
+					textViewDisplayName.setText(student.getDisplay_name());
 					textViewStudentId.setText(student.getStudent_id());
 					textViewFaculty.setText(student.getFaculty());
 					textViewCourseYearGroupIntake.setText(student.getTutorialGroupString());
+
+
+					//github: https://github.com/amulyakhare/TextDrawable/blob/master/README.md
+					ColorGenerator colorGenerator = ColorGenerator.MATERIAL;
+					int color = colorGenerator.getColor(student.getDisplay_name());
+					TextDrawable drawable = TextDrawable.builder().buildRound(student.getDisplay_name().substring(0, 1), color);
+					imageViewProfilePic.setImageDrawable(drawable);
 				}catch (JSONException | NullPointerException e) {
 					e.printStackTrace();
 				}

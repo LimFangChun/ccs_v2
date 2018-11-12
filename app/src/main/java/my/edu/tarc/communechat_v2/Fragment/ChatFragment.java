@@ -30,6 +30,7 @@ import my.edu.tarc.communechat_v2.Adapter.ChatListAdapter;
 import my.edu.tarc.communechat_v2.ChatRoomActivity;
 import my.edu.tarc.communechat_v2.R;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
+import my.edu.tarc.communechat_v2.internal.RoomSecretHelper;
 import my.edu.tarc.communechat_v2.model.Chat_Room;
 import my.edu.tarc.communechat_v2.model.Participant;
 import my.edu.tarc.communechat_v2.model.User;
@@ -46,6 +47,7 @@ public class ChatFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        initializeEncryption();
         initializeChatRoom();
     }
 
@@ -158,6 +160,13 @@ public class ChatFragment extends Fragment {
             Thread.sleep(time);
         } catch (InterruptedException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void initializeEncryption(){
+        //listen to incoming secret key
+        if(pref.getInt(User.COL_USER_ID, -1) != -1) {
+            RoomSecretHelper.listenIncomingSecrets(getContext(), pref.getInt(User.COL_USER_ID, -1));
         }
     }
 }

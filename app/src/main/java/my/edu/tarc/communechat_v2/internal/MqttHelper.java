@@ -37,7 +37,7 @@ public class MqttHelper {
     private String receivedResult;
 
     //change MQTT broker IP address here
-    private static final String serverUri = "tcp://192.168.0.17:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
+    private static final String serverUri = "tcp://192.168.0.6:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
 
     //private static final String serverUri = "tcp://broker.hivemq.com:1883";
     //private static String mqttUsername = "";
@@ -567,11 +567,16 @@ public class MqttHelper {
             }
             case MqttHeader.CHATROOM_SECRET:{
                 Chat_Room chat_room = (Chat_Room)data;
+                JSONObject messageJSON = new JSONObject();
+                try {
+                    messageJSON.put(Chat_Room.COL_ROOM_ID, String.valueOf(chat_room.getRoom_id()));
+                    messageJSON.put(Chat_Room.COL_SECRET_KEY, String.valueOf(chat_room.getSecret_key()));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 temp.append(MqttHeader.CHATROOM_SECRET)
                         .append(",")
-                        .append(chat_room.getRoom_id())
-                        .append(",")
-                        .append(new String(chat_room.getSecret_key()));
+                        .append(messageJSON.toString());
                 result = temp.toString();
                 break;
             }

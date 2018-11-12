@@ -1,8 +1,10 @@
 package my.edu.tarc.communechat_v2.internal;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -12,20 +14,23 @@ import org.json.JSONObject;
 
 import java.util.UUID;
 
+import my.edu.tarc.communechat_v2.MainActivity;
+import my.edu.tarc.communechat_v2.model.AdvancedEncryptionStandard;
 import my.edu.tarc.communechat_v2.model.Chat_Room;
 import my.edu.tarc.communechat_v2.model.RSA;
 import my.edu.tarc.communechat_v2.model.User;
 
-import static my.edu.tarc.communechat_v2.MainActivity.mqttHelper;
 
 public class RoomSecretHelper {
 
+	private static final String TAG = "[RoomSecretHelper]";
+	private static final MqttHelper roomSecretMqttHelper = new MqttHelper();
 
 	public static void listenIncomingSecrets(final Context context, int userID) {
 		//subscribe to my own topic
-		mqttHelper.subscribe(userTopic(userID));
+		roomSecretMqttHelper.connectSubscribe(context, userTopic(userID));
 		//listen to incoming secret key
-		mqttHelper.getMqttClient().setCallback(new MqttCallback() {
+		roomSecretMqttHelper.getMqttClient().setCallback(new MqttCallback() {
 			@Override
 			public void connectionLost(Throwable cause) {
 
@@ -33,15 +38,16 @@ public class RoomSecretHelper {
 
 			@Override
 			public void messageArrived(String topic, MqttMessage message) throws Exception {
-				mqttHelper.decode(message.toString());
+				roomSecretMqttHelper.decode(message.toString());
 				//decrypt and store
-				if (mqttHelper.getReceivedHeader().equals(MqttHeader.CHATROOM_SECRET)) {
-					SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
-					JSONArray result = new JSONArray(mqttHelper.getReceivedResult());
-					JSONObject temp = result.getJSONObject(0);
+				if (roomSecretMqttHelper.getReceivedHeader().equals(MqttHeader.CHATROOM_SECRET)
+						&& !roomSecretMqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
 					SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-					RSA rsa = new RSA(pref.getString(User.COL_PRIVATE_KEY, null).getBytes(), RSA.RSA_CONSTRUCT_WITH_PRIVATE);
-					editor.putString(getRoomPrefKey(temp.getInt(Chat_Room.COL_ROOM_ID)), new String(rsa.decrypt(temp.getString(Chat_Room.COL_SECRET_KEY).getBytes())));
+					SharedPreferences.Editor editor = pref.edit();
+					//JSONArray result = new JSONArray(roomSecretMqttHelper.getReceivedResult());
+					JSONObject temp = new JSONObject(roomSecretMqttHelper.getReceivedResult());
+					RSA rsa = new RSA(pref.getString(User.COL_PRIVATE_KEY, null), RSA.RSA_CONSTRUCT_WITH_PRIVATE);
+					editor.putString(getRoomPrefKey(temp.getInt(Chat_Room.COL_ROOM_ID)), rsa.decryptKey(temp.getString(Chat_Room.COL_SECRET_KEY)));
 					editor.commit();
 				}
 			}
@@ -54,45 +60,19 @@ public class RoomSecretHelper {
 	}
 
 	public static void sendRoomSecret(final Context context, final User[] users, final Chat_Room chat_room) {
-		String uniqueTopic = UUID.randomUUID().toString().substring(0, 8);
-
+		//use this when starting a group chat.
 		for (final User user : users) {
-			//get public from server
-			mqttHelper.connectPublishSubscribe(context, uniqueTopic, MqttHeader.GET_PUBLIC_KEY, user);
-			mqttHelper.getMqttClient().setCallback(new MqttCallback() {
-				@Override
-				public void connectionLost(Throwable cause) {
-
-				}
-
-				@Override
-				public void messageArrived(String topic, MqttMessage message) throws Exception {
-					mqttHelper.decode(message.toString());
-					if (mqttHelper.getReceivedHeader().equals(MqttHeader.GET_PUBLIC_KEY_REPLY) &&
-							!mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
-						//encrypt aes with public
-						//publish to others' topic
-						SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-						RSA rsa = new RSA(pref.getString(User.COL_PRIVATE_KEY, null).getBytes(), RSA.RSA_CONSTRUCT_WITH_PRIVATE);
-						mqttHelper.connectPublish(context, userTopic(user.getUser_id()), MqttHeader.CHATROOM_SECRET, rsa.encrypt(chat_room.getSecret_key()));
-						mqttHelper.unsubscribe(topic);
-					}
-				}
-
-				@Override
-				public void deliveryComplete(IMqttDeliveryToken token) {
-
-				}
-			});
+			sendRoomSecret(context, user, chat_room);
 		}
 	}
 
+	//Todo: use this when creating a chat room
 	public static void sendRoomSecret(final Context context, final User user, final Chat_Room chat_room) {
 		String uniqueTopic = UUID.randomUUID().toString().substring(0, 8);
 
 		//get public from server
-		mqttHelper.connectPublishSubscribe(context, uniqueTopic, MqttHeader.GET_PUBLIC_KEY, user);
-		mqttHelper.getMqttClient().setCallback(new MqttCallback() {
+		roomSecretMqttHelper.connectPublishSubscribe(context, uniqueTopic, MqttHeader.GET_PUBLIC_KEY, user);
+		roomSecretMqttHelper.getMqttClient().setCallback(new MqttCallback() {
 			@Override
 			public void connectionLost(Throwable cause) {
 
@@ -100,17 +80,18 @@ public class RoomSecretHelper {
 
 			@Override
 			public void messageArrived(String topic, MqttMessage message) throws Exception {
-				mqttHelper.decode(message.toString());
-				if (mqttHelper.getReceivedHeader().equals(MqttHeader.GET_PUBLIC_KEY_REPLY) &&
-						!mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
-					//encrypt aes with public
+				roomSecretMqttHelper.decode(message.toString());
+				if (roomSecretMqttHelper.getReceivedHeader().equals(MqttHeader.GET_PUBLIC_KEY_REPLY) &&
+						!roomSecretMqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
+					//encrypt aes key with public
 					//publish to others' topic
-					SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-					RSA rsa = new RSA(pref.getString(User.COL_PRIVATE_KEY, null).getBytes(), RSA.RSA_CONSTRUCT_WITH_PRIVATE);
-					Chat_Room chat_room1 = new Chat_Room();
-					chat_room1.setSecret_key(rsa.encrypt(chat_room.getSecret_key()));
-					mqttHelper.connectPublish(context, userTopic(user.getUser_id()), MqttHeader.CHATROOM_SECRET, chat_room1);
-					mqttHelper.unsubscribe(topic);
+					JSONArray result = new JSONArray(roomSecretMqttHelper.getReceivedResult());
+					JSONObject temp = result.getJSONObject(0);
+					RSA rsa = new RSA(temp.getString(User.COL_PUBLIC_KEY), RSA.RSA_CONSTRUCT_WITH_PUBLIC);
+					Chat_Room chat_room1 = getOrGenerateRoomKey(context, chat_room.getRoom_id());
+					chat_room1.setSecret_key(rsa.encryptKey(chat_room1.getSecret_key()));
+					roomSecretMqttHelper.unsubscribe(topic);
+					roomSecretMqttHelper.connectPublish(context, userTopic(user.getUser_id()), MqttHeader.CHATROOM_SECRET, chat_room1);
 				}
 			}
 
@@ -121,11 +102,39 @@ public class RoomSecretHelper {
 		});
 	}
 
+	public static void requestKey(User me, Chat_Room chat_room){
+		//Todo: request room key from owner
+	}
+
 	private static String userTopic(int userID) {
-		return "roomSecret/" + Integer.toString(userID);
+		return "roomSecret/".concat(Integer.toString(userID));
 	}
 
 	public static String getRoomPrefKey(int room_id){
 		return Chat_Room.COL_SECRET_KEY.concat("/chatroom".concat(Integer.toString(room_id)));
+	}
+
+	private static Chat_Room getOrGenerateRoomKey(Context context, int room_id){
+		Chat_Room chat_room = new Chat_Room();
+		chat_room.setRoom_id(room_id);
+		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+		SharedPreferences.Editor editor = pref.edit();
+		String roomKey =  pref.getString(getRoomPrefKey(chat_room.getRoom_id()),"");
+		Log.i(TAG, "preference: "+ getRoomPrefKey(chat_room.getRoom_id()));
+		Log.i(TAG, "chatroom: "+ chat_room.getRoom_id());
+		Log.i(TAG, "roomKey value: "+ roomKey);
+		Log.i(TAG, "SharedPreference name:" + pref.toString());
+		if ( roomKey.equals("")){
+			//generate a new one if no room key is found
+			Log.i(TAG, "Generating a new room key.");
+			AdvancedEncryptionStandard aes = new AdvancedEncryptionStandard();
+			roomKey = aes.getKey();
+			editor.putString(getRoomPrefKey(room_id), roomKey);
+			Log.i(TAG, "new key: " + aes.getKey());
+			boolean complete = editor.commit();
+			Log.i(TAG, "commit success: "+ Boolean.toString(complete));
+		}
+		chat_room.setSecret_key(roomKey);
+		return chat_room;
 	}
 }

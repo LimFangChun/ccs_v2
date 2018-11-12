@@ -17,6 +17,7 @@ SET time_zone = "+08:00";
 --  drop all tables first in case you have any duplicated table with same name
 --  drop in reverse order
 --  Also make your life easier when you have changes in database
+DROP TABLE IF EXISTS RoomSecret;
 DROP TABLE IF EXISTS Friendship;
 DROP TABLE IF EXISTS Message;
 DROP TABLE IF EXISTS Participant;
@@ -130,6 +131,15 @@ CREATE TABLE Message(
 	FOREIGN KEY (room_id) REFERENCES Chat_Room(room_id)
 );
 
+CREATE TABLE RoomSecret(
+    room_id int(10) NOT NULL,
+    user_id int(10) NOT NULL,
+    secret_key  varchar(256) NOT NULL,
+    status  varchar(10) NOT NULL,
+	PRIMARY KEY (room_id, user_id, secret_key),
+	FOREIGN KEY (room_id) REFERENCES Chat_Room(room_id),
+	FOREIGN KEY (user_id) REFERENCES User(user_id)
+);
 --  Generate dummy data
 --  You may use mockaroo.com to generate dummy data, its free
 

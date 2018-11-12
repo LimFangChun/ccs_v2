@@ -565,24 +565,54 @@ public class MqttHelper {
                 result = temp.toString();
                 break;
             }
-            case MqttHeader.CHATROOM_SECRET:{
+            case MqttHeader.SEND_CHATROOM_SECRET:{
                 Chat_Room chat_room = (Chat_Room)data;
-                JSONObject messageJSON = new JSONObject();
-                try {
-                    messageJSON.put(Chat_Room.COL_ROOM_ID, String.valueOf(chat_room.getRoom_id()));
-                    messageJSON.put(Chat_Room.COL_SECRET_KEY, String.valueOf(chat_room.getSecret_key()));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                temp.append(MqttHeader.CHATROOM_SECRET)
+//                JSONObject messageJSON = new JSONObject();
+//                try {
+//                    messageJSON.put(Chat_Room.COL_ROOM_ID, String.valueOf());
+//                    messageJSON.put(Chat_Room.COL_SECRET_KEY, String.valueOf(chat_room.getSecret_key()));
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+                temp.append(MqttHeader.SET_CHATROOM_SECRET)
                         .append(",")
-                        .append(messageJSON.toString());
+                        .append(chat_room.getRoom_id())
+                        .append(",")
+                        .append(chat_room.getSecret_key());
+//                        .append(messageJSON.toString())
                 result = temp.toString();
                 break;
             }
-            case MqttHeader.GET_USER_PROFILE:{
+            case MqttHeader.SET_CHATROOM_SECRET:{
+                Object[] objects = (Object[])data;
+                User user = (User) objects[0];
+                Chat_Room chat_room = (Chat_Room)objects[1];
+                temp.append(MqttHeader.SET_CHATROOM_SECRET)
+                        .append(",")
+                        .append(user.getUser_id())
+                        .append(",")
+                        .append(chat_room.getRoom_id())
+                        .append(",")
+                        .append(chat_room.getSecret_key());
+                result = temp.toString();
+                break;
+            }
+            case MqttHeader.GET_CHATROOM_SECRET:{
+                Object[] objects = (Object[])data;
+                User user = (User)objects[0];
+                Chat_Room chat_room = (Chat_Room)objects[1];
+
+                temp.append(MqttHeader.GET_CHATROOM_SECRET_ALL)
+                        .append(",")
+                        .append(user.getUser_id())
+                        .append(",")
+                        .append(chat_room.getRoom_id());
+                result=temp.toString();
+                break;
+            }
+            case MqttHeader.GET_CHATROOM_SECRET_ALL:{
                 User user = (User)data;
-                temp.append(MqttHeader.GET_USER_PROFILE)
+                temp.append(MqttHeader.GET_CHATROOM_SECRET)
                         .append(",")
                         .append(user.getUser_id());
                 result=temp.toString();

@@ -1,6 +1,7 @@
 package my.edu.tarc.communechat_v2.Adapter;
 
 import android.app.AlertDialog;
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,6 +9,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,8 +30,10 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import my.edu.tarc.communechat_v2.ChatRoomActivity;
+import my.edu.tarc.communechat_v2.MainActivity;
 import my.edu.tarc.communechat_v2.R;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
+import my.edu.tarc.communechat_v2.internal.RoomSecretHelper;
 import my.edu.tarc.communechat_v2.model.Chat_Room;
 import my.edu.tarc.communechat_v2.model.Friendship;
 import my.edu.tarc.communechat_v2.model.Participant;
@@ -123,7 +127,7 @@ public class FriendListAdapter extends ArrayAdapter<Student> {
         return convertView;
     }
 
-    private void getChatRoomID(final ViewHolder holder, Student user) {
+    private void getChatRoomID(final ViewHolder holder, final Student user) {
         holder.progressBarChat.setVisibility(View.VISIBLE);
         holder.buttonChat.setEnabled(false);
 
@@ -150,6 +154,11 @@ public class FriendListAdapter extends ArrayAdapter<Student> {
                         builder.setNeutralButton(R.string.ok, null);
                         builder.show();
                     } else {
+                        Chat_Room chat_room = new Chat_Room();
+                        chat_room.setRoom_id(Integer.parseInt(mqttHelper.getReceivedResult()));
+                        Student user1 = new Student();
+                        user1.setUser_id(user.getUser_id());
+                        RoomSecretHelper.sendRoomSecret(mContext.getApplicationContext(),user1, chat_room);
                         Intent intent = new Intent(getContext(), ChatRoomActivity.class);
                         intent.putExtra(Chat_Room.COL_ROOM_ID, Integer.parseInt(mqttHelper.getReceivedResult()));
                         intent.putExtra(Participant.COL_ROLE, "Admin");

@@ -21,10 +21,5 @@ public class ProfileActivity extends AppCompatActivity {
 				.beginTransaction()
 				.replace(R.id.profile_frag, new ProfileFragment())
 				.commit();
-//		ImageView imageViewProfile = (ImageView)findViewById(R.id.imageView_profilePic_act);
-//		Bitmap bitmapPic = BitmapFactory.decodeResource(getResources(), R.drawable.ic_broken_image_black_24dp);
-//		RoundedBitmapDrawable roundedBitmapDrawableProfile = RoundedBitmapDrawableFactory.create(getResources(), bitmapPic);
-//		roundedBitmapDrawableProfile.setCircular(true);
-//		imageViewProfile.setImageBitmap(roundedBitmapDrawableProfile.getBitmap());
 	}
 }

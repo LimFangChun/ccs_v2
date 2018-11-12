@@ -6,6 +6,7 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 
 import java.util.UUID;
 
@@ -20,33 +21,35 @@ public class TestEncryptionActivity extends AppCompatActivity {
 
 	SharedPreferences pref;
 	private String uniqueTopic;
+	EditText editTextTestUid;
+	EditText editTextTestRoomId;
+	Button buttonTestRSA;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_test_encryption);
+		setTitle("Magick secret room");
 
 		pref=PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-		Button buttonTestRSA = findViewById(R.id.button_testRSA);
+		buttonTestRSA = findViewById(R.id.button_testRSA);
+		editTextTestRoomId = findViewById(R.id.editText_testRoomId);
+		editTextTestUid = findViewById(R.id.editText_testUid);
+
 		buttonTestRSA.setOnClickListener(testRSA);
 		uniqueTopic = UUID.randomUUID().toString().substring(0, 8);
-
-		RoomSecretHelper.listenIncomingSecrets(getApplicationContext(),PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getInt(User.COL_USER_ID ,-1));
-
-
 	}
 
 	private View.OnClickListener testRSA = new View.OnClickListener() {
 		@Override
 		public void onClick(View view) {
+			int userId = Integer.parseInt(editTextTestUid.getText().toString());
+			int roomId = Integer.parseInt(editTextTestRoomId.getText().toString());
+
 			User user = new User();
-			user.setUser_id(2);
+			user.setUser_id(userId);
 			Chat_Room chat_room = new Chat_Room();
-			chat_room.setRoom_id(2);
-			chat_room.setSecret_key(new AdvancedEncryptionStandard().getKey());
-			SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
-			editor.putString(RoomSecretHelper.getRoomPrefKey(chat_room.getRoom_id()),new String(chat_room.getSecret_key()));
-			editor.commit();
-			//RoomSecretHelper.sendRoomSecret(getApplicationContext(),user,chat_room);
+			chat_room.setRoom_id(roomId);
+			RoomSecretHelper.sendRoomSecret(getApplicationContext(),user,chat_room);
 //			List<Chat_Room> chatrooms = chatRoomRepository.getAllChatrooms();
 //			Chat_Room lul = chatrooms.get(0);
 //			String lql = new String(lul.getSecret_key());

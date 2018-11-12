@@ -1,10 +1,5 @@
 package my.edu.tarc.communechat_v2.model;
 
-import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.Ignore;
-import android.arch.persistence.room.PrimaryKey;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -46,7 +41,7 @@ public class Chat_Room {
     @Ignore
     private String role;
 
-    private byte[] secret_key;
+    private String secret_key;
 
     public Chat_Room(){
         date_created = Calendar.getInstance();
@@ -73,13 +68,8 @@ public class Chat_Room {
         this.role = role;
     }
 
-    public Chat_Room(int room_id, byte[] secret_key){
-        //constructor for room
-        this.room_id = room_id;
-        this.secret_key = secret_key;
-    }
 
-    public Chat_Room(int room_id, int owner_id, String room_name, Calendar date_created, Calendar last_update, String topic_address, String role, byte[] secret_key) {
+    public Chat_Room(int room_id, int owner_id, String room_name, Calendar date_created, Calendar last_update, String topic_address, String role, String secret_key) {
         this.room_id = room_id;
         this.owner_id = owner_id;
         this.room_name = room_name;
@@ -202,21 +192,22 @@ public class Chat_Room {
         this.role = role;
     }
 
-    public byte[] getSecret_key() {
+    public String getSecret_key() {
         return secret_key;
     }
 
-    public void setSecret_key(byte[] secret_key) {
+    public void setSecret_key(String secret_key) {
         this.secret_key = secret_key;
     }
 
-    public String decryptMessage(String msg){
-        CryptoDecryptInterface decryptor = new AdvancedEncryptionStandard(secret_key);
-        return new String(decryptor.decrypt(msg.getBytes()));
-    }
+	public String decryptMessage(String msg){
+		AdvancedEncryptionStandard aes = new AdvancedEncryptionStandard(secret_key);
+		return new String(aes.decrypt(msg));
+	}
 
-    public String encryptMessage(String msg){
-        CryptoEncryptInterface encryptor = new AdvancedEncryptionStandard(secret_key);
-        return new String(encryptor.encrypt(msg.getBytes()));
-    }
+	public String encryptMessage(String msg){
+		AdvancedEncryptionStandard aes = new AdvancedEncryptionStandard(secret_key);
+		return new String(aes.encrypt(msg));
+	}
+
 }

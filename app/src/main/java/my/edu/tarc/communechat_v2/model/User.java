@@ -32,7 +32,8 @@ public class User {
     public static final String COL_LAST_LONGITUDE = "last_longitude";
     public static final String COL_LAST_LATITUDE = "last_latitude";
     public static final String COL_DISTANCE = "distance";
-    public static final String COL_PUBLIC_KEY = "public_key";
+	public static final String COL_PUBLIC_KEY = "public_key";
+	public static final String COL_PRIVATE_KEY = "private_key";
 
     //variables for encapsulation
     @PrimaryKey

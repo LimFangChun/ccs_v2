@@ -9,6 +9,11 @@ import android.widget.Button;
 
 import java.util.UUID;
 
+import my.edu.tarc.communechat_v2.internal.RoomSecretHelper;
+import my.edu.tarc.communechat_v2.model.AdvancedEncryptionStandard;
+import my.edu.tarc.communechat_v2.model.Chat_Room;
+import my.edu.tarc.communechat_v2.model.User;
+
 //import my.edu.tarc.communechat_v2.chatEngine.Encryption.RSA;
 
 public class TestEncryptionActivity extends AppCompatActivity {
@@ -24,11 +29,28 @@ public class TestEncryptionActivity extends AppCompatActivity {
 		Button buttonTestRSA = findViewById(R.id.button_testRSA);
 		buttonTestRSA.setOnClickListener(testRSA);
 		uniqueTopic = UUID.randomUUID().toString().substring(0, 8);
+
+		RoomSecretHelper.listenIncomingSecrets(getApplicationContext(),PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getInt(User.COL_USER_ID ,-1));
+
+
 	}
 
 	private View.OnClickListener testRSA = new View.OnClickListener() {
 		@Override
 		public void onClick(View view) {
+			User user = new User();
+			user.setUser_id(2);
+			Chat_Room chat_room = new Chat_Room();
+			chat_room.setRoom_id(2);
+			chat_room.setSecret_key(new AdvancedEncryptionStandard().getKey());
+			SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
+			editor.putString(RoomSecretHelper.getRoomPrefKey(chat_room.getRoom_id()),new String(chat_room.getSecret_key()));
+			editor.commit();
+			//RoomSecretHelper.sendRoomSecret(getApplicationContext(),user,chat_room);
+//			List<Chat_Room> chatrooms = chatRoomRepository.getAllChatrooms();
+//			Chat_Room lul = chatrooms.get(0);
+//			String lql = new String(lul.getSecret_key());
+//			Toast.makeText(TestEncryptionActivity.this, lql, Toast.LENGTH_SHORT).show();
 //			RSA rsa = new RSA();
 //			SharedPreferences.Editor editor = pref.edit();
 //			String pubKeyString = new String(rsa.getPubKey());
@@ -61,7 +83,7 @@ public class TestEncryptionActivity extends AppCompatActivity {
 //
 //				}
 //			});
-
+//
 		}
 	};
 }

@@ -9,6 +9,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import my.edu.tarc.communechat_v2.ADT.CryptoDecryptInterface;
+import my.edu.tarc.communechat_v2.ADT.CryptoEncryptInterface;
+
 @Entity(tableName = "Chat_Room")
 public class Chat_Room {
     //variables that define column name
@@ -18,6 +21,7 @@ public class Chat_Room {
     public static final String COL_DATE_CREATED = "date_created";
     public static final String COL_LAST_UPDATE = "last_update";
     public static final String COL_TOPIC_ADDRESS = "topic_address";
+    public static final String COL_SECRET_KEY = "secret_key";
 
     //variables for encapsulation
     @PrimaryKey
@@ -42,6 +46,8 @@ public class Chat_Room {
     @Ignore
     private String role;
 
+    private byte[] secret_key;
+
     public Chat_Room(){
         date_created = Calendar.getInstance();
         last_update = Calendar.getInstance();
@@ -65,6 +71,23 @@ public class Chat_Room {
         this.last_update = last_update;
         this.topic_address = topic_address;
         this.role = role;
+    }
+
+    public Chat_Room(int room_id, byte[] secret_key){
+        //constructor for room
+        this.room_id = room_id;
+        this.secret_key = secret_key;
+    }
+
+    public Chat_Room(int room_id, int owner_id, String room_name, Calendar date_created, Calendar last_update, String topic_address, String role, byte[] secret_key) {
+        this.room_id = room_id;
+        this.owner_id = owner_id;
+        this.room_name = room_name;
+        this.date_created = date_created;
+        this.last_update = last_update;
+        this.topic_address = topic_address;
+        this.role = role;
+        this.secret_key = secret_key;
     }
 
     public int getRoom_id() {
@@ -177,5 +200,23 @@ public class Chat_Room {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public byte[] getSecret_key() {
+        return secret_key;
+    }
+
+    public void setSecret_key(byte[] secret_key) {
+        this.secret_key = secret_key;
+    }
+
+    public String decryptMessage(String msg){
+        CryptoDecryptInterface decryptor = new AdvancedEncryptionStandard(secret_key);
+        return new String(decryptor.decrypt(msg.getBytes()));
+    }
+
+    public String encryptMessage(String msg){
+        CryptoEncryptInterface encryptor = new AdvancedEncryptionStandard(secret_key);
+        return new String(encryptor.encrypt(msg.getBytes()));
     }
 }

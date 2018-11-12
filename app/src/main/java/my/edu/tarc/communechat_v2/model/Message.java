@@ -1,10 +1,17 @@
 package my.edu.tarc.communechat_v2.model;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.ForeignKey;
+import android.arch.persistence.room.PrimaryKey;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-public class    Message {
+@Entity(foreignKeys = @ForeignKey(entity = Chat_Room.class, parentColumns = Chat_Room.COL_ROOM_ID, childColumns = Message.COL_ROOM_ID),
+        tableName = "Message")
+public class Message {
     //variables that define column name
     public static final String COL_MESSAGE_ID = "message_id";
     public static final String COL_MESSAGE = "message";
@@ -16,17 +23,44 @@ public class    Message {
     public static final String COL_SENDER_NAME = "sender_name";
 
     //variables for encapsulation
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = COL_MESSAGE_ID)
     private int message_id;
+
+    @ColumnInfo(name = COL_MESSAGE)
     private String message;
+
+    @ColumnInfo(name = COL_SENDER_ID)
     private int sender_id;
+
+    @ColumnInfo(name = COL_DATE_CREATED)
     private Calendar date_created;
+
+    @ColumnInfo(name = COL_ROOM_ID)
     private int room_id;
+
+    @ColumnInfo(name = COL_MESSAGE_TYPE)
     private String message_type;
+
+    @ColumnInfo(name = COL_STATUS)
     private String status;
+
+    @ColumnInfo(name = COL_SENDER_NAME)
     private String sender_name;
 
     public Message() {
         date_created = Calendar.getInstance();
+    }
+
+    public Message(int message_id, String message, int sender_id, String sender_name, int room_id) {
+        this.message_id = message_id;
+        this.message = message;
+        this.sender_id = sender_id;
+        this.sender_name = sender_name;
+        this.room_id = room_id;
+        date_created = Calendar.getInstance();
+        message_type = "Text";
+        status = "Unpinned";
     }
 
     public Message(int message_id, String message, int sender_id, Calendar date_created, int room_id, String message_type, String status) {
@@ -71,7 +105,7 @@ public class    Message {
         this.date_created = date_created;
     }
 
-    public void setDate_created(String date_created){
+    public void setDate_created(String date_created) {
         date_created = date_created.replace("T", " ");
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         try {

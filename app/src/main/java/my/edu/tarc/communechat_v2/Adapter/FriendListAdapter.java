@@ -158,7 +158,7 @@ public class FriendListAdapter extends ArrayAdapter<Student> {
                         chat_room.setRoom_id(Integer.parseInt(mqttHelper.getReceivedResult()));
                         Student user1 = new Student();
                         user1.setUser_id(user.getUser_id());
-                        RoomSecretHelper.sendRoomSecret(mContext.getApplicationContext(),user1, chat_room);
+                        RoomSecretHelper.sendRoomSecret(mContext.getApplicationContext(), user1, chat_room);
                         Intent intent = new Intent(getContext(), ChatRoomActivity.class);
                         intent.putExtra(Chat_Room.COL_ROOM_ID, Integer.parseInt(mqttHelper.getReceivedResult()));
                         intent.putExtra(Participant.COL_ROLE, "Admin");

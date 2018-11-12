@@ -26,6 +26,8 @@ import java.util.Objects;
 
 import my.edu.tarc.communechat_v2.R;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
+import my.edu.tarc.communechat_v2.internal.RoomSecretHelper;
+import my.edu.tarc.communechat_v2.model.Chat_Room;
 import my.edu.tarc.communechat_v2.model.Participant;
 import my.edu.tarc.communechat_v2.model.User;
 
@@ -106,9 +108,13 @@ public class AddPeopleAdapter extends ArrayAdapter<User> {
         String header = MqttHeader.ADD_PEOPLE_TO_GROUP;
         String topic = header + "/" + user.getUser_id();
 
-        Participant participant = new Participant();
+         Participant participant = new Participant();
         participant.setRoom_id(chat_room.getRoom_id());
         participant.setUser_id(user.getUser_id());
+
+        //for sending secret key
+        final Participant participant1 = new Participant();
+        participant1.setRoom_id(chat_room.getRoom_id());
         mqttHelper.connectPublishSubscribe(getContext(), topic, header, participant);
         mqttHelper.getMqttClient().setCallback(new MqttCallback() {
             @Override
@@ -125,6 +131,10 @@ public class AddPeopleAdapter extends ArrayAdapter<User> {
                         alertDialog.setTitle(R.string.failed);
                         alertDialog.setMessage("Failed to add " + user.getDisplay_name() + " to the group chat");
                     } else {
+                        Chat_Room chat_room1 = new Chat_Room();
+                        chat_room.setRoom_id(participant1.getRoom_id());
+                        RoomSecretHelper.sendRoomSecret(mContext, user, chat_room1);
+
                         alertDialog.setTitle(R.string.success);
                         alertDialog.setMessage("Added " + user.getDisplay_name() + " to the group chat");
                         alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {

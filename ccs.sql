@@ -136,7 +136,7 @@ CREATE TABLE RoomSecret(
     user_id int(10) NOT NULL,
     secret_key  varchar(256) NOT NULL,
     status  varchar(10) NOT NULL,
-	PRIMARY KEY (room_id, user_id, secret_key),
+	PRIMARY KEY (room_id, user_id),
 	FOREIGN KEY (room_id) REFERENCES Chat_Room(room_id),
 	FOREIGN KEY (user_id) REFERENCES User(user_id)
 );

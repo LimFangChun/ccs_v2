@@ -643,6 +643,9 @@ public class MqttHelper {
                 result=temp.toString();
                 break;
             }
+            case MqttHeader.SET_USER_PROFILE:{
+                break;
+            }
         }
         return result;
     }

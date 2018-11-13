@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import de.hdodenhof.circleimageview.CircleImageView;
 import my.edu.tarc.communechat_v2.Adapter.ParticipantListAdapter;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
+import my.edu.tarc.communechat_v2.internal.MqttHelper;
 import my.edu.tarc.communechat_v2.model.Chat_Room;
 import my.edu.tarc.communechat_v2.model.Participant;
 import my.edu.tarc.communechat_v2.model.User;
@@ -85,12 +86,13 @@ public class GroupInfoActivity extends AppCompatActivity {
 
         @Override
         public void messageArrived(String topic, MqttMessage message) throws Exception {
-            mqttHelper.decode(message.toString());
-            if (mqttHelper.getReceivedHeader().equals(MqttHeader.GET_ROOM_INFO_REPLY)) {
-                if (mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
+            MqttHelper helper = new MqttHelper();
+            helper.decode(message.toString());
+            if (helper.getReceivedHeader().equals(MqttHeader.GET_ROOM_INFO_REPLY)) {
+                if (helper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
                     Toast.makeText(GroupInfoActivity.this, "No room info", Toast.LENGTH_LONG).show();
                 } else {
-                    processResult(mqttHelper.getReceivedResult());
+                    processResult(helper.getReceivedResult());
                 }
                 imageViewGroupPicture.setVisibility(View.VISIBLE);
                 textViewRoomName.setVisibility(View.VISIBLE);

@@ -1,7 +1,6 @@
 package my.edu.tarc.communechat_v2.Adapter;
 
 import android.app.AlertDialog;
-import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,7 +8,6 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.Html;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,9 +28,9 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import my.edu.tarc.communechat_v2.ChatRoomActivity;
-import my.edu.tarc.communechat_v2.MainActivity;
 import my.edu.tarc.communechat_v2.R;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
+import my.edu.tarc.communechat_v2.internal.MqttHelper;
 import my.edu.tarc.communechat_v2.internal.RoomSecretHelper;
 import my.edu.tarc.communechat_v2.model.Chat_Room;
 import my.edu.tarc.communechat_v2.model.Friendship;
@@ -145,9 +143,10 @@ public class FriendListAdapter extends ArrayAdapter<Student> {
 
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception {
-                mqttHelper.decode(message.toString());
-                if (mqttHelper.getReceivedHeader().equals(MqttHeader.CREATE_CHAT_ROOM_REPLY)) {
-                    if (mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
+                MqttHelper helper = new MqttHelper();
+                helper.decode(message.toString());
+                if (helper.getReceivedHeader().equals(MqttHeader.CREATE_CHAT_ROOM_REPLY)) {
+                    if (helper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
                         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                         builder.setTitle(R.string.failed);
                         builder.setMessage(R.string.failed_create_chat_room);
@@ -155,12 +154,12 @@ public class FriendListAdapter extends ArrayAdapter<Student> {
                         builder.show();
                     } else {
                         Chat_Room chat_room = new Chat_Room();
-                        chat_room.setRoom_id(Integer.parseInt(mqttHelper.getReceivedResult()));
+                        chat_room.setRoom_id(Integer.parseInt(helper.getReceivedResult()));
                         Student user1 = new Student();
                         user1.setUser_id(user.getUser_id());
                         RoomSecretHelper.sendRoomSecret(mContext.getApplicationContext(),user1, chat_room);
                         Intent intent = new Intent(getContext(), ChatRoomActivity.class);
-                        intent.putExtra(Chat_Room.COL_ROOM_ID, Integer.parseInt(mqttHelper.getReceivedResult()));
+                        intent.putExtra(Chat_Room.COL_ROOM_ID, Integer.parseInt(helper.getReceivedResult()));
                         intent.putExtra(Participant.COL_ROLE, "Admin");
                         getContext().startActivity(intent);
                     }

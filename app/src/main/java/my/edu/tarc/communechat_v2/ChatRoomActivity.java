@@ -246,11 +246,12 @@ public class ChatRoomActivity extends AppCompatActivity {
 
         @Override
         public void messageArrived(String topic, MqttMessage message) throws Exception {
-            mqttHelper.decode(message.toString());
-            if (mqttHelper.getReceivedHeader().equals(MqttHeader.GET_ROOM_MESSAGE_REPLY)) {
-                if (!mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
+            MqttHelper helper = new MqttHelper();
+            helper.decode(message.toString());
+            if (helper.getReceivedHeader().equals(MqttHeader.GET_ROOM_MESSAGE_REPLY)) {
+                if (!helper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
                     try {
-                        JSONArray result = new JSONArray(mqttHelper.getReceivedResult());
+                        JSONArray result = new JSONArray(helper.getReceivedResult());
                         ArrayList<ChatMessage> messages = new ArrayList<>();
 
                         for (int i = 0; i <= result.length() - 1; i++) {

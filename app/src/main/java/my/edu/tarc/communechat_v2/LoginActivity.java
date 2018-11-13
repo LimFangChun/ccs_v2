@@ -32,6 +32,7 @@ import org.json.JSONObject;
 import java.util.UUID;
 
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
+import my.edu.tarc.communechat_v2.internal.MqttHelper;
 import my.edu.tarc.communechat_v2.model.RSA;
 import my.edu.tarc.communechat_v2.model.Student;
 import my.edu.tarc.communechat_v2.model.User;
@@ -212,21 +213,22 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void login(String topic, MqttMessage message) {
-        mqttHelper.decode(message.toString());
+        MqttHelper helper = new MqttHelper();
+        helper.decode(message.toString());
         progressBar.setVisibility(View.INVISIBLE);
         //Log.i("[MqttHelper]", "Received header: " + mqttHelper.getReceivedHeader());
         //Log.i("[MqttHelper]", "Received result: " + mqttHelper.getReceivedResult());
         if (mqttHelper.getReceivedHeader().equals(MqttHeader.LOGIN_REPLY)) {
             //unsub from the topic
             mqttHelper.unsubscribe(topic);
-            if (mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
+            if (helper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
                 alertDialog.setTitle(R.string.wrong_username_password);
                 alertDialog.setMessage(R.string.check_username_password);
                 alertDialog.setNeutralButton(R.string.ok, null);
                 alertDialog.show();
             } else {
                 try {
-                    JSONArray userData = new JSONArray(mqttHelper.getReceivedResult());
+                    JSONArray userData = new JSONArray(helper.getReceivedResult());
                     JSONObject temp = userData.getJSONObject(0);
 
                     //put user data into shared preference
@@ -279,7 +281,7 @@ public class LoginActivity extends AppCompatActivity {
 
                     //check if RSA keys are generated
                     //generate one if none
-                    setupRSA();
+                    //setupRSA();
                     finish();
                 } catch (Exception e) {
                     e.printStackTrace();

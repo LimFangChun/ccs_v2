@@ -35,6 +35,7 @@ import my.edu.tarc.communechat_v2.MainActivity;
 import my.edu.tarc.communechat_v2.ProfileActivity;
 import my.edu.tarc.communechat_v2.R;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
+import my.edu.tarc.communechat_v2.internal.MqttHelper;
 import my.edu.tarc.communechat_v2.model.Friendship;
 import my.edu.tarc.communechat_v2.model.Student;
 import my.edu.tarc.communechat_v2.model.User;
@@ -142,12 +143,13 @@ public class FriendRequestAdapter extends ArrayAdapter<Student> {
 
                     @Override
                     public void messageArrived(String topic, MqttMessage message) throws Exception {
-                        MainActivity.mqttHelper.decode(message.toString());
-                        MainActivity.mqttHelper.unsubscribe(topic);
+                        MqttHelper helper = new MqttHelper();
+                        helper.decode(message.toString());
 
-                        if (MainActivity.mqttHelper.getReceivedHeader().equals(MqttHeader.ADD_FRIEND_REPLY)) {
+                        if (helper.getReceivedHeader().equals(MqttHeader.ADD_FRIEND_REPLY)) {
+                            MainActivity.mqttHelper.unsubscribe(topic);
                             AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
-                            if (MainActivity.mqttHelper.getReceivedResult().equals(MqttHeader.SUCCESS)) {
+                            if (helper.getReceivedResult().equals(MqttHeader.SUCCESS)) {
                                 alertDialog.setTitle("Success");
                                 alertDialog.setMessage("Added " + user.getDisplay_name() + " as friend");
                                 alertDialog.setNeutralButton(R.string.ok, null);
@@ -233,7 +235,8 @@ public class FriendRequestAdapter extends ArrayAdapter<Student> {
                     @Override
                     public void messageArrived(String topic, MqttMessage message) throws Exception {
                         //decode the received message first into JSON object array
-                        MainActivity.mqttHelper.decode(message.toString());
+                        MqttHelper helper = new MqttHelper();
+                        helper.decode(message.toString());
 
                         //unsubscribe from the topic
                         MainActivity.mqttHelper.unsubscribe(topic);
@@ -242,11 +245,11 @@ public class FriendRequestAdapter extends ArrayAdapter<Student> {
                         AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
 
                         //check if the received header is what we want
-                        if (MainActivity.mqttHelper.getReceivedHeader().equals(MqttHeader.DELETE_FRIEND_REPLY)) {
+                        if (helper.getReceivedHeader().equals(MqttHeader.DELETE_FRIEND_REPLY)) {
 
                             //if received result is success
                             //the friend request has been deleted
-                            if (MainActivity.mqttHelper.getReceivedResult().equals(MqttHeader.SUCCESS)) {
+                            if (helper.getReceivedResult().equals(MqttHeader.SUCCESS)) {
                                 alertDialog.setTitle("Success");
                                 alertDialog.setMessage("Friend request from " + user.getDisplay_name() + " has been cancelled");
                                 alertDialog.setNeutralButton(R.string.ok, null);

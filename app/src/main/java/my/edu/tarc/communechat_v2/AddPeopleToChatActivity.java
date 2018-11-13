@@ -20,6 +20,7 @@ import java.util.ArrayList;
 
 import my.edu.tarc.communechat_v2.Adapter.AddPeopleAdapter;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
+import my.edu.tarc.communechat_v2.internal.MqttHelper;
 import my.edu.tarc.communechat_v2.model.Chat_Room;
 import my.edu.tarc.communechat_v2.model.Participant;
 import my.edu.tarc.communechat_v2.model.User;
@@ -64,9 +65,10 @@ public class AddPeopleToChatActivity extends AppCompatActivity {
 
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception {
-                mqttHelper.decode(message.toString());
-                if (mqttHelper.getReceivedHeader().equals(MqttHeader.GET_FRIEND_LIST_FOR_PARTICIPANT_ADD_REPLY)) {
-                    if (mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
+                MqttHelper helper = new MqttHelper();
+                helper.decode(message.toString());
+                if (helper.getReceivedHeader().equals(MqttHeader.GET_FRIEND_LIST_FOR_PARTICIPANT_ADD_REPLY)) {
+                    if (helper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
                         AlertDialog.Builder builder = new AlertDialog.Builder(AddPeopleToChatActivity.this);
                         builder.setTitle(R.string.no_result);
                         builder.setMessage(R.string.get_participant_add_desc);
@@ -79,7 +81,7 @@ public class AddPeopleToChatActivity extends AppCompatActivity {
                         });
                         builder.show();
                     } else {
-                        processResult(mqttHelper.getReceivedResult());
+                        processResult(helper.getReceivedResult());
                     }
 
                     mqttHelper.unsubscribe(topic);

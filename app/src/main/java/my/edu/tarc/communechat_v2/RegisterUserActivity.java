@@ -19,6 +19,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import java.util.UUID;
 
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
+import my.edu.tarc.communechat_v2.internal.MqttHelper;
 import my.edu.tarc.communechat_v2.model.User;
 
 public class RegisterUserActivity extends AppCompatActivity {
@@ -95,6 +96,7 @@ public class RegisterUserActivity extends AppCompatActivity {
         @Override
         public void messageArrived(String topic, MqttMessage message) throws Exception {
             responseRegister(message);
+            MainActivity.mqttHelper.unsubscribe(topic);
         }
 
         @Override
@@ -104,23 +106,24 @@ public class RegisterUserActivity extends AppCompatActivity {
     };
 
     private void responseRegister(MqttMessage message) {
-        MainActivity.mqttHelper.decode(message.toString());
+        MqttHelper helper = new MqttHelper();
+        helper.decode(message.toString());
         progressBar.setVisibility(View.INVISIBLE);
 
-        if (MainActivity.mqttHelper.getReceivedHeader().equals(MqttHeader.REGISTER_USER_REPLY) &&
-                MainActivity.mqttHelper.getReceivedResult().equals(MqttHeader.DUPLICATED)) {
+        if (helper.getReceivedHeader().equals(MqttHeader.REGISTER_USER_REPLY) &&
+                helper.getReceivedResult().equals(MqttHeader.DUPLICATED)) {
             alertDialog.setTitle(R.string.duplicated_username);
             alertDialog.setMessage(R.string.try_again_username);
             alertDialog.setNeutralButton(R.string.ok, null);
             alertDialog.show();
-        } else if (MainActivity.mqttHelper.getReceivedHeader().equals(MqttHeader.REGISTER_USER_REPLY) &&
-                MainActivity.mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
+        } else if (helper.getReceivedHeader().equals(MqttHeader.REGISTER_USER_REPLY) &&
+                helper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
             alertDialog.setTitle(R.string.failed);
             alertDialog.setMessage(R.string.failed_register);
             alertDialog.setNeutralButton(R.string.ok, null);
             alertDialog.show();
-        } else if (MainActivity.mqttHelper.getReceivedHeader().equals(MqttHeader.REGISTER_USER_REPLY) &&
-                MainActivity.mqttHelper.getReceivedResult().equals(MqttHeader.SUCCESS)) {
+        } else if (helper.getReceivedHeader().equals(MqttHeader.REGISTER_USER_REPLY) &&
+                helper.getReceivedResult().equals(MqttHeader.SUCCESS)) {
             alertDialog.setTitle(R.string.success);
             alertDialog.setMessage(R.string.register_success);
             alertDialog.setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {

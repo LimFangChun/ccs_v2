@@ -56,4 +56,11 @@ dependencies {
     annotationProcessor "android.arch.persistence.room:compiler:$room_version"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
+    //Firebase
+    def firebase_version = "16.0.5"
+    implementation "com.google.firebase:firebase-core:$firebase_version"
+    implementation "com.google.firebase:firebase-storage:$firebase_version"
+    implementation "com.google.firebase:firebase-auth:$firebase_version"
 }
+
+apply plugin: 'com.google.gms.google-services'

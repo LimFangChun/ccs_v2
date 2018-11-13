@@ -95,7 +95,8 @@
         <activity
             android:name=".AddPeopleToChatActivity"
             android:parentActivityName=".AddPeopleToChatActivity" />
-        <activity android:name=".RemovePeopleFromChatActivity"></activity>
+        <activity android:name=".RemovePeopleFromChatActivity" />
+        <activity android:name=".UpdateProfileActivity"></activity>
     </application>
 
 </manifest>

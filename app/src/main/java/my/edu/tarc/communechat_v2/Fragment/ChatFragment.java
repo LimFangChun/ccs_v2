@@ -47,8 +47,8 @@ public class ChatFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        initializeEncryption();
         initializeChatRoom();
+        initializeEncryption();
     }
 
     @Nullable

@@ -56,7 +56,7 @@
     <string name="try_again_username">The username already existed. Please try another one</string>
     <string name="failed">Failed</string>
     <string name="failed_register">Failed to register an account</string>
-    <string name="register_success">Successfully registered an account. Please try to login with your new account</string>
+    <string name="register_success">Successfully registered an account. Please proceed to configure your proifle and try to login with your new account</string>
     <string name="success">Success</string>
     <string name="find_friend">Find friend</string>
     <string name="friend_list">Friend list</string>
@@ -214,4 +214,6 @@
     <string name="get_participant_add_desc">Did not find any available friend to add into the group chat</string>
     <string name="remove_participant_from_chat_desc">Did not find any available participant in this chat group</string>
     <string name="failed_create_chat_room">Something went wrong. Please try again</string>
+    <string name="username">Username</string>
+    <string name="display_name">Display name</string>
 </resources>

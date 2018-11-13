@@ -34,7 +34,9 @@ import java.util.UUID;
 import my.edu.tarc.communechat_v2.MainActivity;
 import my.edu.tarc.communechat_v2.ProfileActivity;
 import my.edu.tarc.communechat_v2.R;
+import my.edu.tarc.communechat_v2.SettingsActivity;
 import my.edu.tarc.communechat_v2.TestEncryptionActivity;
+import my.edu.tarc.communechat_v2.UpdateProfileActivity;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
 import my.edu.tarc.communechat_v2.model.Student;
 import my.edu.tarc.communechat_v2.model.User;
@@ -69,6 +71,7 @@ public class ProfileFragment extends Fragment {
 			@Override
 			public boolean onLongClick(View view) {
 				Intent intent = new Intent(getContext(), TestEncryptionActivity.class);
+//				Intent intent = new Intent(getContext(), UpdateProfileActivity.class);
 				startActivity(intent);
 				return false;
 			}
@@ -92,6 +95,9 @@ public class ProfileFragment extends Fragment {
 				mqttHelper.connectPublishSubscribe(getContext(), uniqueTopic, MqttHeader.GET_USER_PROFILE, user);
 				mqttHelper.getMqttClient().setCallback(mqttCallback);
 			}
+			progressBar.setVisibility(View.GONE);
+			relativeLayoutProfile.setVisibility(View.VISIBLE);
+			cardViewStudent.setVisibility(View.VISIBLE);
 		}
 		else{
 			Intent passedIntent = getActivity().getIntent();

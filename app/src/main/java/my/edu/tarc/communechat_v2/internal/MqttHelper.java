@@ -37,7 +37,7 @@ public class MqttHelper {
     private String receivedResult;
 
     //change MQTT broker IP address here
-    private static final String serverUri = "tcp://192.168.0.6:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
+    private static final String serverUri = "tcp://192.168.0.13:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
 
     //private static final String serverUri = "tcp://broker.hivemq.com:1883";
     //private static String mqttUsername = "";

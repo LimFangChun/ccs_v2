@@ -22,6 +22,12 @@
         app:inputUseEditorAction="true"
         app:bubbleBackgroundSend="@color/colorWhite"
         app:messageTextColorSend="@color/colorBlack"
+        app:tStampTextColorSend="@color/black"
         app:bubbleBackgroundRcv="@color/colorPrimary"
-        app:messageTextColorRcv="@color/colorBlack" />
+        app:messageTextColorRcv="@color/white"
+        app:tStampTextColorRcv="@color/white"
+        app:messageTextSize="20sp"
+        app:tStampTextSize="14sp"
+        app:sendBtnBackgroundTint="@color/colorRoundButtonBackground"
+        app:sendBtnIcon="@drawable/ic_send_white_24dp" />
 </LinearLayout>

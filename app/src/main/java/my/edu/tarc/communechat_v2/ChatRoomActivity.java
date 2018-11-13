@@ -1,12 +1,21 @@
 package my.edu.tarc.communechat_v2;
 
+import android.app.Activity;
+import android.arch.persistence.room.Room;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.AudioManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,14 +27,18 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import co.intentservice.chatui.ChatView;
 import co.intentservice.chatui.models.ChatMessage;
+import my.edu.tarc.communechat_v2.LocalDatabase.AppDatabase;
+import my.edu.tarc.communechat_v2.LocalDatabase.MessageDao;
+import my.edu.tarc.communechat_v2.Utility.myUtil;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
 import my.edu.tarc.communechat_v2.internal.MqttHelper;
-import my.edu.tarc.communechat_v2.internal.RoomSecretHelper;
 import my.edu.tarc.communechat_v2.model.Chat_Room;
 import my.edu.tarc.communechat_v2.model.Message;
 import my.edu.tarc.communechat_v2.model.Participant;
@@ -34,15 +47,15 @@ import my.edu.tarc.communechat_v2.model.User;
 import static my.edu.tarc.communechat_v2.MainActivity.mqttHelper;
 
 public class ChatRoomActivity extends AppCompatActivity {
-    private static final String TAG_ENCRYPT = "[ChatRoomActivity Enc.]";
 
     //READ ME before you start modifying this class
     //this chat engine was done using an amazing 3rd party library
     //source: https://github.com/timigod/android-chat-ui
-    //this man has done most of the complex job
+    //this man has done most of the complex UI job
     //and we only need to setup the send and receive message process
     //and put in data into the ChatMessage class
 
+    private static final String TAG = "ChatRoomActivity";
 
     private SharedPreferences pref;
     private ChatView chatViewRoom;
@@ -107,24 +120,32 @@ public class ChatRoomActivity extends AppCompatActivity {
         chatRoom = new Chat_Room();
         chatRoom.setRole(getIntent().getStringExtra(Participant.COL_ROLE));
         chatRoom.setRoom_id(getIntent().getIntExtra(Chat_Room.COL_ROOM_ID, -1));
-        chatRoom.setSecret_key(pref.getString(RoomSecretHelper.getRoomPrefKey(chatRoom.getRoom_id()), null));
-        topic = "sendMessage/room" + chatRoom.getRoom_id();
+        topic = MqttHeader.SEND_ROOM_MESSAGE + "/room" + chatRoom.getRoom_id();
         chatMqttHelper.connectSubscribe(this, topic);
         chatMqttHelper.getMqttClient().setCallback(chatRoomCallback);
+        //chatRoom.setSecret_key(pref.getString(RoomSecretHelper.getRoomPrefKey(chatRoom.getRoom_id()),null).getBytes());
 
-        initializeChatRoomByRoomID();
+        if (isNetworkAvailable()) {
+            initializeChatRoomByRoomID();
+        } else {
+            //initializeLocalChatRoom();
+        }
 
         chatViewRoom.setOnSentMessageListener(new ChatView.OnSentMessageListener() {
             @Override
             public boolean sendMessage(ChatMessage chatMessage) {
+                if (chatViewRoom.getTypedMessage().isEmpty()) {
+                    return false;
+                }
+
                 Calendar calendar = Calendar.getInstance();
-                String topic = "sendMessage/room" + chatRoom.getRoom_id();
                 String header = MqttHeader.SEND_ROOM_MESSAGE;
+                //String topic = header + "/room" + chatRoom.getRoom_id();
                 Message message = new Message();
                 message.setSender_id(pref.getInt(User.COL_USER_ID, -1));
                 message.setDate_created(calendar);
-                message.setMessage(chatRoom.encryptMessage(chatViewRoom.getTypedMessage()));
-                //message.setMessage(chatViewRoom.getTypedMessage());
+                //message.setMessage(chatRoom.encryptMessage(chatViewRoom.getTypedMessage()));
+                message.setMessage(chatViewRoom.getTypedMessage());
                 message.setRoom_id(chatRoom.getRoom_id());
                 message.setMessage_type("Text");
                 message.setSender_name(pref.getString(User.COL_DISPLAY_NAME, ""));
@@ -133,7 +154,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                         chatViewRoom.getTypedMessage(),
                         calendar.getTimeInMillis(),
                         ChatMessage.Type.SENT,
-                        getString(R.string.you)
+                        ""
                 ));
                 chatMqttHelper.publish(topic, header, message);
                 chatViewRoom.getInputEditText().setText("");
@@ -167,8 +188,8 @@ public class ChatRoomActivity extends AppCompatActivity {
 
                 Message received_message = new Message();
                 received_message.setSender_id(result.getInt(Message.COL_SENDER_ID));
-                received_message.setMessage(chatRoom.decryptMessage(result.getString(Message.COL_MESSAGE)));
-                //received_message.setMessage(result.getString(Message.COL_MESSAGE));
+                //received_message.setMessage(chatRoom.decryptMessage(result.getString(Message.COL_MESSAGE)));
+                received_message.setMessage(result.getString(Message.COL_MESSAGE));
                 received_message.setDate_created(result.getString(Message.COL_DATE_CREATED));
                 received_message.setMessage_type(result.getString(Message.COL_MESSAGE_TYPE));
                 received_message.setRoom_id(result.getInt(Message.COL_ROOM_ID));
@@ -180,6 +201,10 @@ public class ChatRoomActivity extends AppCompatActivity {
                         ChatMessage.Type.RECEIVED,
                         received_message.getSender_name()
                 ));
+
+                //make a short vibration or sound
+                //depend on user's mode
+                makeVibrationOrSound();
 
                 //don't unsubscribe from the topic
             } catch (Exception e) {
@@ -200,12 +225,12 @@ public class ChatRoomActivity extends AppCompatActivity {
         final Chat_Room chatRoom = new Chat_Room();
         chatRoom.setRoom_id(getIntent().getIntExtra(Chat_Room.COL_ROOM_ID, -1));
         chatRoom.setRoom_name(getIntent().getStringExtra(Chat_Room.COL_ROOM_NAME));
-        chatRoom.setSecret_key(pref.getString(RoomSecretHelper.getRoomPrefKey(chatRoom.getRoom_id()),null));
 
         if (!"".equals(chatRoom.getRoom_name())) {
             setTitle(chatRoom.getRoom_name());
         }
 
+        //chatRoom.setSecret_key(pref.getString(RoomSecretHelper.getRoomPrefKey(chatRoom.getRoom_id()),null).getBytes());
 
         String topic = "getRoomMessage/room" + chatRoom.getRoom_id() + "_user" + pref.getInt(User.COL_USER_ID, -1);
         String header = MqttHeader.GET_ROOM_MESSAGE;
@@ -235,14 +260,14 @@ public class ChatRoomActivity extends AppCompatActivity {
                             room_message.setSender_id(temp.getInt(Message.COL_SENDER_ID));
 
                             ChatMessage chatMessage = new ChatMessage(
-                                    chatRoom.decryptMessage(temp.getString(Message.COL_MESSAGE)), //message content
-                                    //temp.getString(Message.COL_MESSAGE), //message content
+                                    //chatRoom.decryptMessage(temp.getString(Message.COL_MESSAGE)), //message content
+                                    temp.getString(Message.COL_MESSAGE), //message content
                                     room_message.getDate_created().getTimeInMillis(), //date
                                     pref.getInt(User.COL_USER_ID, -1) == room_message.getSender_id()
                                             ? ChatMessage.Type.SENT //if user id in pref == sender id, then is sender
                                             : ChatMessage.Type.RECEIVED, //else is receiver
                                     pref.getString(User.COL_DISPLAY_NAME, "").equals(temp.getString(User.COL_DISPLAY_NAME))
-                                            ? getString(R.string.you)
+                                            ? ""
                                             : temp.getString(User.COL_DISPLAY_NAME)//sender name
                             );
                             messages.add(chatMessage);
@@ -262,6 +287,33 @@ public class ChatRoomActivity extends AppCompatActivity {
 
         }
     };
+
+    private boolean interval = true;
+
+    private void makeVibrationOrSound() {
+        if (interval) {
+            AudioManager audio = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            if (audio != null) {
+                switch (audio.getRingerMode()) {
+                    case AudioManager.RINGER_MODE_NORMAL:
+                        myUtil.makeSound(this);
+                        break;
+                    case AudioManager.RINGER_MODE_VIBRATE:
+                        myUtil.makeVibration(this, myUtil.VIBRATE_SHORT);
+                        break;
+                }
+            }
+        }
+
+        interval = false;
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                interval = true;
+            }
+        }, 3000);
+    }
 
     private void exitGroup() {
         final AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
@@ -323,5 +375,92 @@ public class ChatRoomActivity extends AppCompatActivity {
         super.onDestroy();
         chatMqttHelper.disconnect();
     }
+
+    private boolean isNetworkAvailable() {
+        //method to check internet connection
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = null;
+        if (connectivityManager != null) {
+            activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        }
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    private void initializeLocalChatRoom() {
+        //todo in future
+        //this method does work properly
+        //but you need to find a way to store message locally first before loading it
+        //current known issues:
+        //  1. if user left or kicked out the chat room, how to update the local database
+        //  and delete all the relevant data
+        //  2. if someone in the chat room changed or deleted message,
+        //  how to update the local database as well
+        //  3. Synchronization issues
+        LocalChatRoomAsync loadLocal = new LocalChatRoomAsync(this, chatViewRoom, chatRoom.getRoom_id());
+        loadLocal.execute();
+    }
+
+    private static class LocalChatRoomAsync extends AsyncTask<Void, Void, List<Message>> {
+
+        private WeakReference<Activity> activity;
+        private int roomID;
+        private AppDatabase appDatabase;
+        private WeakReference<ChatView> chatView;
+        private SharedPreferences pref;
+        private ProgressBar progressBar;
+
+        LocalChatRoomAsync(Activity activity, ChatView chatView, int roomID) {
+            this.activity = new WeakReference<>(activity);
+            this.chatView = new WeakReference<>(chatView);
+            this.roomID = roomID;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            appDatabase = Room.databaseBuilder(activity.get().getApplicationContext(), AppDatabase.class, "CCS").build();
+            pref = PreferenceManager.getDefaultSharedPreferences(activity.get().getApplicationContext());
+            progressBar = this.activity.get().findViewById(R.id.progressBar_chatRoom);
+            progressBar.setVisibility(View.VISIBLE);
+            Log.d(TAG, "onPreExecute: init local");
+        }
+
+        @Override
+        protected List<Message> doInBackground(Void... voids) {
+            MessageDao messageDao = appDatabase.messageDao();
+            return messageDao.getMessageByRoomID(roomID);
+        }
+
+        @Override
+        protected void onPostExecute(List<Message> messages) {
+            ArrayList<ChatMessage> resultList = new ArrayList<>();
+            for (Message result : messages) {
+                Message received_message = new Message();
+                received_message.setSender_id(result.getSender_id());
+                received_message.setMessage(result.getMessage());
+                received_message.setDate_created(result.getDate_created());
+                received_message.setMessage_type(result.getMessage_type());
+                received_message.setRoom_id(result.getRoom_id());
+                received_message.setSender_name(result.getSender_name());
+
+                ChatMessage chatMessage = new ChatMessage(
+                        received_message.getMessage(), //message content
+                        received_message.getDate_created().getTimeInMillis(), //date
+                        pref.getInt(User.COL_USER_ID, -1) == received_message.getSender_id()
+                                ? ChatMessage.Type.SENT //if user id in pref == sender id, then is sender
+                                : ChatMessage.Type.RECEIVED, //else is receiver
+                        pref.getString(User.COL_DISPLAY_NAME, "").equals(received_message.getSender_name())
+                                ? ""
+                                : received_message.getSender_name() //sender name
+                );
+                resultList.add(chatMessage);
+                Log.d(TAG, "onPostExecute: " + received_message.getMessage());
+            }
+            Log.d(TAG, "onPostExecute: resultList size:" + resultList.size());
+            chatView.get().addMessages(resultList);
+            progressBar.setVisibility(View.GONE);
+        }
+    }
+
 
 }

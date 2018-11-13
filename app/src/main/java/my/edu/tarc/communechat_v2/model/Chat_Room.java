@@ -1,11 +1,13 @@
 package my.edu.tarc.communechat_v2.model;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-
-import my.edu.tarc.communechat_v2.ADT.CryptoDecryptInterface;
-import my.edu.tarc.communechat_v2.ADT.CryptoEncryptInterface;
 
 @Entity(tableName = "Chat_Room")
 public class Chat_Room {

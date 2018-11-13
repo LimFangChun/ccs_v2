@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -25,6 +26,8 @@ import my.edu.tarc.communechat_v2.Adapter.FindResultAdapter;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
 import my.edu.tarc.communechat_v2.model.Student;
 import my.edu.tarc.communechat_v2.model.User;
+
+import static my.edu.tarc.communechat_v2.MainActivity.*;
 
 public class FindFriendResult extends AppCompatActivity {
 
@@ -92,9 +95,9 @@ public class FindFriendResult extends AppCompatActivity {
                 setTitle("Find by location");
                 break;
         }
-        MainActivity.mqttHelper.connectPublishSubscribe(getApplicationContext(),
+        mqttHelper.connectPublishSubscribe(getApplicationContext(),
                 publishTopic, header, student);
-        MainActivity.mqttHelper.getMqttClient().setCallback(mqttCallback);
+        mqttHelper.getMqttClient().setCallback(mqttCallback);
     }
 
     private MqttCallback mqttCallback = new MqttCallback() {
@@ -105,15 +108,17 @@ public class FindFriendResult extends AppCompatActivity {
 
         @Override
         public void messageArrived(String topic, MqttMessage message) throws Exception {
-            MainActivity.mqttHelper.decode(message.toString());
+            Log.d("FindResult", "messageArrived: " + message);
+            mqttHelper.decode(message.toString());
 
-            if (MainActivity.mqttHelper.getReceivedHeader().equals(MqttHeader.FIND_BY_AGE_REPLY) ||
-                    MainActivity.mqttHelper.getReceivedHeader().equals(MqttHeader.FIND_BY_ADDRESS_REPLY) ||
-                    MainActivity.mqttHelper.getReceivedHeader().equals(MqttHeader.FIND_BY_LOCATION_REPLY) ||
-                    !MainActivity.mqttHelper.getReceivedHeader().equals(MqttHeader.FIND_BY_PROGRAMME_REPLY) ||
-                    !MainActivity.mqttHelper.getReceivedHeader().equals(MqttHeader.FIND_BY_TUTORIAL_GROUP_REPLY)) {
+            if (mqttHelper.getReceivedHeader().equals(MqttHeader.FIND_BY_AGE_REPLY) ||
+                    mqttHelper.getReceivedHeader().equals(MqttHeader.FIND_BY_ADDRESS_REPLY) ||
+                    mqttHelper.getReceivedHeader().equals(MqttHeader.FIND_BY_LOCATION_REPLY) ||
+                    mqttHelper.getReceivedHeader().equals(MqttHeader.FIND_BY_PROGRAMME_REPLY) ||
+                    mqttHelper.getReceivedHeader().equals(MqttHeader.FIND_BY_TUTORIAL_GROUP_REPLY)) {
+                mqttHelper.unsubscribe(topic);
 
-                if (MainActivity.mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
+                if (mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
                     String[] response = new String[1];
                     response[0] = "We couldn't find any users";
                     ArrayAdapter adapter = new ArrayAdapter<String>(FindFriendResult.this,
@@ -122,7 +127,7 @@ public class FindFriendResult extends AppCompatActivity {
                 } else {
                     resultList = new ArrayList<>();
                     try {
-                        JSONArray result = new JSONArray(MainActivity.mqttHelper.getReceivedResult());
+                        JSONArray result = new JSONArray(mqttHelper.getReceivedResult());
                         for (int i = 0; i <= result.length() - 1; i++) {
                             JSONObject temp = result.getJSONObject(i);
                             Student friend = new Student();

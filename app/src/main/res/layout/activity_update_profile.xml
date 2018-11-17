@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".UpdateProfileActivity">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/cardView_displayName"
+                android:layout_margin="@dimen/cardview_default_elevation"
+                android:background="@drawable/rounded_rectangle">
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/small_margin"
+                    android:id="@+id/editText_displayName_config"
+                    android:hint="@string/display_name"/>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/cardView_changePassword"
+                android:layout_margin="@dimen/small_margin"
+                android:background="@drawable/rounded_rectangle"
+                android:layout_below="@+id/cardView_displayName"
+                android:clickable="true"
+                android:focusable="true"
+                android:visibility="gone">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/small_margin"
+                    android:text="Change password..."/>
+            </android.support.v7.widget.CardView>
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/small_margin"
+                android:background="@drawable/rounded_rectangle"
+                android:layout_below="@id/cardView_changePassword"
+                android:id="@+id/cardView_position">
+                >
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/textView_position"
+                        android:layout_margin="@dimen/small_margin"
+                        android:text="I am a:"/>
+                    <RadioGroup
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/radioGroup_position_config"
+                        android:layout_below="@id/textView_position"
+                        android:layout_margin="@dimen/small_margin"
+                        android:orientation="horizontal">
+                        <RadioButton
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Student"/>
+                        <RadioButton
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Lecturer"/>
+                    </RadioGroup>
+                </RelativeLayout>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/small_margin"
+                android:background="@drawable/rounded_rectangle"
+                android:id="@+id/cardView_gender"
+                android:layout_below="@id/cardView_position">
+                >
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/textView_gender"
+                        android:layout_margin="@dimen/small_margin"
+                        android:text="Gender:"/>
+                    <RadioGroup
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/small_margin"
+                        android:id="@+id/radioGroup_gender_config"
+                        android:layout_below="@id/textView_gender"
+                        android:orientation="horizontal">
+                        <RadioButton
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Male"/>
+                        <RadioButton
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Female"/>
+                    </RadioGroup>
+                </RelativeLayout>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/small_margin"
+                android:background="@drawable/rounded_rectangle"
+                android:layout_below="@id/cardView_gender"
+                android:id="@+id/cardView_dateOfBirth"
+                android:clickable="true"
+                android:focusable="true">
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/textView_dateOfBirth"
+                        android:layout_margin="@dimen/small_margin"
+                        android:text="Date of birth:"/>
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/editText_dateOfBirth"
+                        android:textColor="@color/black"
+                        android:clickable="true"
+                        android:focusable="false"
+                        android:layout_below="@+id/textView_dateOfBirth"
+                        android:layout_margin="@dimen/activity_vertical_margin"
+                        android:hint="Select from calendar..."/>
+                    <ImageView
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@color/colorWhite"
+                        app:srcCompat="@drawable/ic_chevron_right_black_24dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_marginEnd="16dp"
+                        android:layout_centerVertical="true"/>
+                </RelativeLayout>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/small_margin"
+                android:background="@drawable/rounded_rectangle"
+                android:layout_below="@+id/cardView_dateOfBirth"
+                android:id="@+id/cardView_phoneEmail">
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Phone number"
+                        android:layout_margin="@dimen/small_margin"
+                        android:inputType="phone"
+                        android:id="@+id/editText_phoneNumber"/>
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Email address"
+                        android:inputType="textEmailAddress"
+                        android:layout_margin="@dimen/small_margin"
+                        android:layout_below="@+id/editText_phoneNumber"
+                        android:id="@+id/editText_email"/>
+
+                </RelativeLayout>
+            </android.support.v7.widget.CardView>
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/cardView_phoneEmail"
+                android:id="@+id/button_next"
+                android:text="Next"
+                android:layout_alignParentEnd="true"
+                android:background="@drawable/rounded_rectangle"/>
+
+            <!--<Button-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_below="@id/radioGroup_gender_config"-->
+                <!--android:id="@+id/button_birthDate"-->
+                <!--android:hint="Birth date"/>-->
+
+
+
+        </RelativeLayout>
+
+    </ScrollView>
+
+</android.support.constraint.ConstraintLayout>

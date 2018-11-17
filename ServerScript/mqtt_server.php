@@ -111,7 +111,7 @@ $client_id = "CCS_SERVER";
  */
  
 //$server = "broker.hivemq.com";     		// change to your broker's ip
-$server = "192.168.0.17";
+$server = "192.168.0.2";
 $port = 1883;                     		// change if necessary, default is 1883
 $username = "";                 // set your username
 $password = "";             // set your password
@@ -241,18 +241,40 @@ function procmsg($topic, $msg){
 					$ack_message = SEARCH_USER($msg); 
 					publishMessage($topic, $ack_message);
 					break;}
-				case "UPDATE_PUBLIC_KEY": {
-					$ack_message = UPDATE_PUBLIC_KEY($msg);
-					publishMessage($topic, $ack_message);
-					break;}
 				case "GET_USER_PROFILE":	{
 					$ack_message = GET_USER_PROFILE($msg); 
+					publishMessage($topic, $ack_message);
+					break;}
+				/*
+				case "UPDATE_PUBLIC_KEY": {
+					$ack_message = UPDATE_PUBLIC_KEY($msg);
 					publishMessage($topic, $ack_message);
 					break;}
 				case "GET_PUBLIC_KEY":	{
 					$ack_message = GET_PUBLIC_KEY($msg);
 					publishMessage($topic, $ack_message);
 					break;}
+				case "GET_PUBLIC_KEY_ROOM":	{
+					$ack_message = GET_PUBLIC_KEY_ROOM($msg);
+					publishMessage($topic, $ack_message);
+					break;}					
+				case "SET_CHATROOM_SECRET":	{
+					$ack_message = SET_CHATROOM_SECRET($msg);
+					publishMessage($topic, $ack_message);
+					break;}
+				case "GET_CHATROOM_SECRET":	{
+					$ack_message = GET_CHATROOM_SECRET($msg);
+					publishMessage($topic, $ack_message);
+					break;}
+				case "GET_CHATROOM_SECRET_ALL":	{
+					$ack_message = GET_CHATROOM_SECRET_ALL($msg);
+					publishMessage($topic, $ack_message);
+					break;}
+				case "GET_FORBIDDEN_SECRETS":	{
+					$ack_message = GET_FORBIDDEN_SECRETS($msg);
+					publishMessage($topic, $ack_message);
+					break;}
+				*/
 				// case "UPDATE_LOCATION": {
 				// 	$ack_message = UPDATE_LOCATION($msg); break;}
 				// case "FIND_BY_LOCATION": {
@@ -297,7 +319,7 @@ function dbResult($sql){
 			}
 }	
 
-function dbResult_stmt($sql, $types, $params, $param_count){
+function dbResult_stmt($sql, $types, $params){
 	$hostname_localhost = "localhost";
 	$database_localhost = "ccs_master";//change to your database name
 	$username_localhost = "ccs_main";//change to your database username, it is recommended to add a new user with password
@@ -330,7 +352,7 @@ function dbResult_stmt($sql, $types, $params, $param_count){
 //MQTT publish message
 //DO NOT MODIFY, except ip address
 function publishMessage($topic, $ack_message){
-	$server = "192.168.0.17";     		// change if necessary
+	$server = "192.168.0.2";     		// change if necessary
 	$port = 1883;                     		// change if necessary
 	$username = "";                 // set your username
 	$password = "";             // set your password
@@ -394,6 +416,7 @@ function LOGIN($msg){
 			//update user login status
 			$temp1 = "1,".$row['user_id'].",".'Online';
 			UPDATE_USER_STATUS($temp1);
+			forbidSecrets($row['user_id']);
 		}
 		$ack_message .= json_encode($temp);
 	} else{
@@ -563,8 +586,25 @@ function SEARCH_USER($msg){
 	return $ack_message;
 }
 
+//used in login, where user changes device(or not lul.)
+function forbidSecrets(){
+	$user_id = func_get_arg(0);
+	echo "\nForbidding secret keys...\n";
+	$sql = "UPDATE RoomSecret
+			SET status = 'Forbidden'
+			WHERE user_id = '$user_id'";
+	$result = dbResult($sql);
+	if($result){
+		echo "\nSecret keys of user $user_id has been forbidden\n";
+	}else{
+		echo "\nFailed to forbid Secret keys of user $user_id\n";
+		echo mysqli_error($result)."\n";
+	}
+}
+/*
 function UPDATE_PUBLIC_KEY(){
 	$temp = func_get_arg(0);
+		echo "\nUpdating user public_key...\n";
 	$ack_message = "UPDATE_PUBLIC_KEY_REPLY, ";
 
 	$temp = explode(',', $temp, 3); //user_id, public_key
@@ -590,14 +630,14 @@ function UPDATE_PUBLIC_KEY(){
 function GET_PUBLIC_KEY(){
 	$temp = func_get_arg(0);
 	echo "\nGetting public key...\n";
-	$ack_message = "GET_PUBLIC_KEY_REPLY, ";
+	$ack_message = "GET_PUBLIC_KEY_REPLY,";
 
 	$temp = explode(',', $temp, 2); //user_id
 	$user_id = $temp[1];
 
-	$sql = "SELECT user.public_key
-			FROM User
-			WHERE user.user_id = '$user_id'";
+	$sql = "SELECT DISTINCT user.user_id, user.public_key
+			FROM User 
+			WHERE user.user_id = '$user_id' AND user.public_key IS NOT NULL";
 	$result = dbResult($sql);
 	if(mysqli_num_rows($result) > 0){
 		$temp = array();
@@ -614,6 +654,148 @@ function GET_PUBLIC_KEY(){
 	return $ack_message;
 }
 
+function GET_PUBLIC_KEY_ROOM(){
+	$temp = func_get_arg(0);
+	echo "\nGetting public key...\n";
+	$ack_message = "GET_PUBLIC_KEY_REPLY,";
+
+	$temp = explode(',', $temp, 2); //room_id
+	$room_id = $temp[1];
+
+	$sql = "SELECT user.user_id, user.public_key
+			FROM User 
+				INNER JOIN participant ON user.user_id=participant.user_id 
+				INNER JOIN chat_room ON participant.room_id = chat_room.room_id
+			WHERE chat_room.room_id = '$room_id' AND user.public_key IS NOT NULL";
+	$result = dbResult($sql);
+	if(mysqli_num_rows($result) > 0){
+		$temp = array();
+		while($row = mysqli_fetch_array($result)){
+			$temp[] = $row;
+		}
+		echo "\nPublic key found\n";
+		$ack_message .= json_encode($temp);
+	}else{
+		echo "\nNo result\n";
+		$ack_message .= "NO_RESULT";
+	}
+	echo "\n".$ack_message;
+	return $ack_message;
+}
+
+//currently not used, might have a chance to use in future
+function GET_CHATROOM_SECRET(){
+	$temp = func_get_arg(0);
+	echo "\nGetting chat room secret key...\n";
+	$ack_message = "GET_CHATROOM_SECRET_REPLY,";
+
+	$temp = explode(',', $temp, 3); //user_id, room_id
+	$user_id = $temp[1];
+	$room_id = $temp[2];
+
+	$sql = "SELECT RoomSecret.secret_key
+			FROM RoomSecret
+			WHERE RoomSecret.user_id = '$user_id' AND RoomSecret.room_id = '$room_id' AND RoomSecret.status != 'Forbidden'";
+	$result = dbResult($sql);
+	if(mysqli_num_rows($result) > 0){
+		$temp = array();
+		while($row = mysqli_fetch_array($result)){
+			$temp[] = $row;
+		}
+		echo "\n Secret key found\n";
+		$ack_message .= json_encode($temp);
+	}else{
+		echo "\nNo result\n";
+		$ack_message .= "NO_RESULT";
+	}
+	echo "\n".$ack_message;
+	return $ack_message;
+}
+
+function GET_CHATROOM_SECRET_ALL(){
+	$temp = func_get_arg(0);
+	echo "\nGetting chat room secret key...\n";
+	$ack_message = "GET_CHATROOM_SECRET_ALL_REPLY,";
+
+	$temp = explode(',', $temp, 2); //user_id
+	$user_id = $temp[1];
+
+	$sql = "SELECT RoomSecret.room_id, RoomSecret.secret_key
+			FROM User INNER JOIN RoomSecret ON User.user_id = RoomSecret.user_id
+			WHERE RoomSecret.user_id = '$user_id' AND RoomSecret.status != 'Forbidden'";
+	$result = dbResult($sql);
+	if(mysqli_num_rows($result) > 0){
+		$temp = array();
+		while($row = mysqli_fetch_array($result)){
+			$temp[] = $row;
+		}
+		echo "\n Secret key found\n";
+		$ack_message .= json_encode($temp);
+	}else{
+		echo "\nNo result\n";
+		$ack_message .= "NO_RESULT";
+	}
+	echo "\n".$ack_message;
+	return $ack_message;
+}
+
+function SET_CHATROOM_SECRET(){
+	$temp = func_get_arg(0);
+		echo "\nInserting chat room secret key...\n";
+	$ack_message = "SET_CHATROOM_SECRET_REPLY,";
+
+	$temp = explode(',', $temp, 4); //room_id, user_id, secret_key
+	$room_id = $temp[1];
+	$user_id = $temp[2];
+	$secret_key = $temp[3];
+
+	$sql = "INSERT INTO RoomSecret(room_id, user_id, secret_key, status) values(?, ?, ?, 'Available') ON DUPLICATE KEY UPDATE secret_key = ?, status = 'Available'";
+	$types = "iiss";
+	$params = array($room_id, $user_id, $secret_key, $secret_key);
+	$result = dbResult_stmt($sql, $types, $params);
+	if($result){
+		echo "\nUpdated chat room secret key: $room_id\n";
+		$ack_message .= "SUCCESS";
+	}else{
+		echo "\nFailed to update chat room secret key: $room_id\n";
+		echo mysqli_error($result)."\n";
+		$ack_message .= "FAILED";
+	}
+	return $ack_message;
+}
+
+function GET_FORBIDDEN_SECRETS(){
+	$temp = func_get_arg(0);
+	echo "\nGetting users with forbidden secret keys...\n";
+	$ack_message = "GET_FORBIDDEN_SECRETS_REPLY,";
+
+	$temp = explode(',', $temp, 2); //user_id
+	$user_id = $temp[1];
+
+	$sql = "SELECT Chat_Room.room_id, user.user_id, user.public_key
+			FROM User, Participant, Chat_Room, RoomSecret
+			WHERE user.user_id = participant.user_id AND participant.user_id = RoomSecret.user_id AND participant.room_id = chat_room.room_id AND RoomSecret.status = 'Forbidden'
+				AND chat_room.room_id IN(
+					SELECT chat_room.room_id 
+					FROM Participant, Chat_Room
+					WHERE participant.room_id = chat_room.room_id AND participant.user_id = '$user_id' AND participant.role = 'Admin'
+					)";
+	$result = dbResult($sql);
+	if(mysqli_num_rows($result) > 0){
+		$temp = array();
+		while($row = mysqli_fetch_array($result)){
+			$temp[] = $row;
+		}
+		echo "\n Forbidden secret keys found\n";
+		$ack_message .= json_encode($temp);
+	}else{
+		echo "\nNo result\n";
+		$ack_message .= "NO_RESULT";
+	}
+	echo "\n".$ack_message;
+	return $ack_message;
+}
+*/
 //The following functions are
 //Done by 1st generation seniors
 //Will leave it here for future reference

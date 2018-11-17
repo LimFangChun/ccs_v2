@@ -108,6 +108,7 @@
         <activity
             android:name=".RemovePeopleFromChatActivity"
             android:parentActivityName=".RemovePeopleFromChatActivity" />
+        <activity android:name=".UpdateProfileActivity"></activity>
     </application>
 
 </manifest>

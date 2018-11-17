@@ -154,10 +154,12 @@ public class FriendListAdapter extends ArrayAdapter<Student> {
                         builder.show();
                     } else {
                         Chat_Room chat_room = new Chat_Room();
+
                         chat_room.setRoom_id(Integer.parseInt(helper.getReceivedResult()));
                         Student user1 = new Student();
                         user1.setUser_id(user.getUser_id());
                         RoomSecretHelper.sendRoomSecret(mContext.getApplicationContext(),user1, chat_room);
+                      
                         Intent intent = new Intent(getContext(), ChatRoomActivity.class);
                         intent.putExtra(Chat_Room.COL_ROOM_ID, Integer.parseInt(helper.getReceivedResult()));
                         intent.putExtra(Participant.COL_ROLE, "Admin");

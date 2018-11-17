@@ -120,7 +120,17 @@ public class ChatRoomActivity extends AppCompatActivity {
         chatRoom = new Chat_Room();
         chatRoom.setRole(getIntent().getStringExtra(Participant.COL_ROLE));
         chatRoom.setRoom_id(getIntent().getIntExtra(Chat_Room.COL_ROOM_ID, -1));
+
+        String secretKey = pref.getString(RoomSecretHelper.getRoomPrefKey(chatRoom.getRoom_id()), null);
+        if (secretKey == null){
+            chatViewRoom.getInputEditText().setEnabled(false);
+            chatViewRoom.getInputEditText().setHint("Initializing... please try again later.");
+            //Todo: request secret key for this chat room
+        }else{
+            chatRoom.setSecret_key(secretKey);
+        }
         topic = MqttHeader.SEND_ROOM_MESSAGE + "/room" + chatRoom.getRoom_id();
+      
         chatMqttHelper.connectSubscribe(this, topic);
         chatMqttHelper.getMqttClient().setCallback(chatRoomCallback);
         //chatRoom.setSecret_key(pref.getString(RoomSecretHelper.getRoomPrefKey(chatRoom.getRoom_id()),null).getBytes());

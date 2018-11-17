@@ -2,6 +2,7 @@ package my.edu.tarc.communechat_v2;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -129,6 +130,8 @@ public class RegisterUserActivity extends AppCompatActivity {
             alertDialog.setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
+                    Intent intent = new Intent(getApplicationContext(), UpdateProfileActivity.class);
+                    startActivity(intent);
                     finish();
                 }
             });

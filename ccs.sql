@@ -112,7 +112,8 @@ CREATE TABLE Chat_Room(
 CREATE TABLE Participant(
 	room_id 	int(10) NOT NULL,
 	user_id 	int(10) NOT NULL,
-	role 		varchar(20) NOT NULL DEFAULT 'Member',
+	role 		varchar(50) NOT NULL DEFAULT 'Member',
+	join_date 	datetime DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY (room_id, user_id),
 	FOREIGN KEY (room_id) REFERENCES Chat_Room(room_id),
 	FOREIGN KEY (user_id) REFERENCES User(user_id)
@@ -487,13 +488,13 @@ insert into Friendship (friend_id, user_id, status, sender_id) values (1, 54, 'F
 insert into Friendship (user_id, friend_id, status, date_created, sender_id) values (2, 1, 'Friend', '2018-10-01 14:59:01', 1);
 insert into Friendship (user_id, friend_id, status, date_created, sender_id) values (3, 1, 'Friend', '2018-10-01 11:12:01', 1);
 insert into Friendship (user_id, friend_id, status, date_created, sender_id) values (4, 1, 'Friend', '2018-10-01 14:59:01', 1);
-insert into Friendship (user_id, friend_id, sender_id) values (1, 5, 1);
+insert into Friendship (user_id, friend_id, status, sender_id) values (1, 5, 'Pending', 1);
 insert into Friendship (user_id, friend_id, sender_id) values (1, 8, 1);
-insert into Friendship (user_id, friend_id, sender_id) values (5, 1, 1);
+insert into Friendship (user_id, friend_id, status, sender_id) values (5, 1, 'Pending', 1);
 insert into Friendship (user_id, friend_id, sender_id) values (8, 1, 1);
-insert into Friendship (user_id, friend_id, sender_id) values (1, 9, 9);
+insert into Friendship (user_id, friend_id, status, sender_id) values (1, 9, 'Pending', 9);
 insert into Friendship (user_id, friend_id, sender_id) values (1, 11, 11);
-insert into Friendship (user_id, friend_id, sender_id) values (9, 1, 9);
+insert into Friendship (user_id, friend_id, status, sender_id) values (9, 1,'Pending', 9);
 insert into Friendship (user_id, friend_id, sender_id) values (11, 1, 11);
 
 -- Done by: Lim Fang Chun
@@ -512,16 +513,6 @@ insert into Participant (room_id, user_id, role) values (2, 2, 'Admin');
 insert into Participant (room_id, user_id, role) values (2, 3, 'Admin');
 insert into Participant (room_id, user_id, role) values (2, 4, 'Member');
 insert into Participant (room_id, user_id, role) values (2, 5, 'Member');
-
--- Done by: Lim Fang Chun
--- Message table records
--- Column: message_id(PK), message, sender_id, date_created, room_id, message_type
-insert into Message (message, sender_id, date_created, room_id) values ("Hello, this is first message from room 1", 1, '2018-09-29 15:59:01', 1);
-insert into Message (message, sender_id, date_created, room_id) values ("monkaS", 2, '2018-09-29 16:59:01', 1);
-insert into Message (message, sender_id, date_created, room_id) values ("ZULUL", 1, '2018-09-29 17:59:01', 1);
-insert into Message (message, sender_id, date_created, room_id) values ("4th messsage", 1, '2018-09-29 16:59:30', 2);
-insert into Message (message, sender_id, date_created, room_id) values ("Kappa", 3, '2018-09-29 16:59:01', 2);
-
 
 -- Setup necessary triggers
 -- drop the triggers first, like we drop table before creating

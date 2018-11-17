@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "19646872976",
+    "firebase_url": "https://communechatsystem.firebaseio.com",
+    "project_id": "communechatsystem",
+    "storage_bucket": "communechatsystem.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:19646872976:android:43ba6b331516fe4d",
+        "android_client_info": {
+          "package_name": "my.edu.tarc.communechat_v2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "19646872976-74gt0ah90bp9u1sp6va6nd1snmtc7pdm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "my.edu.tarc.communechat_v2",
+            "certificate_hash": "adce27c3442472ca2582b4b5e0f441e6f3615f48"
+          }
+        },
+        {
+          "client_id": "19646872976-3co4itd6jbuc11akjsd8ncjqukv4gimu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDLJlSfip-xkrRp3U1H7J7TCfF72DYK9lI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "19646872976-3co4itd6jbuc11akjsd8ncjqukv4gimu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

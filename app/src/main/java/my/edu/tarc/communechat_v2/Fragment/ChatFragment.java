@@ -27,9 +27,11 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import my.edu.tarc.communechat_v2.Adapter.ChatListAdapter;
+import my.edu.tarc.communechat_v2.Background.BackgroundService;
 import my.edu.tarc.communechat_v2.ChatRoomActivity;
 import my.edu.tarc.communechat_v2.R;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
+import my.edu.tarc.communechat_v2.internal.MqttHelper;
 import my.edu.tarc.communechat_v2.internal.RoomSecretHelper;
 import my.edu.tarc.communechat_v2.model.Chat_Room;
 import my.edu.tarc.communechat_v2.model.Participant;
@@ -43,6 +45,7 @@ public class ChatFragment extends Fragment {
     private ListView listViewChatList;
     private ProgressBar progressBarChat;
     private TextView textViewNoHistory;
+    private Bundle savedInstanceState;
 
     @Override
     public void onResume() {
@@ -54,6 +57,7 @@ public class ChatFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        this.savedInstanceState = savedInstanceState;
 
         View view = inflater.inflate(R.layout.fragment_chat, container, false);
 
@@ -67,6 +71,8 @@ public class ChatFragment extends Fragment {
         textViewNoHistory = view.findViewById(R.id.textView_chatFragment_Description);
 
         initializeListViewListener();
+
+
         return view;
     }
 
@@ -112,17 +118,18 @@ public class ChatFragment extends Fragment {
 
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception {
-                Log.d("ChatFragment", message.toString());
-                mqttHelper.decode(message.toString());
-                if (mqttHelper.getReceivedHeader().equals(MqttHeader.GET_CHAT_ROOM_REPLY)) {
-                    if (mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
+                MqttHelper helper = new MqttHelper();
+                helper.decode(message.toString());
+                if (helper.getReceivedHeader().equals(MqttHeader.GET_CHAT_ROOM_REPLY)) {
+                    if (helper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
                         //no result
                         textViewNoHistory.setVisibility(View.VISIBLE);
                     } else {
                         //received json array result
                         //process json array
                         try {
-                            JSONArray result = new JSONArray(mqttHelper.getReceivedResult());
+                            JSONArray result = new JSONArray(helper.getReceivedResult());
+                            int[] roomID = new int[result.length()];
 
                             ArrayList<Chat_Room> resultList = new ArrayList<>();
                             for (int i = 0; i <= result.length() - 1; i++) {
@@ -135,9 +142,14 @@ public class ChatFragment extends Fragment {
                                 room.setRole(temp.getString(Participant.COL_ROLE));
 
                                 resultList.add(room);
+                                roomID[i] = room.getRoom_id();
                             }
                             ChatListAdapter adapter = new ChatListAdapter(getContext(), R.layout.adapter_chat_list, resultList);
                             listViewChatList.setAdapter(adapter);
+
+//                            if (savedInstanceState == null) {
+//                                runBackgroundService(roomID);
+//                            }
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -152,6 +164,14 @@ public class ChatFragment extends Fragment {
 
             }
         });
+    }
+
+    private void runBackgroundService(int[] roomID) {
+        //todo this does not work properly
+        Log.d("ChatFragment", "running background service");
+        Intent intent = new Intent(getContext(), BackgroundService.class);
+        intent.putExtra(Chat_Room.COL_ROOM_ID, roomID);
+        getContext().startService(intent);
     }
 
     private void sleep(double second) {

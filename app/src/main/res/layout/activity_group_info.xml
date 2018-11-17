@@ -6,6 +6,34 @@
     android:layout_height="match_parent"
     tools:context=".GroupInfoActivity">
 
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:id="@+id/fab_choosePhoto"
+        app:srcCompat="@drawable/ic_attach_file_white_24dp"
+        android:background="@color/colorPrimary"
+        android:layout_margin="10dp" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/fab_choosePhoto"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:id="@+id/fab_upload"
+        app:srcCompat="@drawable/ic_cloud_upload_white_24dp"
+        android:background="@color/colorPrimary"
+        android:layout_margin="10dp" />
+
+    <ProgressBar
+        android:id="@+id/progressBar_upload"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_margin="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/fab_choosePhoto" />
+
     <ProgressBar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

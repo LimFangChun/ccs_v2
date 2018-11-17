@@ -124,10 +124,11 @@ public class AddPeopleAdapter extends ArrayAdapter<User> {
 
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception {
-                mqttHelper.decode(message.toString());
+                MqttHelper helper = new MqttHelper();
+                helper.decode(message.toString());
                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
-                if (mqttHelper.getReceivedHeader().equals(MqttHeader.ADD_PEOPLE_TO_GROUP_REPLY)) {
-                    if (mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
+                if (helper.getReceivedHeader().equals(MqttHeader.ADD_PEOPLE_TO_GROUP_REPLY)) {
+                    if (helper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
                         alertDialog.setTitle(R.string.failed);
                         alertDialog.setMessage("Failed to add " + user.getDisplay_name() + " to the group chat");
                     } else {

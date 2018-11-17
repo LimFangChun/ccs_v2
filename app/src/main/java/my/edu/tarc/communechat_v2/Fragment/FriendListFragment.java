@@ -32,6 +32,7 @@ import my.edu.tarc.communechat_v2.FriendRequestActivity;
 import my.edu.tarc.communechat_v2.ProfileActivity;
 import my.edu.tarc.communechat_v2.R;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
+import my.edu.tarc.communechat_v2.internal.MqttHelper;
 import my.edu.tarc.communechat_v2.model.Student;
 import my.edu.tarc.communechat_v2.model.User;
 
@@ -103,16 +104,17 @@ public class FriendListFragment extends Fragment {
 
         @Override
         public void messageArrived(String topic, MqttMessage message) throws Exception {
-            mqttHelper.decode(message.toString());
-            if (mqttHelper.getReceivedHeader().equals(MqttHeader.GET_FRIEND_LIST_REPLY)) {
-                if (mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
+            MqttHelper helper = new MqttHelper();
+            helper.decode(message.toString());
+            if (helper.getReceivedHeader().equals(MqttHeader.GET_FRIEND_LIST_REPLY)) {
+                if (helper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
                     ArrayList<String> result = new ArrayList<>();
                     result.add("Seems like you don't have any friend yet");
                     ArrayAdapter adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, result);
                     listViewFriendList.setAdapter(adapter);
                 } else {
                     try {
-                        JSONArray result = new JSONArray(mqttHelper.getReceivedResult());
+                        JSONArray result = new JSONArray(helper.getReceivedResult());
 
                         ArrayList<Student> resultList = new ArrayList<>();
                         for (int i = 0; i <= result.length() - 1; i++) {

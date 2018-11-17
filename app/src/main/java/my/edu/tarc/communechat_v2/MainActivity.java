@@ -9,6 +9,8 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
@@ -22,22 +24,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
-
-import java.util.UUID;
-
+import my.edu.tarc.communechat_v2.Background.BackgroundService;
 import my.edu.tarc.communechat_v2.Fragment.ChatFragment;
 import my.edu.tarc.communechat_v2.Fragment.FindFriendFragment;
 import my.edu.tarc.communechat_v2.Fragment.FriendListFragment;
 import my.edu.tarc.communechat_v2.Fragment.ProfileFragment;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
 import my.edu.tarc.communechat_v2.internal.MqttHelper;
-import my.edu.tarc.communechat_v2.internal.RoomSecretHelper;
-import my.edu.tarc.communechat_v2.model.RSA;
 import my.edu.tarc.communechat_v2.model.User;
 
 public class MainActivity extends AppCompatActivity {
@@ -92,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
         //if not ask user if they want to turn on
         runLocationService();
 
+
         updateUserStatus("Online");
 
         bottomNavigationView.setOnNavigationItemSelectedListener(bottomNavListener);
@@ -107,11 +102,10 @@ public class MainActivity extends AppCompatActivity {
 
         //check user login status
         //if not logged in, redirect user to login activity
-//        if (pref == null || pref.getInt(User.COL_USER_ID, -1) == -1) {
-//            startActivity(new Intent(MainActivity.this, LoginActivity.class));
-//        }
+        if (pref == null || pref.getInt(User.COL_USER_ID, -1) == -1) {
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+        }
 
-        //initializeEncryption();
         PreferenceManager.setDefaultValues(this, R.xml.settings, false);
     }
 
@@ -191,6 +185,9 @@ public class MainActivity extends AppCompatActivity {
 
         //disconnect mqtt helper
         mqttHelper.disconnect();
+
+        //stop the background service
+        this.stopService(new Intent(getApplicationContext(), BackgroundService.class));
     }
 
     @Override
@@ -198,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
     }
 
-	private void updateUserStatus(String status) {
+    private void updateUserStatus(String status) {
         if (pref.getInt(User.COL_USER_ID, -1) == -1) {
             return;
         }
@@ -263,10 +260,14 @@ public class MainActivity extends AppCompatActivity {
         reminder.setMessage(R.string.gps_not_found_desc1);
     }
 
-//    private void initializeEncryption(){
-//        //listen to incoming secret key
-//        if(pref.getInt(User.COL_USER_ID, -1) != -1) {
-//            RoomSecretHelper.listenIncomingSecrets(getApplicationContext(), pref.getInt(User.COL_USER_ID, -1));
-//        }
-//    }
+    private boolean isNetworkAvailable() {
+        //method to check internet connection
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = null;
+        if (connectivityManager != null) {
+            activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        }
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
 }

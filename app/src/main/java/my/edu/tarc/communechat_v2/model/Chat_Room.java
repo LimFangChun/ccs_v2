@@ -9,7 +9,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-
 @Entity(tableName = "Chat_Room")
 public class Chat_Room {
     //variables that define column name
@@ -20,6 +19,7 @@ public class Chat_Room {
     public static final String COL_LAST_UPDATE = "last_update";
     public static final String COL_TOPIC_ADDRESS = "topic_address";
     public static final String COL_SECRET_KEY = "secret_key";
+    public static final String COL_PHOTO_URL = "photo_url";
 
     //variables for encapsulation
     @PrimaryKey
@@ -45,6 +45,8 @@ public class Chat_Room {
     private String role;
 
     private String secret_key;
+
+    private String photoUrl;
 
     public Chat_Room(){
         date_created = Calendar.getInstance();
@@ -213,4 +215,11 @@ public class Chat_Room {
 		return aes.encrypt(msg);
 	}
 
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
+    }
 }

@@ -214,6 +214,7 @@
     <string name="get_participant_add_desc">Did not find any available friend to add into the group chat</string>
     <string name="remove_participant_from_chat_desc">Did not find any available participant in this chat group</string>
     <string name="failed_create_chat_room">Something went wrong. Please try again</string>
+    <string name="upload_group_photo_desc">Group photo has been uploaded</string>
     <string name="username">Username</string>
     <string name="display_name">Display name</string>
 </resources>

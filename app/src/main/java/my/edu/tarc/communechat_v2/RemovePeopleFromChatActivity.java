@@ -20,6 +20,7 @@ import java.util.ArrayList;
 
 import my.edu.tarc.communechat_v2.Adapter.RemovePeopleAdapter;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
+import my.edu.tarc.communechat_v2.internal.MqttHelper;
 import my.edu.tarc.communechat_v2.model.Chat_Room;
 import my.edu.tarc.communechat_v2.model.Participant;
 import my.edu.tarc.communechat_v2.model.User;
@@ -63,10 +64,11 @@ public class RemovePeopleFromChatActivity extends AppCompatActivity {
 
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception {
-                mqttHelper.decode(message.toString());
-                if (mqttHelper.getReceivedHeader().equals(MqttHeader.GET_PARTICIPANT_LIST_REMOVE_REPLY)) {
+                MqttHelper helper = new MqttHelper();
+                helper.decode(message.toString());
+                if (helper.getReceivedHeader().equals(MqttHeader.GET_PARTICIPANT_LIST_REMOVE_REPLY)) {
                     mqttHelper.unsubscribe(topic);
-                    if (mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
+                    if (helper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
                         AlertDialog.Builder builder = new AlertDialog.Builder(RemovePeopleFromChatActivity.this);
                         builder.setTitle(R.string.no_result);
                         builder.setMessage(R.string.remove_participant_from_chat_desc);
@@ -79,7 +81,7 @@ public class RemovePeopleFromChatActivity extends AppCompatActivity {
                         });
                         builder.show();
                     } else {
-                        processResult(mqttHelper.getReceivedResult());
+                        processResult(helper.getReceivedResult());
                     }
                 }
             }

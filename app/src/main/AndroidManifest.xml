@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:allowBackup="true"
@@ -33,6 +34,15 @@
             android:windowSoftInputMode="stateAlwaysVisible" />
 
         <service android:name="org.eclipse.paho.android.service.MqttService" />
+
+        <service
+            android:name=".Background.BackgroundService"
+            android:isolatedProcess="true"
+            android:stopWithTask="false">
+            <intent-filter>
+                <action android:name=".Background.BackgroundService" />
+            </intent-filter>
+        </service>
 
         <activity
             android:name=".RegisterUserActivity"
@@ -95,7 +105,9 @@
         <activity
             android:name=".AddPeopleToChatActivity"
             android:parentActivityName=".AddPeopleToChatActivity" />
-        <activity android:name=".RemovePeopleFromChatActivity" />
+        <activity
+            android:name=".RemovePeopleFromChatActivity"
+            android:parentActivityName=".RemovePeopleFromChatActivity" />
         <activity android:name=".UpdateProfileActivity"></activity>
     </application>
 

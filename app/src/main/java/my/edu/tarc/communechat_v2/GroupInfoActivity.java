@@ -2,8 +2,10 @@ package my.edu.tarc.communechat_v2;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
@@ -11,6 +13,8 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -38,6 +42,9 @@ public class GroupInfoActivity extends AppCompatActivity {
     private TextView textViewDateCreated;
     private ListView listViewParticipant;
     private CircleImageView imageViewGroupPicture;
+    private FloatingActionButton fabChoosePhoto;
+    private FloatingActionButton fabUpload;
+    private ProgressBar progressBarUpload;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,12 +65,18 @@ public class GroupInfoActivity extends AppCompatActivity {
         listViewParticipant = findViewById(R.id.listView_participantList);
         imageViewGroupPicture = findViewById(R.id.circleImage_groupPicture);
         imageViewGroupPicture.setVisibility(View.GONE);
+        fabChoosePhoto = findViewById(R.id.fab_choosePhoto);
+        fabUpload = findViewById(R.id.fab_upload);
+        fabUpload.setVisibility(View.GONE);
+        progressBarUpload = findViewById(R.id.progressBar_upload);
+        progressBarUpload.setVisibility(View.GONE);
 
         Chat_Room chatRoom = new Chat_Room();
         chatRoom.setRoom_id(getIntent().getIntExtra(Chat_Room.COL_ROOM_ID, -1));
 
         initializeGroupInfo(chatRoom);
         initializeListItemClickListener();
+        initializeFabClickListener(chatRoom);
     }
 
     private void initializeGroupInfo(Chat_Room chat_room) {
@@ -153,5 +166,44 @@ public class GroupInfoActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    private static final int SELECT_PICTURE_CODE = 1;
+    private Uri filepath;
+
+    private void initializeFabClickListener(final Chat_Room chatRoom) {
+        //todo test these
+        fabChoosePhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(intent, SELECT_PICTURE_CODE);
+            }
+        });
+
+        fabUpload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == SELECT_PICTURE_CODE && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            filepath = data.getData();
+            try {
+//                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filepath);
+//                imageViewGroupPicture.setImageBitmap(bitmap);
+                fabUpload.setVisibility(View.VISIBLE);
+                Picasso.get().load(data.getData()).into(imageViewGroupPicture);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

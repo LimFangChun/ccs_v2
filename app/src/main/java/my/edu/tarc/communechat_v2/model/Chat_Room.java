@@ -19,6 +19,7 @@ public class Chat_Room {
     public static final String COL_LAST_UPDATE = "last_update";
     public static final String COL_TOPIC_ADDRESS = "topic_address";
     public static final String COL_SECRET_KEY = "secret_key";
+    public static final String COL_PHOTO_URL = "photo_url";
 
     //variables for encapsulation
     @PrimaryKey
@@ -44,6 +45,8 @@ public class Chat_Room {
     private String role;
 
     private String secret_key;
+
+    private String photoUrl;
 
     public Chat_Room(){
         date_created = Calendar.getInstance();
@@ -212,4 +215,11 @@ public class Chat_Room {
 		return new String(aes.encrypt(msg));
 	}
 
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
+    }
 }

@@ -46,6 +46,7 @@ dependencies {
     //3rd party library
     //github: https://github.com/timigod/android-chat-ui
     implementation 'com.github.timigod:android-chat-ui:v0.1.4'
+    implementation 'com.github.shrikanth7698:ChatView:v0.1.2'
 
     //github: https://github.com/amulyakhare/TextDrawable/blob/master/README.md
     implementation 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'

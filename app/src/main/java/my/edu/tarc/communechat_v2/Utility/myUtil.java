@@ -1,5 +1,6 @@
 package my.edu.tarc.communechat_v2.Utility;
 
+import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -72,5 +73,9 @@ public final class myUtil {
 
     public static void makeToast(Context context, String content, int duration) {
         Toast.makeText(context, content, duration).show();
+    }
+
+    public static void makeToast(Context context, String content) {
+        Toast.makeText(context, content, Toast.LENGTH_LONG).show();
     }
 }

@@ -1,29 +1,4 @@
-var mysql = require('mysql');
-var mqtt = require('mqtt');
-var serverAddress = 'tcp://192.168.0.110:1883';
-var mqttClient = mqtt.connect(serverAddress);
-var DB_CONNECTION;
-
-mqttClient.on('connect', function () {
-    mqttClient.subscribe('/MY/TARUC/CCS/000000001/PUB/#');
-    console.log('================================================');
-    console.log('Node.js has connected to mqtt broker at ' + serverAddress);
-});
-
-
-DB_CONNECTION = mysql.createConnection({
-    host: "localhost",
-    user: "ccs_main",
-    password: "123456",
-    database: "ccs_master"
-});
-
-DB_CONNECTION.connect(function (err) {
-    if (err) throw err;
-    console.log("Connected to database");
-    console.log('================================================\n');
-});
-
+var connector = require("./NodeJS_Server.js");
 
 var FIND_BY_ADDRESS = function (topic, message) {
     console.log('Finding friend by address, city and state...');
@@ -162,7 +137,7 @@ ORDER BY
     executeQuery(sql, inserts, topic, output);
 }
 
-var FIND_BY_AGE = function(topic, message){
+var FIND_BY_AGE = function (topic, message) {
     console.log('Finding friends by age...');
     var output = "FIND_BY_AGE_REPLY,";
 
@@ -209,7 +184,7 @@ ORDER BY
 
 //source for formula to calculate distance between 2 longitude and latitude
 //https://gist.github.com/Usse/4086343
-var FIND_BY_LOCATION = function(topic, message){
+var FIND_BY_LOCATION = function (topic, message) {
     console.log('Finding friends by location and gps...');
     var output = "FIND_BY_LOCATION_REPLY,";
 
@@ -249,7 +224,55 @@ LIMIT 20`;
     executeQuery(sql, inserts, topic, output);
 }
 
-var UPDATE_LOCATION = function(topic, message){
+var ADVANCED_SEARCH = function (topic, message) {
+    console.log('Executing advanced saerch');
+    var output = "ADVANCED_SEARCH_REPLY,";
+
+    var receivedData = message.toString().substring(message.toString().indexOf(',') + 1);
+    var dataJson = JSON.parse(receivedData);
+    var user_id = dataJson['user_id'];
+    var tutorial_group = dataJson['tutorial_group'];
+    var year = dataJson['academic_year'];
+    var course = dataJson['course'];
+    var faculty = dataJson['faculty'];
+
+    //generate query
+    var sql = `SELECT
+    User.user_id, User.display_name, User.status, User.last_online, 
+    Student.course, Student.academic_year, Student.tutorial_group, last_latitude, last_longitude
+FROM Student INNER JOIN User ON User.user_id = Student.user_id 
+WHERE 
+    User.user_id <> ?`;
+
+    var inserts = [user_id];
+
+    //if not empty string
+    if (faculty.toString().trim()) {
+        sql += " AND faculty = ?";
+        inserts.push(faculty);
+    }
+
+    if (course.toString().trim()) {
+        sql += " AND course = ?";
+        inserts.push(course);
+    }
+
+    if (year.toString().trim()) {
+        sql += " AND academic_year = ?";
+        inserts.push(year);
+    }
+
+    if (tutorial_group.toString().trim()) {
+        sql += " AND tutorial_group = ?";
+        inserts.push(tutorial_group);
+    }
+
+    sql += " ORDER BY DATE(last_online) DESC, student_id";
+
+    executeQuery(sql, inserts, topic, output);
+}
+
+var UPDATE_LOCATION = function (topic, message) {
     console.log('Finding friends by location and gps...');
     var output = "FIND_BY_LOCATION_REPLY,";
 
@@ -263,7 +286,7 @@ var UPDATE_LOCATION = function(topic, message){
     //prevent sql injections
     var inserts = [longitude, latitude, user_id];
 
-    DB_CONNECTION.query(sql, inserts, function (err, result) {
+    connector.DB_CONNECTION.query(sql, inserts, function (err, result) {
         if (err) {
             console.log(err);
             output += "NO_RESULT";
@@ -277,7 +300,7 @@ var UPDATE_LOCATION = function(topic, message){
 }
 
 function executeQuery(sql, inserts, topic, output) {
-    DB_CONNECTION.query(sql, inserts, function (err, result) {
+    connector.DB_CONNECTION.query(sql, inserts, function (err, result) {
         if (err) {
             console.log(err);
             output += "NO_RESULT";
@@ -287,7 +310,8 @@ function executeQuery(sql, inserts, topic, output) {
         } else {
             output += "NO_RESULT";
         }
-        mqttClient.publish(topic, output);
+
+        connector.mqttClient.publish(topic, output);
     });
 }
 
@@ -298,5 +322,6 @@ module.exports = {
     FIND_BY_TUTORIAL_GROUP,
     FIND_BY_AGE,
     FIND_BY_LOCATION,
-    UPDATE_LOCATION
+    UPDATE_LOCATION,
+    ADVANCED_SEARCH
 }

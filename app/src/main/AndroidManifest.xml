@@ -108,7 +108,9 @@
         <activity
             android:name=".RemovePeopleFromChatActivity"
             android:parentActivityName=".RemovePeopleFromChatActivity" />
-        <activity android:name=".UpdateProfileActivity"></activity>
+        <activity
+            android:name=".AdvancedSearchActivity"
+            android:parentActivityName=".AdvancedSearchActivity" />
     </application>
 
 </manifest>

@@ -35,7 +35,7 @@ function GET_ROOM_MESSAGE($msg){
 	
 	$sql = "SELECT Message.*, User.display_name 
 			FROM Message INNER JOIN User ON Message.sender_id = User.user_id 
-			WHERE room_id = $room_id
+			WHERE room_id = $room_id 
 			ORDER BY date_created";
 				
 	$result = dbResult($sql);

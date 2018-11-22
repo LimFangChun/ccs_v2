@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -39,52 +41,23 @@ public class User {
     @PrimaryKey
     @ColumnInfo(name = "user_id")
     private int user_id;
-
-    @ColumnInfo(name = "username")
     private String username;
-
-    @ColumnInfo(name = "display_name")
     private String display_name;
-
-    @ColumnInfo(name = "password")
     private String password;
-
-    @ColumnInfo(name = "position")
     private String position;
-
-    @ColumnInfo(name = "gender")
     private String gender;
-
-    @ColumnInfo(name = "nric")
     private String nric;
-
-    @ColumnInfo(name = "phone_number")
     private String phone_number;
-
-    @ColumnInfo(name = "email")
     private String email;
-
-    @ColumnInfo(name = "address")
     private String address;
-
-    @ColumnInfo(name = "city_id")
     private String city_id;
-
-    @ColumnInfo(name = "status")
     private String status;
-
-    @ColumnInfo(name = "last_online")
     private Calendar last_online;
-
-    @ColumnInfo(name = "last_longitude")
     private double last_longitude;
-
-    @ColumnInfo(name = "last_latitude")
     private double last_latitude;
     private double distance;
-
-    @ColumnInfo(name = "public_key")
     private String public_key;
+    private byte[] profile_picture;
 
     public  User(){
         last_online = Calendar.getInstance();
@@ -290,5 +263,17 @@ public class User {
 
     public void setPublic_key(String public_key) {
         this.public_key = public_key;
+    }
+
+    public byte[] getProfile_picture() {
+        return profile_picture;
+    }
+
+    public void setProfile_picture(byte[] profile_picture) {
+        this.profile_picture = profile_picture;
+    }
+
+    public Bitmap getProfilePictureBitmap() {
+        return BitmapFactory.decodeByteArray(profile_picture, 0, profile_picture.length);
     }
 }

@@ -64,6 +64,8 @@ public final class MqttHeader {
     public static final String FIND_BY_LOCATION = "FIND_BY_LOCATION";
     public static final String FIND_BY_LOCATION_REPLY = "FIND_BY_LOCATION_REPLY";
     public static final String UPDATE_LOCATION = "UPDATE_LOCATION";
+    public static final String ADVANCED_SEARCH = "ADVANCED_SEARCH";
+    public static final String ADVANCED_SEARCH_REPLY = "ADVANCED_SEARCH_REPLY";
 
     //security, encryption module
     public static final String UPDATE_PUBLIC_KEY = "UPDATE_PUBLIC_KEY";

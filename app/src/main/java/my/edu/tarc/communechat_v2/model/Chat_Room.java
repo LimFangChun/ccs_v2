@@ -4,6 +4,8 @@ import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -46,7 +48,7 @@ public class Chat_Room {
 
     private String secret_key;
 
-    private String photoUrl;
+    private byte[] room_picture;
 
     public Chat_Room(){
         date_created = Calendar.getInstance();
@@ -215,11 +217,15 @@ public class Chat_Room {
 		return aes.encrypt(msg);
 	}
 
-    public String getPhotoUrl() {
-        return photoUrl;
+    public byte[] getRoom_picture() {
+        return room_picture;
     }
 
-    public void setPhotoUrl(String photoUrl) {
-        this.photoUrl = photoUrl;
+    public void setRoom_picture(byte[] room_picture) {
+        this.room_picture = room_picture;
+    }
+
+    public Bitmap getRoomPhotoBitmap() {
+        return BitmapFactory.decodeByteArray(room_picture, 0, room_picture.length);
     }
 }

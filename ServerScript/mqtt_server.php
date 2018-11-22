@@ -111,7 +111,7 @@ $client_id = "CCS_SERVER";
  */
  
 //$server = "broker.hivemq.com";     		// change to your broker's ip
-$server = "192.168.0.17";
+$server = "172.16.114.123";
 $port = 1883;                     		// change if necessary, default is 1883
 $username = "";                 // set your username
 $password = "";             // set your password
@@ -137,6 +137,36 @@ while($mqtt->proc()){
 }
 $mqtt->close();
 //->>>>>>>>>>>>>>>>>>>>>>--Do not modify--- END
+
+//MQTT publish message
+//DO NOT MODIFY, except ip address
+function publishMessage($topic, $ack_message){
+	$server = "172.16.114.123";     		// change if necessary
+	$port = 1883;                     		// change if necessary
+	$username = "";                 // set your username
+	$password = "";             // set your password
+	$client_id = "CCS_SERVER"; 
+	/* $server = "172.16.122.93";     		// change if necessary
+	$port = 1883;                     		// change if necessary
+	$username = "";                 // set your username
+	$password = "";             // set your password
+	$client_id = "CCS_SERVER";  */	// make sure this is unique for connecting to sever - you could use uniqid()
+
+	$QOS = 1;
+	$mqtt = new phpMQTT($server, $port, $client_id);
+	if(!$mqtt->connect(true, NULL, $username, $password)) {
+		exit(1);
+	}
+	$mqtt->publish($topic, $ack_message , $QOS);
+
+	echo "\nReturning to Topic :".$topic;
+			
+	if(strlen($ack_message) > 300){
+		$ack_message = substr($ack_message, 0, 300);
+		$ack_message .= "...";
+	}
+	echo "\nAckMessage: \"".$ack_message."\"" ." \n";
+}
 
 //Server Responses
 //add your new function to here
@@ -326,41 +356,6 @@ function dbResult_stmt($sql, $types, $params, $param_count){
 			// Close connection
 			mysqli_close($link);
 			}
-}
-//MQTT publish message
-//DO NOT MODIFY, except ip address
-function publishMessage($topic, $ack_message){
-	$server = "192.168.0.17";     		// change if necessary
-	$port = 1883;                     		// change if necessary
-	$username = "";                 // set your username
-	$password = "";             // set your password
-	$client_id = "CCS_SERVER"; 
-	/* $server = "172.16.122.93";     		// change if necessary
-	$port = 1883;                     		// change if necessary
-	$username = "";                 // set your username
-	$password = "";             // set your password
-	$client_id = "CCS_SERVER";  */				// make sure this is unique for connecting to sever - you could use uniqid()
-
-/* $server = "m14.cloudmqtt.com";     		// change if necessary
-$port = 16672;                     		// change if necessary
-$username = "vwkohpay";                 // set your username
-$password = "JPG3F4XUHjRv";             // set your password
-$client_id = "SERVER_1"; 				// make sure this is unique for connecting to sever - you could use uniqid()
- */
-	$QOS = 1;
-	$mqtt = new phpMQTT($server, $port, $client_id);
-	if(!$mqtt->connect(true, NULL, $username, $password)) {
-		exit(1);
-	}
-	$mqtt->publish($topic, $ack_message , $QOS);
-
-	echo "\nReturning to Topic :".$topic;
-			
-	if(strlen($ack_message) > 300){
-		$ack_message = substr($ack_message, 0, 300);
-		$ack_message .= "...";
-	}
-	echo "\nAckMessage: \"".$ack_message."\"" ." \n";
 }
 
 //------Server functions------

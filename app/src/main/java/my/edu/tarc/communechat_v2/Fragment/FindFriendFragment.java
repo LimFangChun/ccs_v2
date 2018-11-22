@@ -20,6 +20,7 @@ import android.widget.ListView;
 import java.util.ArrayList;
 
 import my.edu.tarc.communechat_v2.Adapter.FindFriendAdapter;
+import my.edu.tarc.communechat_v2.AdvancedSearchActivity;
 import my.edu.tarc.communechat_v2.FindFriendResult;
 import my.edu.tarc.communechat_v2.R;
 import my.edu.tarc.communechat_v2.model.FindFriendAdapterClass;
@@ -51,6 +52,9 @@ public class FindFriendFragment extends Fragment {
         list.add(new FindFriendAdapterClass(6,
                 getString(R.string.suggest_friend),
                 getString(R.string.suggest_friend_desc)));
+        list.add(new FindFriendAdapterClass(7,
+                getString(R.string.advanced_search),
+                getString(R.string.advanced_search_desc)));
 
         FindFriendAdapter adapter = new FindFriendAdapter(getActivity(), R.layout.adapter_find_friend, list);
         ListView listViewFind = (ListView) view.findViewById(R.id.listView_find_method);
@@ -88,6 +92,10 @@ public class FindFriendFragment extends Fragment {
                     intent.putExtra("Type", i);
                     startActivity(intent);
                 }
+            } else if (i == 6) {
+                Intent intent = new Intent(getActivity(), AdvancedSearchActivity.class);
+                intent.putExtra("Type", i);
+                startActivity(intent);
             } else {
                 Intent intent = new Intent(getActivity(), FindFriendResult.class);
                 intent.putExtra("Type", i);

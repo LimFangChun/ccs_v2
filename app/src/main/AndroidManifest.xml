@@ -34,7 +34,6 @@
             android:windowSoftInputMode="stateAlwaysVisible" />
 
         <service android:name="org.eclipse.paho.android.service.MqttService" />
-
         <service
             android:name=".Background.BackgroundService"
             android:isolatedProcess="true"
@@ -108,6 +107,9 @@
         <activity
             android:name=".RemovePeopleFromChatActivity"
             android:parentActivityName=".RemovePeopleFromChatActivity" />
+        <activity
+            android:name=".AdvancedSearchActivity"
+            android:parentActivityName=".AdvancedSearchActivity" />
     </application>
 
 </manifest>

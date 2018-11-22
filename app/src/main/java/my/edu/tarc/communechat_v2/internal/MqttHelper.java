@@ -14,6 +14,8 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.ref.WeakReference;
+
 import my.edu.tarc.communechat_v2.model.Chat_Room;
 import my.edu.tarc.communechat_v2.model.Friendship;
 import my.edu.tarc.communechat_v2.model.Message;
@@ -37,7 +39,7 @@ public class MqttHelper {
     private String receivedResult;
 
     //change MQTT broker IP address here
-    private static final String serverUri = "tcp://172.16.142.148:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
+    private static final String serverUri = "tcp://172.16.114.123:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
 
     //private static final String serverUri = "tcp://broker.hivemq.com:1883";
     //private static String mqttUsername = "";
@@ -58,8 +60,10 @@ public class MqttHelper {
         mqttConnectOptions.setPassword(mqttPassword.toCharArray());
     }
 
-    public void connect(Context context) {
+    public void connect(Context temp_context) {
         if (mqttAndroidClient == null || !mqttAndroidClient.isConnected()) {
+            WeakReference<Context> weakReference = new WeakReference<>(temp_context);
+            Context context = weakReference.get();
             mqttAndroidClient = new MqttAndroidClient(context, serverUri, clientId);
             try {
                 IMqttToken token = mqttAndroidClient.connect();
@@ -81,9 +85,10 @@ public class MqttHelper {
         }
     }
 
-    public void connectPublishSubscribe(Context context, final String topic, final String header, final Object data) {
+    public void connectPublishSubscribe(Context temp_context, final String topic, final String header, final Object data) {
         if (mqttAndroidClient == null || !mqttAndroidClient.isConnected()) {
-
+            WeakReference<Context> weakReference = new WeakReference<>(temp_context);
+            Context context = weakReference.get();
             mqttAndroidClient = new MqttAndroidClient(context, serverUri, clientId);
             try {
                 IMqttToken token = mqttAndroidClient.connect();
@@ -108,9 +113,10 @@ public class MqttHelper {
         }
     }
 
-    public void connectPublish(Context context, final String topic, final String header, final Object data) {
+    public void connectPublish(Context temp_context, final String topic, final String header, final Object data) {
         if (mqttAndroidClient == null || !mqttAndroidClient.isConnected()) {
-
+            WeakReference<Context> weakReference = new WeakReference<>(temp_context);
+            Context context = weakReference.get();
             mqttAndroidClient = new MqttAndroidClient(context, serverUri, clientId);
             try {
                 IMqttToken token = mqttAndroidClient.connect();
@@ -133,9 +139,10 @@ public class MqttHelper {
         }
     }
 
-    public void connectSubscribe(Context context, final String topic) {
+    public void connectSubscribe(Context temp_context, final String topic) {
         if (mqttAndroidClient == null || !mqttAndroidClient.isConnected()) {
-
+            WeakReference<Context> weakReference = new WeakReference<>(temp_context);
+            Context context = weakReference.get();
             mqttAndroidClient = new MqttAndroidClient(context, serverUri, clientId);
             try {
                 IMqttToken token = mqttAndroidClient.connect();
@@ -268,7 +275,7 @@ public class MqttHelper {
     //later at server side will be using split method to decode message
     private String encode(String header, Object data) {
         StringBuilder temp = new StringBuilder();
-        String result = null;
+        String result = "";
         switch (header) {
             case MqttHeader.LOGIN: {
                 User loginUser = (User) data;
@@ -495,6 +502,36 @@ public class MqttHelper {
                 result = temp.toString();
                 break;
             }
+            case MqttHeader.ADVANCED_SEARCH: {
+                Student student = (Student) data;
+                JSONObject searchCriteria = new JSONObject();
+                try {
+                    searchCriteria.put(User.COL_USER_ID, String.valueOf(student.getUser_id()));
+                    searchCriteria.put(Student.COL_FACULTY, student.getFaculty());
+                    searchCriteria.put(Student.COL_COURSE, student.getCourse());
+
+                    if (student.getAcademic_year() == -1) {
+                        searchCriteria.put(Student.COL_ACADEMIC_YEAR, "");
+                    } else {
+                        searchCriteria.put(Student.COL_ACADEMIC_YEAR, String.valueOf(student.getAcademic_year()));
+                    }
+
+                    if (student.getTutorial_group() == -1) {
+                        searchCriteria.put(Student.COL_TUTORIAL_GROUP, "");
+                    } else {
+                        searchCriteria.put(Student.COL_TUTORIAL_GROUP, String.valueOf(student.getTutorial_group()));
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                temp.append(MqttHeader.ADVANCED_SEARCH)
+                        .append(",")
+                        .append(searchCriteria.toString());
+                result = temp.toString();
+                break;
+            }
             case MqttHeader.UPDATE_LOCATION: {
                 User user = (User) data;
                 temp.append(MqttHeader.UPDATE_LOCATION)
@@ -565,8 +602,8 @@ public class MqttHelper {
                 result = temp.toString();
                 break;
             }
-            case MqttHeader.CHATROOM_SECRET:{
-                Chat_Room chat_room = (Chat_Room)data;
+            case MqttHeader.CHATROOM_SECRET: {
+                Chat_Room chat_room = (Chat_Room) data;
                 JSONObject messageJSON = new JSONObject();
                 try {
                     messageJSON.put(Chat_Room.COL_ROOM_ID, String.valueOf(chat_room.getRoom_id()));
@@ -580,12 +617,12 @@ public class MqttHelper {
                 result = temp.toString();
                 break;
             }
-            case MqttHeader.GET_USER_PROFILE:{
-                User user = (User)data;
+            case MqttHeader.GET_USER_PROFILE: {
+                User user = (User) data;
                 temp.append(MqttHeader.GET_USER_PROFILE)
                         .append(",")
                         .append(user.getUser_id());
-                result=temp.toString();
+                result = temp.toString();
                 break;
             }
         }

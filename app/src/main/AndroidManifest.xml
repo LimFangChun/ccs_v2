@@ -34,6 +34,7 @@
             android:windowSoftInputMode="stateAlwaysVisible" />
 
         <service android:name="org.eclipse.paho.android.service.MqttService" />
+
         <service
             android:name=".Background.BackgroundService"
             android:isolatedProcess="true"

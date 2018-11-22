@@ -69,14 +69,22 @@ public final class MqttHeader {
 
     //security, encryption module
     public static final String UPDATE_PUBLIC_KEY = "UPDATE_PUBLIC_KEY";
-    public static final String UPDATE_PUBLIC_KEY_REPLY = "UPDATE_PUBLIC_KEY_REPLY";
     public static final String GET_PUBLIC_KEY = "GET_PUBLIC_KEY";
+    public static final String GET_PUBLIC_KEY_ROOM = "GET_PUBLIC_KEY_ROOM";
     public static final String GET_PUBLIC_KEY_REPLY = "GET_PUBLIC_KEY_REPLY";
-    public static final String CHATROOM_SECRET = "CHATROOM_SECRET";
+    public static final String SET_CHATROOM_SECRET = "SET_CHATROOM_SECRET";
+    public static final String SEND_CHATROOM_SECRET = "SEND_CHATROOM_SECRET";
+    public static final String GET_CHATROOM_SECRET = "GET_CHATROOM_SECRET";
+    public static final String GET_CHATROOM_SECRET_ALL = "GET_CHATROOM_SECRET_ALL";
+    public static final String GET_CHATROOM_SECRET_ALL_REPLY = "GET_CHATROOM_SECRET_ALL_REPLY";
+    public static final String GET_CHATROOM_SECRET_REPLY = "GET_CHATROOM_SECRET_REPLY";
+    public static final String GET_FORBIDDEN_SECRETS = "GET_FORBIDDEN_SECRETS";
+    public static final String GET_FORBIDDEN_SECRETS_REPLY = "GET_FORBIDDEN_SECRETS_REPLY";
 
     //profile module
     public static final String GET_USER_PROFILE = "GET_USER_PROFILE";
     public static final String GET_USER_PROFILE_REPLY = "GET_USER_PROFILE_REPLY";
+    public static final String SET_USER_PROFILE = "SET_USER_PROFILE";
     //TODO remove this
 //    public static final String CHAT_ROOM = "CHAT_ROOM";
 //    public static final String RECEIVE_MESSAGE = "RECEIVE_MESSAGE";

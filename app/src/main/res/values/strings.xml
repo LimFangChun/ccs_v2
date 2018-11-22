@@ -56,7 +56,7 @@
     <string name="try_again_username">The username already existed. Please try another one</string>
     <string name="failed">Failed</string>
     <string name="failed_register">Failed to register an account</string>
-    <string name="register_success">Successfully registered an account. Please try to login with your new account</string>
+    <string name="register_success">Successfully registered an account. Please proceed to configure your proifle and try to login with your new account</string>
     <string name="success">Success</string>
     <string name="find_friend">Find friend</string>
     <string name="friend_list">Friend list</string>
@@ -229,4 +229,6 @@
     <string name="year">Year</string>
     <string name="advanced_search_empty_criteria_desc">Please select at least one criteria before proceeding to next step</string>
     <string name="advanced_search_title">Select at least one criteria</string>
+    <string name="username">Username</string>
+    <string name="display_name">Display name</string>
 </resources>

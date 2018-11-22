@@ -1,6 +1,7 @@
 package my.edu.tarc.communechat_v2.model;
 
 import android.util.Base64;
+import android.util.Log;
 
 import java.security.SecureRandom;
 

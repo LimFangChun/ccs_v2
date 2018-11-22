@@ -209,12 +209,12 @@ public class Chat_Room {
 
 	public String decryptMessage(String msg){
 		AdvancedEncryptionStandard aes = new AdvancedEncryptionStandard(secret_key);
-		return new String(aes.decrypt(msg));
+		return aes.decrypt(msg);
 	}
 
 	public String encryptMessage(String msg){
 		AdvancedEncryptionStandard aes = new AdvancedEncryptionStandard(secret_key);
-		return new String(aes.encrypt(msg));
+		return aes.encrypt(msg);
 	}
 
     public byte[] getRoom_picture() {

@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
@@ -23,7 +24,14 @@ import my.edu.tarc.communechat_v2.model.User;
 
 public class UpdateProfileActivity extends AppCompatActivity {
 	SharedPreferences pref;
+	CardView cardViewChangePassword;
+	EditText editTextDisplayName;
+	RadioGroup radioGroupPosition;
+	RadioGroup radioGroupGender;
 	EditText editTextDob;
+	EditText editTextPhone;
+	EditText editTextEmail;
+
 	Calendar calendar;
 	Button buttonNext;
 

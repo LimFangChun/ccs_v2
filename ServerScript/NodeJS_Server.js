@@ -149,7 +149,7 @@ function SEND_ROOM_MESSAGE(topic, message) {
     var receivedData = message.toString().substring(message.toString().indexOf(',') + 1);
     var messageJSON = JSON.parse(receivedData);
 
-    var sql = `INSERT INTO Message (message, sender_id, room_id, message_type, media)
+    var sql = `INSERT INTO Message (message, sender_id, room_id, message_type, media) 
                         VALUES (?, ?, ?, ?, ?)`;
     var input = [messageJSON['message'], messageJSON['sender_id'], messageJSON['room_id'], messageJSON['message_type'], messageJSON['media']];
 

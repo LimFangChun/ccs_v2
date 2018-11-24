@@ -109,6 +109,7 @@ public class FindFriendResult extends AppCompatActivity {
                 break;
             case 6:
                 header = MqttHeader.ADVANCED_SEARCH;
+                setTitle("Advanced search");
                 advancedSearch(publishTopic, header);
                 return;
         }
@@ -207,28 +208,28 @@ public class FindFriendResult extends AppCompatActivity {
         //heading
         String tempHeading = "Finding friends with the following criteria: \n";
 
-        if (!Objects.equals(faculty, "")) {
+        if (course.isEmpty() || !Objects.equals(faculty, "")) {
             tempHeading += "Faculty: " + faculty + "\n";
         } else {
             tempHeading += "Faculty: All\n";
         }
 
-        if (!Objects.equals(course, "")) {
+        if (course.isEmpty() || !Objects.equals(course, "")) {
             tempHeading += "Course: " + course + "\n";
         } else {
             tempHeading += "Course: All\n";
         }
 
-        if (!Objects.equals(year, "")) {
+        if (year.isEmpty() || !Objects.equals(year, "-1")) {
             tempHeading += "Academic year: " + year + "\n";
         } else {
             tempHeading += "Academic year: All\n";
         }
 
-        if (!Objects.equals(tutorialGroup, "")) {
+        if (tutorialGroup.isEmpty() || !Objects.equals(tutorialGroup, "-1")) {
             tempHeading += "Tutorial group: " + tutorialGroup + "\n";
         } else {
-            tempHeading += "Tutorial group: All\n";
+            tempHeading += "Tutorial group: All";
         }
 
         textViewHeading.setText(tempHeading);

@@ -1,8 +1,5 @@
 package my.edu.tarc.communechat_v2;
 
-import android.app.Activity;
-import android.arch.persistence.room.Room;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -13,7 +10,7 @@ import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -25,7 +22,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -40,16 +36,10 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import co.intentservice.chatui.ChatView;
-import co.intentservice.chatui.models.ChatMessage;
-import my.edu.tarc.communechat_v2.LocalDatabase.AppDatabase;
-import my.edu.tarc.communechat_v2.LocalDatabase.MessageDao;
 import my.edu.tarc.communechat_v2.Utility.myUtil;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
 import my.edu.tarc.communechat_v2.internal.MqttHelper;
@@ -62,18 +52,9 @@ import my.edu.tarc.communechat_v2.model.User;
 import static my.edu.tarc.communechat_v2.MainActivity.mqttHelper;
 
 public class ChatRoomActivity extends AppCompatActivity {
-
-    //READ ME before you start modifying this class
-    //this chat engine was done using an amazing 3rd party library
-    //source: https://github.com/timigod/android-chat-ui
-    //this man has done most of the complex UI job
-    //and we only need to setup the send and receive message process
-    //and put in data into the ChatMessage class
-
     private static final String TAG = "ChatRoomActivity";
 
     private SharedPreferences pref;
-    private ChatView chatViewRoom;
     private ProgressBar progressBarChatRoom;
     private Chat_Room chatRoom;
     private MqttHelper chatMqttHelper;
@@ -128,7 +109,6 @@ public class ChatRoomActivity extends AppCompatActivity {
 
         chatView();
 
-
         chatMqttHelper = new MqttHelper();
 
         assert getSupportActionBar() != null;
@@ -136,7 +116,6 @@ public class ChatRoomActivity extends AppCompatActivity {
 
         //init views
         pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        chatViewRoom = findViewById(R.id.chatView_room);
         progressBarChatRoom = findViewById(R.id.progressBar_chatRoom);
 
         chatRoom = new Chat_Room();
@@ -145,8 +124,8 @@ public class ChatRoomActivity extends AppCompatActivity {
 
         String secretKey = pref.getString(RoomSecretHelper.getRoomPrefKey(chatRoom.getRoom_id()), null);
         if (secretKey == null) {
-            chatViewRoom.getInputEditText().setEnabled(false);
-            chatViewRoom.getInputEditText().setHint("Initializing... please try again later.");
+            //chatViewRoom.getInputEditText().setEnabled(false);
+            //chatViewRoom.getInputEditText().setHint("Initializing... please try again later.");
             //Todo: request secret key for this chat room
         } else {
             chatRoom.setSecret_key(secretKey);
@@ -163,39 +142,39 @@ public class ChatRoomActivity extends AppCompatActivity {
             //initializeLocalChatRoom();
         }
 
-        chatViewRoom.setOnSentMessageListener(new ChatView.OnSentMessageListener() {
-            @Override
-            public boolean sendMessage(ChatMessage chatMessage) {
-                if (chatViewRoom.getTypedMessage().isEmpty()) {
-                    return false;
-                }
-
-                Calendar calendar = Calendar.getInstance();
-                String header = MqttHeader.SEND_ROOM_MESSAGE;
-                //String topic = header + "/room" + chatRoom.getRoom_id();
-                Message message = new Message();
-                message.setSender_id(pref.getInt(User.COL_USER_ID, -1));
-                message.setDate_created(calendar);
-                //message.setMessage(chatRoom.encryptMessage(chatViewRoom.getTypedMessage()));
-                message.setMessage(chatViewRoom.getTypedMessage());
-                message.setRoom_id(chatRoom.getRoom_id());
-                message.setMessage_type("Text");
-                message.setSender_name(pref.getString(User.COL_DISPLAY_NAME, ""));
-
-                chatViewRoom.addMessage(new ChatMessage(
-                        chatViewRoom.getTypedMessage(),
-                        calendar.getTimeInMillis(),
-                        ChatMessage.Type.SENT,
-                        ""
-                ));
-                chatMqttHelper.publish(topic, header, message);
-                chatViewRoom.getInputEditText().setText("");
-
-                //make sure to return false
-                //return true the chat view will update automatically
-                return false;
-            }
-        });
+//        chatViewRoom.setOnSentMessageListener(new ChatView.OnSentMessageListener() {
+//            @Override
+//            public boolean sendMessage(ChatMessage chatMessage) {
+//                if (chatViewRoom.getTypedMessage().isEmpty()) {
+//                    return false;
+//                }
+//
+//                Calendar calendar = Calendar.getInstance();
+//                String header = MqttHeader.SEND_ROOM_MESSAGE;
+//                //String topic = header + "/room" + chatRoom.getRoom_id();
+//                Message message = new Message();
+//                message.setSender_id(pref.getInt(User.COL_USER_ID, -1));
+//                message.setDate_created(calendar);
+//                //message.setMessage(chatRoom.encryptMessage(chatViewRoom.getTypedMessage()));
+//                message.setMessage(chatViewRoom.getTypedMessage());
+//                message.setRoom_id(chatRoom.getRoom_id());
+//                message.setMessage_type("Text");
+//                message.setSender_name(pref.getString(User.COL_DISPLAY_NAME, ""));
+//
+//                chatViewRoom.addMessage(new ChatMessage(
+//                        chatViewRoom.getTypedMessage(),
+//                        calendar.getTimeInMillis(),
+//                        ChatMessage.Type.SENT,
+//                        ""
+//                ));
+//                chatMqttHelper.publish(topic, header, message);
+//                chatViewRoom.getInputEditText().setText("");
+//
+//                //make sure to return false
+//                //return true the chat view will update automatically
+//                return false;
+//            }
+//        });
     }
 
     private MqttCallback chatRoomCallback = new MqttCallback() {
@@ -228,12 +207,12 @@ public class ChatRoomActivity extends AppCompatActivity {
                 received_message.setSender_name(result.getString(Message.COL_SENDER_NAME));
                 received_message.setMedia(result.getString(Message.COL_MEDIA).getBytes());
 
-                chatViewRoom.addMessage(new ChatMessage(
-                        received_message.getMessage(),
-                        received_message.getDate_created().getTimeInMillis(),
-                        ChatMessage.Type.RECEIVED,
-                        received_message.getSender_name()
-                ));
+//                chatViewRoom.addMessage(new ChatMessage(
+//                        received_message.getMessage(),
+//                        received_message.getDate_created().getTimeInMillis(),
+//                        ChatMessage.Type.RECEIVED,
+//                        received_message.getSender_name()
+//                ));
 
                 //make a short vibration or sound
                 //depend on user's mode
@@ -242,7 +221,6 @@ public class ChatRoomActivity extends AppCompatActivity {
 
                 Log.d("CCC0", "Entered Result");
                 addMessage(pref.getInt(User.COL_USER_ID, -1) == received_message.getSender_id(), received_message.getSender_name(), received_message.getDate_created().getTime().toString(), received_message.getMessage_type(), received_message.getMessage(), received_message.getMedia());
-
 
 
                 //chatView.addMessage();
@@ -293,7 +271,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                 if (!helper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
                     try {
                         JSONArray result = new JSONArray(helper.getReceivedResult());
-                        ArrayList<ChatMessage> messages = new ArrayList<>();
+                        //ArrayList<ChatMessage> messages = new ArrayList<>();
 
                         for (int i = 0; i <= result.length() - 1; i++) {
                             JSONObject temp = result.getJSONObject(i);
@@ -301,23 +279,23 @@ public class ChatRoomActivity extends AppCompatActivity {
                             room_message.setDate_created(temp.getString(Message.COL_DATE_CREATED));
                             room_message.setSender_id(temp.getInt(Message.COL_SENDER_ID));
 
-                            ChatMessage chatMessage = new ChatMessage(
+                            //ChatMessage chatMessage = new ChatMessage(
                                     //chatRoom.decryptMessage(temp.getString(Message.COL_MESSAGE)), //message content
-                                    temp.getString(Message.COL_MESSAGE), //message content
-                                    room_message.getDate_created().getTimeInMillis(), //date
-                                    pref.getInt(User.COL_USER_ID, -1) == room_message.getSender_id()
-                                            ? ChatMessage.Type.SENT //if user id in pref == sender id, then is sender
-                                            : ChatMessage.Type.RECEIVED, //else is receiver
-                                    pref.getString(User.COL_DISPLAY_NAME, "").equals(temp.getString(User.COL_DISPLAY_NAME))
-                                            ? ""
-                                            : temp.getString(User.COL_DISPLAY_NAME)//sender name
-                            );
-                            messages.add(chatMessage);
+                            temp.getString(Message.COL_MESSAGE); //message content
+//                                    room_message.getDate_created().getTimeInMillis(), //date
+//                                    pref.getInt(User.COL_USER_ID, -1) == room_message.getSender_id()
+//                                            ? ChatMessage.Type.SENT //if user id in pref == sender id, then is sender
+//                                            : ChatMessage.Type.RECEIVED, //else is receiver
+//                                    pref.getString(User.COL_DISPLAY_NAME, "").equals(temp.getString(User.COL_DISPLAY_NAME))
+//                                            ? ""
+//                                            : temp.getString(User.COL_DISPLAY_NAME)//sender name
+//                            );
+//                            messages.add(chatMessage);
 
                             if (!temp.getString(Message.COL_MESSAGE_TYPE).equals("Text")) {
                                 byte[] z2 = Base64.decode(temp.getString(Message.COL_MEDIA), 0);
                             }
-                            Log.d("CCC", "NONON");
+
                             Log.d("CCC", "Checker " + temp.getString(Message.COL_MEDIA).getBytes().length);
                             byte[] media = Base64.decode(temp.getString(Message.COL_MEDIA), 0);
                             //imageView.setImageBitmap(BitmapFactory.decodeByteArray(z, 0, z.length));
@@ -327,7 +305,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                             addMessage(pref.getInt(User.COL_USER_ID, -1) == room_message.getSender_id(), temp.getString(User.COL_DISPLAY_NAME), room_message.getDate_created().getTime().toString(), temp.getString(Message.COL_MESSAGE_TYPE), temp.getString(Message.COL_MESSAGE), media);
 
                         }
-                        chatViewRoom.addMessages(messages);
+//                        chatViewRoom.addMessages(messages);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -442,87 +420,15 @@ public class ChatRoomActivity extends AppCompatActivity {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    private void initializeLocalChatRoom() {
-        //todo in future
-        //this method does work properly
-        //but you need to find a way to store message locally first before loading it
-        //current known issues:
-        //  1. if user left or kicked out the chat room, how to update the local database
-        //  and delete all the relevant data
-        //  2. if someone in the chat room changed or deleted message,
-        //  how to update the local database as well
-        //  3. Synchronization issues
-        LocalChatRoomAsync loadLocal = new LocalChatRoomAsync(this, chatViewRoom, chatRoom.getRoom_id());
-        loadLocal.execute();
-    }
-
-    private static class LocalChatRoomAsync extends AsyncTask<Void, Void, List<Message>> {
-
-        private WeakReference<Activity> activity;
-        private int roomID;
-        private AppDatabase appDatabase;
-        private WeakReference<ChatView> chatView;
-        private SharedPreferences pref;
-        private ProgressBar progressBar;
-
-        LocalChatRoomAsync(Activity activity, ChatView chatView, int roomID) {
-            this.activity = new WeakReference<>(activity);
-            this.chatView = new WeakReference<>(chatView);
-            this.roomID = roomID;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            appDatabase = Room.databaseBuilder(activity.get().getApplicationContext(), AppDatabase.class, "CCS").build();
-            pref = PreferenceManager.getDefaultSharedPreferences(activity.get().getApplicationContext());
-            progressBar = this.activity.get().findViewById(R.id.progressBar_chatRoom);
-            progressBar.setVisibility(View.VISIBLE);
-            Log.d(TAG, "onPreExecute: init local");
-        }
-
-        @Override
-        protected List<Message> doInBackground(Void... voids) {
-            MessageDao messageDao = appDatabase.messageDao();
-            return messageDao.getMessageByRoomID(roomID);
-        }
-
-        @Override
-        protected void onPostExecute(List<Message> messages) {
-            ArrayList<ChatMessage> resultList = new ArrayList<>();
-            for (Message result : messages) {
-                Message received_message = new Message();
-                received_message.setSender_id(result.getSender_id());
-                received_message.setMessage(result.getMessage());
-                received_message.setDate_created(result.getDate_created());
-                received_message.setMessage_type(result.getMessage_type());
-                received_message.setRoom_id(result.getRoom_id());
-                received_message.setSender_name(result.getSender_name());
-
-                ChatMessage chatMessage = new ChatMessage(
-                        received_message.getMessage(), //message content
-                        received_message.getDate_created().getTimeInMillis(), //date
-                        pref.getInt(User.COL_USER_ID, -1) == received_message.getSender_id()
-                                ? ChatMessage.Type.SENT //if user id in pref == sender id, then is sender
-                                : ChatMessage.Type.RECEIVED, //else is receiver
-                        pref.getString(User.COL_DISPLAY_NAME, "").equals(received_message.getSender_name())
-                                ? ""
-                                : received_message.getSender_name() //sender name
-                );
-                resultList.add(chatMessage);
-                Log.d(TAG, "onPostExecute: " + received_message.getMessage());
-            }
-            Log.d(TAG, "onPostExecute: resultList size:" + resultList.size());
-            chatView.get().addMessages(resultList);
-            progressBar.setVisibility(View.GONE);
-        }
-    }
-
     private void chatView() {
 
         ImageLoader imageLoader = ImageLoader.getInstance();
         imageLoader.init(ImageLoaderConfiguration.createDefault(this));
 
         chatView = findViewById(R.id.chatView);
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
+            chatView.showSenderLayout(false);
 
         chatView.setOnClickSendButtonListener(new com.shrikanthravi.chatview.widget.ChatView.OnClickSendButtonListener() {
             @Override
@@ -550,10 +456,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                     message1.setBody(s);
                     message1.setType(com.shrikanthravi.chatview.data.Message.RightSimpleMessage);
                     chatView.addMessage(message1);
-
                 }
-
-
             }
         });
 
@@ -578,7 +481,7 @@ public class ChatRoomActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
+        if (resultCode == RESULT_OK && data != null) {
             Bitmap bitmap;
             switch (requestCode) {
                 case REQUEST_CAMERA:

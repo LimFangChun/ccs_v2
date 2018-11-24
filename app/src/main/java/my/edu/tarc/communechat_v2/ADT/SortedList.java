@@ -158,7 +158,7 @@ public class SortedList<T extends Comparable<? super T>> implements SortedListIn
     @Override
     public T remove(int givenPosition) {
         Node currentNode;
-        T result = null;
+        T result;
         if (getLength() == 1) {
             //case 1:
             //the list has only 1 entry
@@ -231,15 +231,15 @@ public class SortedList<T extends Comparable<? super T>> implements SortedListIn
 
     @Override
     public String toString() {
-        String msg = "";
+        StringBuilder msg = new StringBuilder();
         Node currentNode = firstNode;
         while (currentNode != null) {
             if (currentNode.data != null) {
-                msg += currentNode.data;
+                msg.append(currentNode.data);
             }
             currentNode = currentNode.next;
         }
-        return msg;
+        return msg.toString();
     }
 
     @Override
@@ -256,7 +256,7 @@ public class SortedList<T extends Comparable<? super T>> implements SortedListIn
 
         private Node currentNode;
 
-        public SortedLinkedListIterator() {
+        SortedLinkedListIterator() {
             currentNode = firstNode;
         }
 
@@ -283,16 +283,16 @@ public class SortedList<T extends Comparable<? super T>> implements SortedListIn
         Node next;
         Node previous;
 
-        public Node(T data) {
+        Node(T data) {
             this.data = data;
         }
 
-        public Node(T data, Node next) {
+        Node(T data, Node next) {
             this.data = data;
             this.next = next;
         }
 
-        public Node(T data, Node next, Node previous) {
+        Node(T data, Node next, Node previous) {
             this.data = data;
             this.next = next;
             this.previous = previous;

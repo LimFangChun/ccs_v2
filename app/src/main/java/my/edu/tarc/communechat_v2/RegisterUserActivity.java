@@ -112,7 +112,7 @@ public class RegisterUserActivity extends AppCompatActivity {
         progressBar.setVisibility(View.INVISIBLE);
 
         if (helper.getReceivedHeader().equals(MqttHeader.REGISTER_USER_REPLY) &&
-                helper.getReceivedResult().equals(MqttHeader.DUPLICATED)) {
+                helper.getReceivedResult().equals(MqttHeader.INSTANCE.getDUPLICATED())) {
             alertDialog.setTitle(R.string.duplicated_username);
             alertDialog.setMessage(R.string.try_again_username);
             alertDialog.setNeutralButton(R.string.ok, null);

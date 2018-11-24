@@ -52,8 +52,7 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
     //do in this way will allow the app to load only what user see
     //rather than load all data into list view when the activity is created
     //that would cause lag issues
-    //you can use recycle view but that only available API 21 or later
-    //our target is target API 19 which recycle view is not available
+    //you can use recycle view as well
     static class ViewHolder {
         TextView textViewUserID;
         TextView textViewUsername;

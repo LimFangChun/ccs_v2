@@ -1,11 +1,18 @@
 var mysql = require('mysql');
 var mqtt = require('mqtt');
-var serverAddress = 'tcp://172.22.11.153:1883';
+
+var serverAddress = 'tcp://192.168.0.17:1883';
+
 var mqttClient = mqtt.connect(serverAddress);
 var DB_CONNECTION;
 
 initializeMqttConnection();
 initializeDbConnection();
+
+module.exports = {
+    mqttClient,
+    DB_CONNECTION
+}
 
 process.on('SIGINT', () => {
     console.log('================================================');
@@ -33,6 +40,10 @@ function initializeMqttConnection() {
     });
 
     mqttClient.on('message', function (topic, message) {
+        console.log('================================================');
+        console.log("Receiving message");
+        console.log("Topic: " + topic);
+        console.log("Message: " + message.toString().substring(0, 100) + "...");
         processReceivedData(topic, message);
     });
 }
@@ -58,103 +69,81 @@ function processReceivedData(topic, message) {
     var temp = message.toString().split(',');
     switch (temp[0]) {
         case "SEND_ROOM_MESSAGE":
-            console.log('================================================');
-            console.log("Receiving message");
-            console.log("Topic: " + topic);
-            console.log("Message: " + message);
             SEND_ROOM_MESSAGE(topic, message);
             break;
         case "FIND_BY_ADDRESS":
-            console.log('================================================');
-            console.log("Receiving message");
-            console.log("Topic: " + topic);
-            console.log("Message: " + message);
             FindFriendModule.FIND_BY_ADDRESS(topic, message);
             break;
         case "FIND_BY_PROGRAMME":
-            console.log('================================================');
-            console.log("Receiving message");
-            console.log("Topic: " + topic);
-            console.log("Message: " + message);
             FindFriendModule.FIND_BY_PROGRAMME(topic, message);
             break;
         case "FIND_BY_TUTORIAL_GROUP":
-            console.log('================================================');
-            console.log("Receiving message");
-            console.log("Topic: " + topic);
-            console.log("Message: " + message);
             FindFriendModule.FIND_BY_TUTORIAL_GROUP(topic, message);
             break;
         case "FIND_BY_AGE":
-            console.log('================================================');
-            console.log("Receiving message");
-            console.log("Topic: " + topic);
-            console.log("Message: " + message);
             FindFriendModule.FIND_BY_AGE(topic, message);
             break;
         case "FIND_BY_LOCATION":
-            console.log('================================================');
-            console.log("Receiving message");
-            console.log("Topic: " + topic);
-            console.log("Message: " + message);
             FindFriendModule.FIND_BY_LOCATION(topic, message);
             break;
         case "UPDATE_LOCATION":
-            console.log('================================================');
-            console.log("Receiving message");
-            console.log("Topic: " + topic);
-            console.log("Message: " + message);
             FindFriendModule.UPDATE_LOCATION(topic, message);
             break;
-        case "UPDATE_PUBLIC_KEY":
-            console.log('================================================');
-            console.log("Receiving message");
-            console.log("Topic: " + topic);
-            console.log("Message: " + message);
-            EndToEndEncryptionModule.UPDATE_PUBLIC_KEY(topic, message);
+        case "ADVANCED_SEARCH":
+            FindFriendModule.ADVANCED_SEARCH(topic, message);
             break;
-        case "GET_PUBLIC_KEY":
+            case "UPDATE_PUBLIC_KEY":
+                        console.log('================================================');
+                        console.log("Receiving message");
+                        console.log("Topic: " + topic);
+                        console.log("Message: " + message);
+                        EndToEndEncryptionModule.UPDATE_PUBLIC_KEY(topic, message);
+                        break;
+                    case "GET_PUBLIC_KEY":
+                        console.log('================================================');
+                        console.log("Receiving message");
+                        console.log("Topic: " + topic);
+                        console.log("Message: " + message);
+                        EndToEndEncryptionModule.GET_PUBLIC_KEY(topic, message);
+                        break;
+                    case "GET_PUBLIC_KEY_ROOM":
+                        console.log('================================================');
+                        console.log("Receiving message");
+                        console.log("Topic: " + topic);
+                        console.log("Message: " + message);
+                        EndToEndEncryptionModule.GET_PUBLIC_KEY_ROOM(topic, message);
+                        break;
+                    case "GET_CHATROOM_SECRET":
+                        console.log('================================================');
+                        console.log("Receiving message");
+                        console.log("Topic: " + topic);
+                        console.log("Message: " + message);
+                        EndToEndEncryptionModule.GET_CHATROOM_SECRET(topic, message);
+                        break;
+                    case "GET_CHATROOM_SECRET_ALL":
+                        console.log('================================================');
+                        console.log("Receiving message");
+                        console.log("Topic: " + topic);
+                        console.log("Message: " + message);
+                        EndToEndEncryptionModule.GET_CHATROOM_SECRET_ALL(topic, message);
+                        break;
+                    case "SET_CHATROOM_SECRET":
+                        console.log('================================================');
+                        console.log("Receiving message");
+                        console.log("Topic: " + topic);
+                        console.log("Message: " + message);
+                        EndToEndEncryptionModule.SET_CHATROOM_SECRET(topic, message);
+                        break;
+                    case "GET_FORBIDDEN_SECRETS":
+                        console.log('================================================');
+                        console.log("Receiving message");
+                        console.log("Topic: " + topic);
+                        console.log("Message: " + message);
+                        EndToEndEncryptionModule.GET_FORBIDDEN_SECRETS(topic, message);
+                        break;
+        default:
+            console.log('Invalid header');
             console.log('================================================');
-            console.log("Receiving message");
-            console.log("Topic: " + topic);
-            console.log("Message: " + message);
-            EndToEndEncryptionModule.GET_PUBLIC_KEY(topic, message);
-            break;
-        case "GET_PUBLIC_KEY_ROOM":
-            console.log('================================================');
-            console.log("Receiving message");
-            console.log("Topic: " + topic);
-            console.log("Message: " + message);
-            EndToEndEncryptionModule.GET_PUBLIC_KEY_ROOM(topic, message);
-            break;
-        case "GET_CHATROOM_SECRET":
-            console.log('================================================');
-            console.log("Receiving message");
-            console.log("Topic: " + topic);
-            console.log("Message: " + message);
-            EndToEndEncryptionModule.GET_CHATROOM_SECRET(topic, message);
-            break;
-        case "GET_CHATROOM_SECRET_ALL":
-            console.log('================================================');
-            console.log("Receiving message");
-            console.log("Topic: " + topic);
-            console.log("Message: " + message);
-            EndToEndEncryptionModule.GET_CHATROOM_SECRET_ALL(topic, message);
-            break;
-        case "SET_CHATROOM_SECRET":
-            console.log('================================================');
-            console.log("Receiving message");
-            console.log("Topic: " + topic);
-            console.log("Message: " + message);
-            EndToEndEncryptionModule.SET_CHATROOM_SECRET(topic, message);
-            break;
-        case "GET_FORBIDDEN_SECRETS":
-            console.log('================================================');
-            console.log("Receiving message");
-            console.log("Topic: " + topic);
-            console.log("Message: " + message);
-            EndToEndEncryptionModule.GET_FORBIDDEN_SECRETS(topic, message);
-            break;
     }
 }
 

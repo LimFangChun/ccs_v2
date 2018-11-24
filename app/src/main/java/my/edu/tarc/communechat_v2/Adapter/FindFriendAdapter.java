@@ -59,6 +59,9 @@ public class FindFriendAdapter extends ArrayAdapter<FindFriendAdapterClass> {
             case 6:
                 image.setImageResource(R.drawable.ic_shuffle_black_24dp);
                 break;
+            case 7:
+                image.setImageResource(R.drawable.ic_search);
+                break;
         }
 
         TextView textViewHeader = convertView.findViewById(R.id.textView_header);

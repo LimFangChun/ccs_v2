@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -19,6 +20,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Random;
 
 import my.edu.tarc.communechat_v2.Adapter.FindResultAdapter;
@@ -35,6 +37,7 @@ public class FindFriendResult extends AppCompatActivity {
     private SharedPreferences pref;
     private ArrayList<Student> resultList;
     private ProgressBar progressBar;
+    private TextView textViewHeading;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +52,7 @@ public class FindFriendResult extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar_findResult);
         progressBar.setVisibility(View.VISIBLE);
         progressBar.getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
+        textViewHeading = findViewById(R.id.textView_heading);
 
         getFriend();
     }
@@ -56,6 +60,7 @@ public class FindFriendResult extends AppCompatActivity {
     private void getFriend() {
         Student student = new Student();
         String publishTopic = "find/" + pref.getInt(User.COL_USER_ID, -1);
+        String textView_heading = "";
         String header = "";
 
         student.setUser_id(pref.getInt(User.COL_USER_ID, -1));
@@ -71,33 +76,46 @@ public class FindFriendResult extends AppCompatActivity {
 
         int type = getIntent().getIntExtra("Type", -1);
         if (type == 5) {
-            type = new Random().nextInt(3);
+            type = new Random().nextInt(4);
         }
+
         switch (type) {
             case 0://find by programme
                 header = MqttHeader.FIND_BY_PROGRAMME;
                 setTitle("Find by programme");
+                textView_heading = "Finding friends from " + student.getFaculty();
                 break;
             case 1://find by tutorial group
                 header = MqttHeader.FIND_BY_TUTORIAL_GROUP;
                 setTitle("Find by tutorial group");
+                textView_heading = "Finding friends from " + student.getFaculty() + ", " +
+                        student.getCourse() + student.getAcademic_year() +
+                        " G" + student.getTutorial_group();
                 break;
             case 2://find by address
                 header = MqttHeader.FIND_BY_ADDRESS;
                 setTitle("Find by address");
+                textView_heading = "Finding friends nearby your living place";
                 break;
             case 3://find by age
                 header = MqttHeader.FIND_BY_AGE;
                 setTitle("Find by age");
+                textView_heading = "Finding friends same age with you";
                 break;
             case 4://location/gps
                 header = MqttHeader.FIND_BY_LOCATION;
                 setTitle("Find by location");
+                textView_heading = "Finding friends nearby your current location";
                 break;
+            case 6:
+                header = MqttHeader.ADVANCED_SEARCH;
+                advancedSearch(publishTopic, header);
+                return;
         }
         mqttHelper.connectPublishSubscribe(getApplicationContext(),
                 publishTopic, header, student);
         mqttHelper.getMqttClient().setCallback(mqttCallback);
+        textViewHeading.setText(textView_heading);
     }
 
     private MqttCallback mqttCallback = new MqttCallback() {
@@ -115,8 +133,11 @@ public class FindFriendResult extends AppCompatActivity {
                     helper.getReceivedHeader().equals(MqttHeader.FIND_BY_ADDRESS_REPLY) ||
                     helper.getReceivedHeader().equals(MqttHeader.FIND_BY_LOCATION_REPLY) ||
                     helper.getReceivedHeader().equals(MqttHeader.FIND_BY_PROGRAMME_REPLY) ||
-                    helper.getReceivedHeader().equals(MqttHeader.FIND_BY_TUTORIAL_GROUP_REPLY)) {
+                    helper.getReceivedHeader().equals(MqttHeader.FIND_BY_TUTORIAL_GROUP_REPLY) ||
+                    helper.getReceivedHeader().equals(MqttHeader.ADVANCED_SEARCH_REPLY)) {
                 mqttHelper.unsubscribe(topic);
+                //remove progress bar
+                progressBar.setVisibility(View.GONE);
 
                 if (helper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
                     String[] response = new String[1];
@@ -157,8 +178,6 @@ public class FindFriendResult extends AppCompatActivity {
                     listViewResult.setAdapter(adapter);
                 }
             }
-            //remove progress bar
-            progressBar.setVisibility(View.GONE);
         }
 
         @Override
@@ -166,4 +185,52 @@ public class FindFriendResult extends AppCompatActivity {
 
         }
     };
+
+    private void advancedSearch(String topic, String header) {
+        String faculty = getIntent().getStringExtra(Student.COL_FACULTY);
+        String course = getIntent().getStringExtra(Student.COL_COURSE);
+        String year = getIntent().getStringExtra(Student.COL_ACADEMIC_YEAR);
+        String tutorialGroup = getIntent().getStringExtra(Student.COL_TUTORIAL_GROUP);
+
+        Student student = new Student();
+        student.setUser_id(pref.getInt(User.COL_USER_ID, -1));
+        student.setFaculty(faculty);
+        student.setCourse(course);
+
+        student.setAcademic_year(Integer.parseInt(year));
+
+        student.setTutorial_group(Integer.parseInt(tutorialGroup));
+
+        mqttHelper.connectPublishSubscribe(FindFriendResult.this, topic, header, student);
+        mqttHelper.getMqttClient().setCallback(mqttCallback);
+
+        //heading
+        String tempHeading = "Finding friends with the following criteria: \n";
+
+        if (!Objects.equals(faculty, "")) {
+            tempHeading += "Faculty: " + faculty + "\n";
+        } else {
+            tempHeading += "Faculty: All\n";
+        }
+
+        if (!Objects.equals(course, "")) {
+            tempHeading += "Course: " + course + "\n";
+        } else {
+            tempHeading += "Course: All\n";
+        }
+
+        if (!Objects.equals(year, "")) {
+            tempHeading += "Academic year: " + year + "\n";
+        } else {
+            tempHeading += "Academic year: All\n";
+        }
+
+        if (!Objects.equals(tutorialGroup, "")) {
+            tempHeading += "Tutorial group: " + tutorialGroup + "\n";
+        } else {
+            tempHeading += "Tutorial group: All\n";
+        }
+
+        textViewHeading.setText(tempHeading);
+    }
 }

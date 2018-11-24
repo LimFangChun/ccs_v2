@@ -111,7 +111,7 @@ $client_id = "CCS_SERVER";
  */
  
 //$server = "broker.hivemq.com";     		// change to your broker's ip
-$server = "192.168.0.2";
+$server = "192.168.0.17";
 $port = 1883;                     		// change if necessary, default is 1883
 $username = "";                 // set your username
 $password = "";             // set your password
@@ -242,10 +242,9 @@ function procmsg($topic, $msg){
 					publishMessage($topic, $ack_message);
 					break;}
 				case "GET_USER_PROFILE":	{
-					$ack_message = GET_USER_PROFILE($msg); 
+					$ack_message = GET_USER_PROFILE($msg);
 					publishMessage($topic, $ack_message);
 					break;}
-				/*
 				case "UPDATE_PUBLIC_KEY": {
 					$ack_message = UPDATE_PUBLIC_KEY($msg);
 					publishMessage($topic, $ack_message);
@@ -257,7 +256,7 @@ function procmsg($topic, $msg){
 				case "GET_PUBLIC_KEY_ROOM":	{
 					$ack_message = GET_PUBLIC_KEY_ROOM($msg);
 					publishMessage($topic, $ack_message);
-					break;}					
+					break;}
 				case "SET_CHATROOM_SECRET":	{
 					$ack_message = SET_CHATROOM_SECRET($msg);
 					publishMessage($topic, $ack_message);
@@ -319,7 +318,7 @@ function dbResult($sql){
 			}
 }	
 
-function dbResult_stmt($sql, $types, $params){
+function dbResult_stmt($sql, $types, $params, $param_count){
 	$hostname_localhost = "localhost";
 	$database_localhost = "ccs_master";//change to your database name
 	$username_localhost = "ccs_main";//change to your database username, it is recommended to add a new user with password
@@ -352,7 +351,7 @@ function dbResult_stmt($sql, $types, $params){
 //MQTT publish message
 //DO NOT MODIFY, except ip address
 function publishMessage($topic, $ack_message){
-	$server = "192.168.0.2";     		// change if necessary
+	$server = "192.168.0.17";     		// change if necessary
 	$port = 1883;                     		// change if necessary
 	$username = "";                 // set your username
 	$password = "";             // set your password
@@ -636,7 +635,7 @@ function GET_PUBLIC_KEY(){
 	$user_id = $temp[1];
 
 	$sql = "SELECT DISTINCT user.user_id, user.public_key
-			FROM User 
+			FROM User
 			WHERE user.user_id = '$user_id' AND user.public_key IS NOT NULL";
 	$result = dbResult($sql);
 	if(mysqli_num_rows($result) > 0){
@@ -663,8 +662,8 @@ function GET_PUBLIC_KEY_ROOM(){
 	$room_id = $temp[1];
 
 	$sql = "SELECT user.user_id, user.public_key
-			FROM User 
-				INNER JOIN participant ON user.user_id=participant.user_id 
+			FROM User
+				INNER JOIN participant ON user.user_id=participant.user_id
 				INNER JOIN chat_room ON participant.room_id = chat_room.room_id
 			WHERE chat_room.room_id = '$room_id' AND user.public_key IS NOT NULL";
 	$result = dbResult($sql);
@@ -776,7 +775,7 @@ function GET_FORBIDDEN_SECRETS(){
 			FROM User, Participant, Chat_Room, RoomSecret
 			WHERE user.user_id = participant.user_id AND participant.user_id = RoomSecret.user_id AND participant.room_id = chat_room.room_id AND RoomSecret.status = 'Forbidden'
 				AND chat_room.room_id IN(
-					SELECT chat_room.room_id 
+					SELECT chat_room.room_id
 					FROM Participant, Chat_Room
 					WHERE participant.room_id = chat_room.room_id AND participant.user_id = '$user_id' AND participant.role = 'Admin'
 					)";

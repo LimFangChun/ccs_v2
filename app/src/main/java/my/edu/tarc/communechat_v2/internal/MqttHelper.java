@@ -1,6 +1,7 @@
 package my.edu.tarc.communechat_v2.internal;
 
 import android.content.Context;
+import android.util.Base64;
 import android.util.Log;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -14,6 +15,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 
 import my.edu.tarc.communechat_v2.model.Chat_Room;
@@ -39,6 +41,7 @@ public class MqttHelper {
     private String receivedResult;
 
     //change MQTT broker IP address here
+
     private static final String serverUri = "tcp://172.16.142.148:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
 
     //private static final String serverUri = "tcp://broker.hivemq.com:1883";
@@ -341,6 +344,13 @@ public class MqttHelper {
                     messageJSON.put(Message.COL_MESSAGE, message.getMessage());
                     messageJSON.put(Message.COL_DATE_CREATED, message.getDate_created().toString());
                     messageJSON.put(Message.COL_SENDER_NAME, message.getSender_name());
+                    // Encode byte array into string
+                    if (message.getMedia() != null) {
+                        messageJSON.put(Message.COL_MEDIA, Base64.encodeToString(message.getMedia(), Base64.NO_WRAP));
+                    }
+
+
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -348,6 +358,7 @@ public class MqttHelper {
                         .append(",")
                         .append(messageJSON.toString());
                 result = temp.toString();
+                Log.d("CCC", result);
                 break;
             }
             case MqttHeader.CREATE_CHAT_ROOM: {

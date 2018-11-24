@@ -2,24 +2,34 @@ package my.edu.tarc.communechat_v2;
 
 import android.app.Activity;
 import android.arch.persistence.room.Room;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
+
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -27,6 +37,10 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -39,6 +53,7 @@ import my.edu.tarc.communechat_v2.LocalDatabase.MessageDao;
 import my.edu.tarc.communechat_v2.Utility.myUtil;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
 import my.edu.tarc.communechat_v2.internal.MqttHelper;
+import my.edu.tarc.communechat_v2.internal.RoomSecretHelper;
 import my.edu.tarc.communechat_v2.model.Chat_Room;
 import my.edu.tarc.communechat_v2.model.Message;
 import my.edu.tarc.communechat_v2.model.Participant;
@@ -63,6 +78,10 @@ public class ChatRoomActivity extends AppCompatActivity {
     private Chat_Room chatRoom;
     private MqttHelper chatMqttHelper;
     private String topic;
+
+    private com.shrikanthravi.chatview.widget.ChatView chatView;
+    public static final int REQUEST_CAMERA = 0;
+    public static final int REQUEST_GALLERY = 1;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -107,6 +126,9 @@ public class ChatRoomActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_room);
 
+        chatView();
+
+
         chatMqttHelper = new MqttHelper();
 
         assert getSupportActionBar() != null;
@@ -122,15 +144,15 @@ public class ChatRoomActivity extends AppCompatActivity {
         chatRoom.setRoom_id(getIntent().getIntExtra(Chat_Room.COL_ROOM_ID, -1));
 
         String secretKey = pref.getString(RoomSecretHelper.getRoomPrefKey(chatRoom.getRoom_id()), null);
-        if (secretKey == null){
+        if (secretKey == null) {
             chatViewRoom.getInputEditText().setEnabled(false);
             chatViewRoom.getInputEditText().setHint("Initializing... please try again later.");
             //Todo: request secret key for this chat room
-        }else{
+        } else {
             chatRoom.setSecret_key(secretKey);
         }
         topic = MqttHeader.SEND_ROOM_MESSAGE + "/room" + chatRoom.getRoom_id();
-      
+
         chatMqttHelper.connectSubscribe(this, topic);
         chatMqttHelper.getMqttClient().setCallback(chatRoomCallback);
         //chatRoom.setSecret_key(pref.getString(RoomSecretHelper.getRoomPrefKey(chatRoom.getRoom_id()),null).getBytes());
@@ -204,6 +226,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                 received_message.setMessage_type(result.getString(Message.COL_MESSAGE_TYPE));
                 received_message.setRoom_id(result.getInt(Message.COL_ROOM_ID));
                 received_message.setSender_name(result.getString(Message.COL_SENDER_NAME));
+                received_message.setMedia(result.getString(Message.COL_MEDIA).getBytes());
 
                 chatViewRoom.addMessage(new ChatMessage(
                         received_message.getMessage(),
@@ -215,6 +238,14 @@ public class ChatRoomActivity extends AppCompatActivity {
                 //make a short vibration or sound
                 //depend on user's mode
                 makeVibrationOrSound();
+
+
+                Log.d("CCC0", "Entered Result");
+                addMessage(pref.getInt(User.COL_USER_ID, -1) == received_message.getSender_id(), received_message.getSender_name(), received_message.getDate_created().getTime().toString(), received_message.getMessage_type(), received_message.getMessage(), received_message.getMedia());
+
+
+
+                //chatView.addMessage();
 
                 //don't unsubscribe from the topic
             } catch (Exception e) {
@@ -282,6 +313,19 @@ public class ChatRoomActivity extends AppCompatActivity {
                                             : temp.getString(User.COL_DISPLAY_NAME)//sender name
                             );
                             messages.add(chatMessage);
+
+                            if (!temp.getString(Message.COL_MESSAGE_TYPE).equals("Text")) {
+                                byte[] z2 = Base64.decode(temp.getString(Message.COL_MEDIA), 0);
+                            }
+                            Log.d("CCC", "NONON");
+                            Log.d("CCC", "Checker " + temp.getString(Message.COL_MEDIA).getBytes().length);
+                            byte[] media = Base64.decode(temp.getString(Message.COL_MEDIA), 0);
+                            //imageView.setImageBitmap(BitmapFactory.decodeByteArray(z, 0, z.length));
+                            Log.d("CCC", "Number Result " + result.length());
+                            //Log.d("CCC", z.length + "Size");
+
+                            addMessage(pref.getInt(User.COL_USER_ID, -1) == room_message.getSender_id(), temp.getString(User.COL_DISPLAY_NAME), room_message.getDate_created().getTime().toString(), temp.getString(Message.COL_MESSAGE_TYPE), temp.getString(Message.COL_MESSAGE), media);
+
                         }
                         chatViewRoom.addMessages(messages);
                     } catch (Exception e) {
@@ -473,5 +517,184 @@ public class ChatRoomActivity extends AppCompatActivity {
         }
     }
 
+    private void chatView() {
+
+        ImageLoader imageLoader = ImageLoader.getInstance();
+        imageLoader.init(ImageLoaderConfiguration.createDefault(this));
+
+        chatView = findViewById(R.id.chatView);
+
+        chatView.setOnClickSendButtonListener(new com.shrikanthravi.chatview.widget.ChatView.OnClickSendButtonListener() {
+            @Override
+            public void onSendButtonClick(String s) {
+
+                if (!s.isEmpty()) {
+                    Calendar calendar = Calendar.getInstance();
+                    String header = MqttHeader.SEND_ROOM_MESSAGE;
+                    //String topic = header + "/room" + chatRoom.getRoom_id();
+                    Message message = new Message();
+                    message.setSender_id(pref.getInt(User.COL_USER_ID, -1));
+                    message.setDate_created(calendar);
+                    //message.setMessage(chatRoom.encryptMessage(chatViewRoom.getTypedMessage()));
+                    message.setMessage(s);
+                    message.setRoom_id(chatRoom.getRoom_id());
+                    message.setMessage_type("Text");
+                    message.setSender_name(pref.getString(User.COL_DISPLAY_NAME, ""));
+                    message.setMedia(null);
+
+                    chatMqttHelper.publish(topic, header, message);
+
+                    com.shrikanthravi.chatview.data.Message message1 = new com.shrikanthravi.chatview.data.Message();
+                    message1.setUserName(pref.getString(User.COL_DISPLAY_NAME, ""));
+                    message1.setTime(calendar.getTime().toString());
+                    message1.setBody(s);
+                    message1.setType(com.shrikanthravi.chatview.data.Message.RightSimpleMessage);
+                    chatView.addMessage(message1);
+
+                }
+
+
+            }
+        });
+
+        chatView.setOnClickCameraButtonListener(new com.shrikanthravi.chatview.widget.ChatView.OnClickCameraButtonListener() {
+            @Override
+            public void onCameraButtonClicked() {
+                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivityForResult(intent, REQUEST_CAMERA);
+            }
+        });
+
+        chatView.setOnClickGalleryButtonListener(new com.shrikanthravi.chatview.widget.ChatView.OnClickGalleryButtonListener() {
+            @Override
+            public void onGalleryButtonClick() {
+                Intent intent = new Intent(Intent.ACTION_PICK,
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(intent, REQUEST_GALLERY);
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            Bitmap bitmap;
+            switch (requestCode) {
+                case REQUEST_CAMERA:
+                    bitmap = (Bitmap) data.getExtras().get("data");
+                    sendMessage("Empty", convertBitmapToByteArray(bitmap), "Image");
+
+                    Uri uri2 = getImageUri(this, bitmap);
+                    com.shrikanthravi.chatview.data.Message message2 = new com.shrikanthravi.chatview.data.Message();
+                    List<Uri> mSelected2 = new ArrayList<>();
+                    mSelected2.add(uri2);
+                    //message.setTime();
+                    message2.setType(com.shrikanthravi.chatview.data.Message.RightSingleImage);
+                    message2.setImageList(mSelected2);
+                    message2.setUserName(pref.getString(User.COL_DISPLAY_NAME, ""));
+                    chatView.addMessage(message2);
+                    break;
+                case REQUEST_GALLERY:
+                    Uri uri = data.getData();
+                    try {
+                        bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
+                        sendMessage("Empty", convertBitmapToByteArray(bitmap), "Image");
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+
+                    com.shrikanthravi.chatview.data.Message message = new com.shrikanthravi.chatview.data.Message();
+                    List<Uri> mSelected = new ArrayList<>();
+                    mSelected.add(uri);
+                    //message.setTime();
+                    message.setType(com.shrikanthravi.chatview.data.Message.RightSingleImage);
+                    message.setImageList(mSelected);
+                    message.setUserName(pref.getString(User.COL_DISPLAY_NAME, ""));
+                    chatView.addMessage(message);
+                    break;
+            }
+        }
+
+    }
+
+    private void addMessage(boolean isUserMessage, String username, String time, String type, String messageReceived, byte[] bytes) {
+        com.shrikanthravi.chatview.data.Message message = new com.shrikanthravi.chatview.data.Message();
+        message.setTime(time);
+        message.setUserName(username);
+
+        if (type.equals("Text")) {
+            if (isUserMessage) {
+                message.setType(com.shrikanthravi.chatview.data.Message.RightSimpleMessage);
+            } else {
+                message.setType(com.shrikanthravi.chatview.data.Message.LeftSimpleMessage);
+            }
+
+            message.setBody(messageReceived);
+        } else {
+
+            if (isUserMessage) {
+                message.setType(com.shrikanthravi.chatview.data.Message.RightSingleImage);
+            } else {
+                message.setType(com.shrikanthravi.chatview.data.Message.LeftSingleImage);
+            }
+            List<Uri> uriList = new ArrayList<>();
+            Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+            uriList.add(getImageUri(this, bitmap));
+            message.setImageList(uriList);
+        }
+
+        chatView.addMessage(message);
+    }
+
+    private Uri getImageUri(Context inContext, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
+    }
+
+    private void sendMessage(String messageSend, byte[] media, String type) {
+        Calendar calendar = Calendar.getInstance();
+        String header = MqttHeader.SEND_ROOM_MESSAGE;
+        //String topic = header + "/room" + chatRoom.getRoom_id();
+        Message message = new Message();
+        message.setSender_id(pref.getInt(User.COL_USER_ID, -1));
+        message.setDate_created(calendar);
+        //message.setMessage(chatRoom.encryptMessage(chatViewRoom.getTypedMessage()));
+        message.setMessage(messageSend);
+        message.setRoom_id(chatRoom.getRoom_id());
+        message.setMessage_type(type);
+        message.setSender_name(pref.getString(User.COL_DISPLAY_NAME, ""));
+        message.setMedia(media);
+
+        chatMqttHelper.publish(topic, header, message);
+    }
+
+    public byte[] convertBitmapToByteArray(Bitmap bitmap) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        return stream.toByteArray();
+    }
+
+
+    private byte[] getBytes(Uri uri) {
+
+        try {
+            ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+            int bufferSize = 1024;
+            byte[] buffer = new byte[bufferSize];
+
+            int len = 0;
+            while ((len = getContentResolver().openInputStream(uri).read(buffer)) != -1) {
+                byteBuffer.write(buffer, 0, len);
+            }
+            return byteBuffer.toByteArray();
+        } catch (IOException | NullPointerException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 
 }

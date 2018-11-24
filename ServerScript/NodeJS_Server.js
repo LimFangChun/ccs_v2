@@ -1,6 +1,8 @@
 var mysql = require('mysql');
 var mqtt = require('mqtt');
+
 var serverAddress = 'tcp://192.168.0.17:1883';
+
 var mqttClient = mqtt.connect(serverAddress);
 var DB_CONNECTION;
 
@@ -152,9 +154,9 @@ function SEND_ROOM_MESSAGE(topic, message) {
     var receivedData = message.toString().substring(message.toString().indexOf(',') + 1);
     var messageJSON = JSON.parse(receivedData);
 
-    var sql = `INSERT INTO Message (message, sender_id, room_id) 
-                        VALUES (?, ?, ?)`;
-    var input = [messageJSON['message'], messageJSON['sender_id'], messageJSON['room_id']];
+    var sql = `INSERT INTO Message (message, sender_id, room_id, message_type, media) 
+                        VALUES (?, ?, ?, ?, ?)`;
+    var input = [messageJSON['message'], messageJSON['sender_id'], messageJSON['room_id'], messageJSON['message_type'], messageJSON['media']];
 
     DB_CONNECTION.query(sql, input, function (err, result) {
         if (err) {

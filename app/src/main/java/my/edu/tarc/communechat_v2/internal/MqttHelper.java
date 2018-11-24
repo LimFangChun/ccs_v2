@@ -1,6 +1,7 @@
 package my.edu.tarc.communechat_v2.internal;
 
 import android.content.Context;
+import android.util.Base64;
 import android.util.Log;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -13,6 +14,8 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
 
 import java.lang.ref.WeakReference;
 
@@ -39,7 +42,7 @@ public class MqttHelper {
     private String receivedResult;
 
     //change MQTT broker IP address here
-    private static final String serverUri = "tcp://172.16.142.148:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
+    private static final String serverUri = "tcp://192.168.0.2:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
 
     //private static final String serverUri = "tcp://broker.hivemq.com:1883";
     //private static String mqttUsername = "";
@@ -341,6 +344,13 @@ public class MqttHelper {
                     messageJSON.put(Message.COL_MESSAGE, message.getMessage());
                     messageJSON.put(Message.COL_DATE_CREATED, message.getDate_created().toString());
                     messageJSON.put(Message.COL_SENDER_NAME, message.getSender_name());
+                    // Encode byte array into string
+                    if (message.getMedia() != null) {
+                        messageJSON.put(Message.COL_MEDIA, Base64.encodeToString(message.getMedia(), Base64.NO_WRAP));
+                    }
+
+
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -581,6 +591,14 @@ public class MqttHelper {
                         .append(user.getUser_id())
                         .append(",")
                         .append(user.getUsername());
+                result = temp.toString();
+                break;
+            }
+            case MqttHeader.GET_USER_PROFILE: {
+                User user = (User)data;
+                temp.append(MqttHeader.GET_USER_PROFILE)
+                        .append(",")
+                        .append(user.getUser_id());
                 result = temp.toString();
                 break;
             }

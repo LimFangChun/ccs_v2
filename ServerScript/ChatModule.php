@@ -18,6 +18,27 @@ function GET_CHAT_ROOM($msg){
 		while($row = mysqli_fetch_assoc($result)){
 			$temp[] = $row;
 		}
+
+		//check for empty room name
+		//if is empty, put room name with opponents display name
+		//example: Bob and Alice are in same room, but the room has no name
+		//if request was sent by Bob, the room name will be replaced by 'Alice'
+		for ($x = 0; $x < sizeof($temp); $x++){
+			echo $temp[$x]['room_name'];
+			if($temp[$x]['room_name'] == ""){
+				$room_id = $temp[$x]['room_id'];
+				$sql = "SELECT display_name 
+						FROM User INNER JOIN Participant ON Participant.user_id = User.user_id
+						WHERE Participant.room_id = $room_id AND User.user_id <> $user_id";
+				$result = dbResult($sql);
+
+				if($result){
+					$row = mysqli_fetch_assoc($result);
+					$temp[$x]['room_name'] = $row['display_name'];
+				}
+			}
+		}
+
 		$ack_message .= json_encode($temp);
 	}else{
 		echo "\nUser $user_id has no chat history\n";

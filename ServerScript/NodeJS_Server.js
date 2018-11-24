@@ -1,6 +1,6 @@
 var mysql = require('mysql');
 var mqtt = require('mqtt');
-var serverAddress = 'tcp://192.168.0.2:1883';
+var serverAddress = 'tcp://192.168.0.110:1883';//change to broker's ip
 var mqttClient = mqtt.connect(serverAddress);
 var DB_CONNECTION;
 
@@ -63,7 +63,6 @@ function initializeDbConnection() {
 
 function processReceivedData(topic, message) {
     var FindFriendModule = require("./FindFriendModule.js");
-	var EndToEndEncryptionModule = require("./EndToEndEncryptionModule.js");
     var temp = message.toString().split(',');
     switch (temp[0]) {
         case "SEND_ROOM_MESSAGE":
@@ -90,55 +89,9 @@ function processReceivedData(topic, message) {
         case "ADVANCED_SEARCH":
             FindFriendModule.ADVANCED_SEARCH(topic, message);
             break;
-        case "UPDATE_PUBLIC_KEY":
+        default:
+            console.log('Invalid header');
             console.log('================================================');
-            console.log("Receiving message");
-            console.log("Topic: " + topic);
-            console.log("Message: " + message);
-            EndToEndEncryptionModule.UPDATE_PUBLIC_KEY(topic, message);
-            break;
-        case "GET_PUBLIC_KEY":
-            console.log('================================================');
-            console.log("Receiving message");
-            console.log("Topic: " + topic);
-            console.log("Message: " + message);
-            EndToEndEncryptionModule.GET_PUBLIC_KEY(topic, message);
-            break;
-        case "GET_PUBLIC_KEY_ROOM":
-            console.log('================================================');
-            console.log("Receiving message");
-            console.log("Topic: " + topic);
-            console.log("Message: " + message);
-            EndToEndEncryptionModule.GET_PUBLIC_KEY_ROOM(topic, message);
-            break;
-        case "GET_CHATROOM_SECRET":
-            console.log('================================================');
-            console.log("Receiving message");
-            console.log("Topic: " + topic);
-            console.log("Message: " + message);
-            EndToEndEncryptionModule.GET_CHATROOM_SECRET(topic, message);
-            break;
-        case "GET_CHATROOM_SECRET_ALL":
-            console.log('================================================');
-            console.log("Receiving message");
-            console.log("Topic: " + topic);
-            console.log("Message: " + message);
-            EndToEndEncryptionModule.GET_CHATROOM_SECRET_ALL(topic, message);
-            break;
-        case "SET_CHATROOM_SECRET":
-            console.log('================================================');
-            console.log("Receiving message");
-            console.log("Topic: " + topic);
-            console.log("Message: " + message);
-            EndToEndEncryptionModule.SET_CHATROOM_SECRET(topic, message);
-            break;
-        case "GET_FORBIDDEN_SECRETS":
-            console.log('================================================');
-            console.log("Receiving message");
-            console.log("Topic: " + topic);
-            console.log("Message: " + message);
-            EndToEndEncryptionModule.GET_FORBIDDEN_SECRETS(topic, message);
-            break;
     }
 }
 
@@ -149,9 +102,9 @@ function SEND_ROOM_MESSAGE(topic, message) {
     var receivedData = message.toString().substring(message.toString().indexOf(',') + 1);
     var messageJSON = JSON.parse(receivedData);
 
-    var sql = `INSERT INTO Message (message, sender_id, room_id, message_type, media) 
-                        VALUES (?, ?, ?, ?, ?)`;
-    var input = [messageJSON['message'], messageJSON['sender_id'], messageJSON['room_id'], messageJSON['message_type'], messageJSON['media']];
+    var sql = `INSERT INTO Message (message, sender_id, room_id) 
+                        VALUES (?, ?, ?)`;
+    var input = [messageJSON['message'], messageJSON['sender_id'], messageJSON['room_id']];
 
     DB_CONNECTION.query(sql, input, function (err, result) {
         if (err) {

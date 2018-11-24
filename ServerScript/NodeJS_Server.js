@@ -7,6 +7,11 @@ var DB_CONNECTION;
 initializeMqttConnection();
 initializeDbConnection();
 
+module.exports = {
+    mqttClient,
+    DB_CONNECTION
+}
+
 process.on('SIGINT', () => {
     console.log('================================================');
     console.log('Process Interrupted, exiting');
@@ -33,6 +38,10 @@ function initializeMqttConnection() {
     });
 
     mqttClient.on('message', function (topic, message) {
+        console.log('================================================');
+        console.log("Receiving message");
+        console.log("Topic: " + topic);
+        console.log("Message: " + message.toString().substring(0, 100) + "...");
         processReceivedData(topic, message);
     });
 }
@@ -58,53 +67,28 @@ function processReceivedData(topic, message) {
     var temp = message.toString().split(',');
     switch (temp[0]) {
         case "SEND_ROOM_MESSAGE":
-            console.log('================================================');
-            console.log("Receiving message");
-            console.log("Topic: " + topic);
-            console.log("Message: " + message);
             SEND_ROOM_MESSAGE(topic, message);
             break;
         case "FIND_BY_ADDRESS":
-            console.log('================================================');
-            console.log("Receiving message");
-            console.log("Topic: " + topic);
-            console.log("Message: " + message);
             FindFriendModule.FIND_BY_ADDRESS(topic, message);
             break;
         case "FIND_BY_PROGRAMME":
-            console.log('================================================');
-            console.log("Receiving message");
-            console.log("Topic: " + topic);
-            console.log("Message: " + message);
             FindFriendModule.FIND_BY_PROGRAMME(topic, message);
             break;
         case "FIND_BY_TUTORIAL_GROUP":
-            console.log('================================================');
-            console.log("Receiving message");
-            console.log("Topic: " + topic);
-            console.log("Message: " + message);
             FindFriendModule.FIND_BY_TUTORIAL_GROUP(topic, message);
             break;
         case "FIND_BY_AGE":
-            console.log('================================================');
-            console.log("Receiving message");
-            console.log("Topic: " + topic);
-            console.log("Message: " + message);
             FindFriendModule.FIND_BY_AGE(topic, message);
             break;
         case "FIND_BY_LOCATION":
-            console.log('================================================');
-            console.log("Receiving message");
-            console.log("Topic: " + topic);
-            console.log("Message: " + message);
             FindFriendModule.FIND_BY_LOCATION(topic, message);
             break;
         case "UPDATE_LOCATION":
-            console.log('================================================');
-            console.log("Receiving message");
-            console.log("Topic: " + topic);
-            console.log("Message: " + message);
             FindFriendModule.UPDATE_LOCATION(topic, message);
+            break;
+        case "ADVANCED_SEARCH":
+            FindFriendModule.ADVANCED_SEARCH(topic, message);
             break;
         case "UPDATE_PUBLIC_KEY":
             console.log('================================================');
@@ -165,9 +149,9 @@ function SEND_ROOM_MESSAGE(topic, message) {
     var receivedData = message.toString().substring(message.toString().indexOf(',') + 1);
     var messageJSON = JSON.parse(receivedData);
 
-    var sql = `INSERT INTO Message (message, sender_id, room_id) 
-                        VALUES (?, ?, ?)`;
-    var input = [messageJSON['message'], messageJSON['sender_id'], messageJSON['room_id']];
+    var sql = `INSERT INTO Message (message, sender_id, room_id, message_type, media) 
+                        VALUES (?, ?, ?, ?, ?)`;
+    var input = [messageJSON['message'], messageJSON['sender_id'], messageJSON['room_id'], messageJSON['message_type'], messageJSON['media']];
 
     DB_CONNECTION.query(sql, input, function (err, result) {
         if (err) {

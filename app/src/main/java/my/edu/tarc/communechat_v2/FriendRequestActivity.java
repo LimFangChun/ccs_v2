@@ -22,6 +22,7 @@ import java.util.ArrayList;
 
 import my.edu.tarc.communechat_v2.Adapter.FriendRequestAdapter;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
+import my.edu.tarc.communechat_v2.internal.MqttHelper;
 import my.edu.tarc.communechat_v2.model.Student;
 import my.edu.tarc.communechat_v2.model.User;
 
@@ -63,9 +64,10 @@ public class FriendRequestActivity extends AppCompatActivity {
 
         @Override
         public void messageArrived(String topic, MqttMessage message) throws Exception {
-            MainActivity.mqttHelper.decode(message.toString());
-            if (MainActivity.mqttHelper.getReceivedHeader().equals(MqttHeader.GET_FRIEND_REQUEST_REPLY)) {
-                if (MainActivity.mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
+            MqttHelper helper = new MqttHelper();
+            helper.decode(message.toString());
+            if (helper.getReceivedHeader().equals(MqttHeader.GET_FRIEND_REQUEST_REPLY)) {
+                if (helper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
                     setTitle("No result");
                     String[] response = new String[1];
                     response[0] = "We couldn't find any users";
@@ -75,7 +77,7 @@ public class FriendRequestActivity extends AppCompatActivity {
                 } else {
                     ArrayList<Student> resultList = new ArrayList<>();
                     try {
-                        JSONArray result = new JSONArray(MainActivity.mqttHelper.getReceivedResult());
+                        JSONArray result = new JSONArray(helper.getReceivedResult());
                         for (int i = 0; i <= result.length() - 1; i++) {
                             JSONObject temp = result.getJSONObject(i);
 
@@ -99,6 +101,7 @@ public class FriendRequestActivity extends AppCompatActivity {
                 }
             }
             progressBarFriendRequest.setVisibility(View.GONE);
+            MainActivity.mqttHelper.unsubscribe(topic);
         }
 
         @Override

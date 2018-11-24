@@ -21,6 +21,7 @@ public class Message {
     public static final String COL_MESSAGE_TYPE = "message_type";
     public static final String COL_STATUS = "status";
     public static final String COL_SENDER_NAME = "sender_name";
+    public static final String COL_MEDIA = "media";
 
     //variables for encapsulation
     @PrimaryKey(autoGenerate = true)
@@ -47,6 +48,9 @@ public class Message {
 
     @ColumnInfo(name = COL_SENDER_NAME)
     private String sender_name;
+
+    @ColumnInfo(name = COL_MEDIA)
+    private byte[] media;
 
     public Message() {
         date_created = Calendar.getInstance();
@@ -146,4 +150,13 @@ public class Message {
     public String getSender_name() {
         return sender_name;
     }
+
+    public byte[] getMedia() {
+        return media;
+    }
+
+    public void setMedia(byte[] media) {
+        this.media = media;
+    }
 }
+

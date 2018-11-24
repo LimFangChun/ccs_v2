@@ -4,11 +4,12 @@ import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-
 
 @Entity(tableName = "Chat_Room")
 public class Chat_Room {
@@ -20,6 +21,7 @@ public class Chat_Room {
     public static final String COL_LAST_UPDATE = "last_update";
     public static final String COL_TOPIC_ADDRESS = "topic_address";
     public static final String COL_SECRET_KEY = "secret_key";
+    public static final String COL_PHOTO_URL = "photo_url";
 
     //variables for encapsulation
     @PrimaryKey
@@ -45,6 +47,8 @@ public class Chat_Room {
     private String role;
 
     private String secret_key;
+
+    private byte[] room_picture;
 
     public Chat_Room(){
         date_created = Calendar.getInstance();
@@ -213,4 +217,15 @@ public class Chat_Room {
 		return aes.encrypt(msg);
 	}
 
+    public byte[] getRoom_picture() {
+        return room_picture;
+    }
+
+    public void setRoom_picture(byte[] room_picture) {
+        this.room_picture = room_picture;
+    }
+
+    public Bitmap getRoomPhotoBitmap() {
+        return BitmapFactory.decodeByteArray(room_picture, 0, room_picture.length);
+    }
 }

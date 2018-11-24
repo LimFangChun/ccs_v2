@@ -35,6 +35,7 @@ import my.edu.tarc.communechat_v2.MainActivity;
 import my.edu.tarc.communechat_v2.MapsActivity;
 import my.edu.tarc.communechat_v2.R;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
+import my.edu.tarc.communechat_v2.internal.MqttHelper;
 import my.edu.tarc.communechat_v2.model.Friendship;
 import my.edu.tarc.communechat_v2.model.Student;
 import my.edu.tarc.communechat_v2.model.User;
@@ -51,8 +52,7 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
     //do in this way will allow the app to load only what user see
     //rather than load all data into list view when the activity is created
     //that would cause lag issues
-    //you can use recycle view but that only available API 21 or later
-    //our target is target API 19 which recycle view is not available
+    //you can use recycle view as well
     static class ViewHolder {
         TextView textViewUserID;
         TextView textViewUsername;
@@ -189,18 +189,19 @@ public class FindResultAdapter extends ArrayAdapter<Student> {
                         //Note: message always come with a fixed format
                         //message starts with a header, follow by either a JSON object array or a constant string
                         //see MqttHeader.SUCCESS, MqttHeader.NO_RESULT
-                        MainActivity.mqttHelper.decode(message.toString());
+                        MqttHelper helper = new MqttHelper();
+                        helper.decode(message.toString());
 
                         //unsub from the topic, so we stop getting unnecessary message from broker
                         MainActivity.mqttHelper.unsubscribe(topic);
 
                         //check the header, whether the message is what we want
-                        if (MainActivity.mqttHelper.getReceivedHeader().equals(MqttHeader.REQ_ADD_FRIEND_REPLY)) {
+                        if (helper.getReceivedHeader().equals(MqttHeader.REQ_ADD_FRIEND_REPLY)) {
                             //initialize a alert dialog for user feedback
                             AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
 
                             //check result, whether the add friend action was success
-                            if (MainActivity.mqttHelper.getReceivedResult().equals(MqttHeader.SUCCESS)) {
+                            if (helper.getReceivedResult().equals(MqttHeader.SUCCESS)) {
                                 //put proper user feedback message to dialog box
                                 alertDialog.setTitle("Success");
                                 alertDialog.setMessage("Friend request has sent to " + student.getDisplay_name());

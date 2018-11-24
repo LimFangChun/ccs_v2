@@ -26,6 +26,7 @@ import java.util.Objects;
 
 import my.edu.tarc.communechat_v2.R;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
+import my.edu.tarc.communechat_v2.internal.MqttHelper;
 import my.edu.tarc.communechat_v2.model.Participant;
 import my.edu.tarc.communechat_v2.model.User;
 
@@ -129,12 +130,13 @@ public class RemovePeopleAdapter extends ArrayAdapter<User> {
 
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception {
-                mqttHelper.decode(message.toString());
-                if (mqttHelper.getReceivedHeader().equals(MqttHeader.REMOVE_PEOPLE_FROM_GROUP_REPLY)) {
+                MqttHelper helper = new MqttHelper();
+                helper.decode(message.toString());
+                if (helper.getReceivedHeader().equals(MqttHeader.REMOVE_PEOPLE_FROM_GROUP_REPLY)) {
                     mqttHelper.unsubscribe(topic);
                     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                     builder.setNeutralButton(R.string.ok, null);
-                    if (mqttHelper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
+                    if (helper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
                         builder.setTitle(R.string.failed);
                         builder.setMessage("Failed to remove " + user.getDisplay_name() + " from the chat room");
                     } else {

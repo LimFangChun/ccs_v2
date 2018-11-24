@@ -2,6 +2,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/nav_group_info"
+        android:title="@string/see_group_info" />
+    <item
         android:id="@+id/nav_exit_group"
         android:title="@string/exit_group" />
 </menu>

@@ -86,6 +86,7 @@
     <string name="contact_number">Contact Number</string>
     <string name="email">Email</string>
     <string name="address">Address</string>
+    <string name="course">Course</string>
 
     <!-- Strings related to Settings -->
 
@@ -214,6 +215,20 @@
     <string name="get_participant_add_desc">Did not find any available friend to add into the group chat</string>
     <string name="remove_participant_from_chat_desc">Did not find any available participant in this chat group</string>
     <string name="failed_create_chat_room">Something went wrong. Please try again</string>
+    <string name="upload_group_photo_desc">Group photo has been uploaded</string>
+    <string name="advanced_search">Advanced search</string>
+    <string name="advanced_search_desc">Search with custom criteria</string>
+    <string name="search_name">Search by name</string>
+    <string name="search_by_faculty">Search by faculty</string>
+    <string name="search_by_course">Search by course</string>
+    <string name="search_by_tutorial_group">Search by tutorial group</string>
+    <string name="or">Or</string>
+    <string name="go">Go</string>
+    <string name="search_1">Search</string>
+    <string name="reset">Reset</string>
+    <string name="year">Year</string>
+    <string name="advanced_search_empty_criteria_desc">Please select at least one criteria before proceeding to next step</string>
+    <string name="advanced_search_title">Select at least one criteria</string>
     <string name="username">Username</string>
     <string name="display_name">Display name</string>
 </resources>

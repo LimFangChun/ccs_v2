@@ -49,6 +49,7 @@ import my.edu.tarc.communechat_v2.model.Participant;
 import my.edu.tarc.communechat_v2.model.User;
 
 import static my.edu.tarc.communechat_v2.MainActivity.mqttHelper;
+import static my.edu.tarc.communechat_v2.NotificationView.sendNotification;
 
 public class ChatRoomActivity extends AppCompatActivity {
     private static final String TAG = "ChatRoomActivity";
@@ -173,11 +174,17 @@ public class ChatRoomActivity extends AppCompatActivity {
                 received_message.setMessage_type(result.getString(Message.COL_MESSAGE_TYPE));
                 received_message.setRoom_id(result.getInt(Message.COL_ROOM_ID));
                 received_message.setSender_name(result.getString(Message.COL_SENDER_NAME));
-                received_message.setMedia(result.getString(Message.COL_MEDIA).getBytes());
+                if (!received_message.getMessage_type().equals("Text")) {
+                    byte[] media = Base64.decode(result.getString(Message.COL_MEDIA), 0);
+                    received_message.setMedia(media);
+                }else{
+                    received_message.setMedia(null);
+                }
 
                 //make a short vibration or sound
                 //depend on user's mode
-                makeVibrationOrSound();
+                //makeVibrationOrSound();
+
 
                 addMessage(pref.getInt(User.COL_USER_ID, -1) == received_message.getSender_id(),
                         received_message.getSender_name(),

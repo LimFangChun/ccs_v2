@@ -10,7 +10,6 @@ import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -136,45 +135,8 @@ public class ChatRoomActivity extends AppCompatActivity {
         chatMqttHelper.getMqttClient().setCallback(chatRoomCallback);
         //chatRoom.setSecret_key(pref.getString(RoomSecretHelper.getRoomPrefKey(chatRoom.getRoom_id()),null).getBytes());
 
-        if (isNetworkAvailable()) {
+        if (isNetworkAvailable())
             initializeChatRoomByRoomID();
-        } else {
-            //initializeLocalChatRoom();
-        }
-
-//        chatViewRoom.setOnSentMessageListener(new ChatView.OnSentMessageListener() {
-//            @Override
-//            public boolean sendMessage(ChatMessage chatMessage) {
-//                if (chatViewRoom.getTypedMessage().isEmpty()) {
-//                    return false;
-//                }
-//
-//                Calendar calendar = Calendar.getInstance();
-//                String header = MqttHeader.SEND_ROOM_MESSAGE;
-//                //String topic = header + "/room" + chatRoom.getRoom_id();
-//                Message message = new Message();
-//                message.setSender_id(pref.getInt(User.COL_USER_ID, -1));
-//                message.setDate_created(calendar);
-//                //message.setMessage(chatRoom.encryptMessage(chatViewRoom.getTypedMessage()));
-//                message.setMessage(chatViewRoom.getTypedMessage());
-//                message.setRoom_id(chatRoom.getRoom_id());
-//                message.setMessage_type("Text");
-//                message.setSender_name(pref.getString(User.COL_DISPLAY_NAME, ""));
-//
-//                chatViewRoom.addMessage(new ChatMessage(
-//                        chatViewRoom.getTypedMessage(),
-//                        calendar.getTimeInMillis(),
-//                        ChatMessage.Type.SENT,
-//                        ""
-//                ));
-//                chatMqttHelper.publish(topic, header, message);
-//                chatViewRoom.getInputEditText().setText("");
-//
-//                //make sure to return false
-//                //return true the chat view will update automatically
-//                return false;
-//            }
-//        });
     }
 
     private MqttCallback chatRoomCallback = new MqttCallback() {
@@ -186,7 +148,13 @@ public class ChatRoomActivity extends AppCompatActivity {
         @Override
         public void messageArrived(String topic, MqttMessage message) throws Exception {
             chatMqttHelper.decode(message.toString());
+
+            if (!chatMqttHelper.getReceivedHeader().equals(MqttHeader.SEND_ROOM_MESSAGE)) {
+                return;
+            }
+
             try {
+                Log.d(TAG, "messageArrived: " + chatMqttHelper.getReceivedResult());
                 JSONObject result = new JSONObject(chatMqttHelper.getReceivedResult());
 
                 if (result.getInt(Message.COL_ROOM_ID) != chatRoom.getRoom_id()) {
@@ -207,23 +175,16 @@ public class ChatRoomActivity extends AppCompatActivity {
                 received_message.setSender_name(result.getString(Message.COL_SENDER_NAME));
                 received_message.setMedia(result.getString(Message.COL_MEDIA).getBytes());
 
-//                chatViewRoom.addMessage(new ChatMessage(
-//                        received_message.getMessage(),
-//                        received_message.getDate_created().getTimeInMillis(),
-//                        ChatMessage.Type.RECEIVED,
-//                        received_message.getSender_name()
-//                ));
-
                 //make a short vibration or sound
                 //depend on user's mode
                 makeVibrationOrSound();
 
-
-                Log.d("CCC0", "Entered Result");
-                addMessage(pref.getInt(User.COL_USER_ID, -1) == received_message.getSender_id(), received_message.getSender_name(), received_message.getDate_created().getTime().toString(), received_message.getMessage_type(), received_message.getMessage(), received_message.getMedia());
-
-
-                //chatView.addMessage();
+                addMessage(pref.getInt(User.COL_USER_ID, -1) == received_message.getSender_id(),
+                        received_message.getSender_name(),
+                        received_message.getDate_created().getTime().toString(),
+                        received_message.getMessage_type(),
+                        received_message.getMessage(),
+                        received_message.getMedia());
 
                 //don't unsubscribe from the topic
             } catch (Exception e) {
@@ -280,7 +241,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                             room_message.setSender_id(temp.getInt(Message.COL_SENDER_ID));
 
                             //ChatMessage chatMessage = new ChatMessage(
-                                    //chatRoom.decryptMessage(temp.getString(Message.COL_MESSAGE)), //message content
+                            //chatRoom.decryptMessage(temp.getString(Message.COL_MESSAGE)), //message content
                             temp.getString(Message.COL_MESSAGE); //message content
 //                                    room_message.getDate_created().getTimeInMillis(), //date
 //                                    pref.getInt(User.COL_USER_ID, -1) == room_message.getSender_id()
@@ -296,16 +257,15 @@ public class ChatRoomActivity extends AppCompatActivity {
                                 byte[] z2 = Base64.decode(temp.getString(Message.COL_MEDIA), 0);
                             }
 
-                            Log.d("CCC", "Checker " + temp.getString(Message.COL_MEDIA).getBytes().length);
                             byte[] media = Base64.decode(temp.getString(Message.COL_MEDIA), 0);
                             //imageView.setImageBitmap(BitmapFactory.decodeByteArray(z, 0, z.length));
-                            Log.d("CCC", "Number Result " + result.length());
-                            //Log.d("CCC", z.length + "Size");
 
-                            addMessage(pref.getInt(User.COL_USER_ID, -1) == room_message.getSender_id(), temp.getString(User.COL_DISPLAY_NAME), room_message.getDate_created().getTime().toString(), temp.getString(Message.COL_MESSAGE_TYPE), temp.getString(Message.COL_MESSAGE), media);
-
+                            addMessage(pref.getInt(User.COL_USER_ID, -1) == room_message.getSender_id(),
+                                    temp.getString(User.COL_DISPLAY_NAME),
+                                    room_message.getDate_created().getTime().toString(),
+                                    temp.getString(Message.COL_MESSAGE_TYPE),
+                                    temp.getString(Message.COL_MESSAGE), media);
                         }
-//                        chatViewRoom.addMessages(messages);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -329,10 +289,10 @@ public class ChatRoomActivity extends AppCompatActivity {
             if (audio != null) {
                 switch (audio.getRingerMode()) {
                     case AudioManager.RINGER_MODE_NORMAL:
-                        myUtil.makeSound(this);
+                        myUtil.INSTANCE.makeSound(this);
                         break;
                     case AudioManager.RINGER_MODE_VIBRATE:
-                        myUtil.makeVibration(this, myUtil.VIBRATE_SHORT);
+                        myUtil.INSTANCE.makeVibration(this, myUtil.VIBRATE_SHORT);
                         break;
                 }
             }
@@ -426,9 +386,6 @@ public class ChatRoomActivity extends AppCompatActivity {
         imageLoader.init(ImageLoaderConfiguration.createDefault(this));
 
         chatView = findViewById(R.id.chatView);
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
-            chatView.showSenderLayout(false);
 
         chatView.setOnClickSendButtonListener(new com.shrikanthravi.chatview.widget.ChatView.OnClickSendButtonListener() {
             @Override

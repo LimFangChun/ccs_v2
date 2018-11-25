@@ -218,7 +218,7 @@ public class LoginActivity extends AppCompatActivity {
         progressBar.setVisibility(View.INVISIBLE);
         //Log.i("[MqttHelper]", "Received header: " + mqttHelper.getReceivedHeader());
         //Log.i("[MqttHelper]", "Received result: " + mqttHelper.getReceivedResult());
-        if (mqttHelper.getReceivedHeader().equals(MqttHeader.LOGIN_REPLY)) {
+        if (helper.getReceivedHeader().equals(MqttHeader.LOGIN_REPLY)) {
             //unsub from the topic
             mqttHelper.unsubscribe(topic);
             if (helper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
@@ -276,13 +276,13 @@ public class LoginActivity extends AppCompatActivity {
                         editor.putInt(Student.COL_ACADEMIC_YEAR, temp.getInt(Student.COL_ACADEMIC_YEAR));
                     }
 
-                    editor.commit();
-
+                    if (editor.commit()) {
+                        finish();
+                    }
 
                     //check if RSA keys are generated
                     //generate one if none
                     //setupRSA();
-                    finish();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

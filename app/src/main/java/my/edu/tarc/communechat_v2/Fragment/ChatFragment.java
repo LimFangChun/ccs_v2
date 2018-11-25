@@ -1,5 +1,7 @@
 package my.edu.tarc.communechat_v2.Fragment;
 
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
@@ -25,6 +27,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import my.edu.tarc.communechat_v2.Adapter.ChatListAdapter;
 import my.edu.tarc.communechat_v2.Background.BackgroundService;
@@ -147,9 +150,9 @@ public class ChatFragment extends Fragment {
                             ChatListAdapter adapter = new ChatListAdapter(getContext(), R.layout.adapter_chat_list, resultList);
                             listViewChatList.setAdapter(adapter);
 
-//                            if (savedInstanceState == null) {
-//                                runBackgroundService(roomID);
-//                            }
+                            if (savedInstanceState == null) {
+                                runBackgroundService(roomID);
+                            }
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -167,11 +170,12 @@ public class ChatFragment extends Fragment {
     }
 
     private void runBackgroundService(int[] roomID) {
-        //todo this does not work properly
-        Log.d("ChatFragment", "running background service");
-        Intent intent = new Intent(getContext(), BackgroundService.class);
-        intent.putExtra(Chat_Room.COL_ROOM_ID, roomID);
-        getContext().startService(intent);
+        if (!isMyServiceRunning(BackgroundService.class)) {
+            Log.d("ChatFragment", "running background service");
+            Intent intent = new Intent(getActivity(), BackgroundService.class);
+            intent.putExtra(Chat_Room.COL_ROOM_ID, roomID);
+            Objects.requireNonNull(getContext()).startService(intent);
+        }
     }
 
     private void sleep(double second) {
@@ -188,5 +192,19 @@ public class ChatFragment extends Fragment {
         if(pref.getInt(User.COL_USER_ID, -1) != -1) {
             RoomSecretHelper.initializeRoomSecretHelper(getContext(), pref.getInt(User.COL_USER_ID, -1));
         }
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        if (getActivity() != null) {
+            ActivityManager manager = (ActivityManager) getActivity().getSystemService(Context.ACTIVITY_SERVICE);
+            assert manager != null;
+            for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+                if (serviceClass.getName().equals(service.service.getClassName())) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

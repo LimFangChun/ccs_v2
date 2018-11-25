@@ -254,6 +254,7 @@ public class MqttHelper {
     public void disconnect() {
         if (mqttAndroidClient != null && mqttAndroidClient.isConnected()) {
             try {
+                mqttAndroidClient.unregisterResources();
                 IMqttToken disconnectToken = mqttAndroidClient.disconnect();
                 disconnectToken.setActionCallback(new IMqttActionListener() {
                     @Override

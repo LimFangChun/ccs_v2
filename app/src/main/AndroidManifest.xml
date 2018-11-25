@@ -40,12 +40,9 @@
 
         <service
             android:name=".Background.BackgroundService"
-            android:isolatedProcess="true"
-            android:stopWithTask="false">
-            <intent-filter>
-                <action android:name=".Background.BackgroundService" />
-            </intent-filter>
-        </service>
+            tools:ignore="InnerclassSeparator"
+            android:exported="false" />
+
 
         <activity
             android:name=".RegisterUserActivity"

@@ -218,7 +218,7 @@ public class LoginActivity extends AppCompatActivity {
         progressBar.setVisibility(View.INVISIBLE);
         //Log.i("[MqttHelper]", "Received header: " + mqttHelper.getReceivedHeader());
         //Log.i("[MqttHelper]", "Received result: " + mqttHelper.getReceivedResult());
-        if (mqttHelper.getReceivedHeader().equals(MqttHeader.LOGIN_REPLY)) {
+        if (helper.getReceivedHeader().equals(MqttHeader.LOGIN_REPLY)) {
             //unsub from the topic
             mqttHelper.unsubscribe(topic);
             if (helper.getReceivedResult().equals(MqttHeader.NO_RESULT)) {
@@ -245,6 +245,7 @@ public class LoginActivity extends AppCompatActivity {
                     editor.putString(User.COL_CITY_ID, temp.getString(User.COL_CITY_ID));
                     editor.putString(User.COL_STATUS, temp.getString(User.COL_STATUS));
                     editor.putString(User.COL_LAST_ONLINE, temp.getString(User.COL_LAST_ONLINE));
+                    editor.putString(Student.COL_STUDENT_ID, temp.getString(Student.COL_STUDENT_ID));
                     editor.putString(Student.COL_FACULTY, temp.getString(Student.COL_FACULTY));
                     editor.putString(Student.COL_COURSE, temp.getString(Student.COL_COURSE));
 
@@ -270,7 +271,7 @@ public class LoginActivity extends AppCompatActivity {
 
                     editor.putString(Student.COL_INTAKE, temp.getString(Student.COL_INTAKE));
 
-                    if (temp.isNull(Student.COL_TUTORIAL_GROUP)) {
+                    if (temp.isNull(Student.COL_ACADEMIC_YEAR)) {
                         editor.putInt(Student.COL_ACADEMIC_YEAR, 0);
                     } else {
                         editor.putInt(Student.COL_ACADEMIC_YEAR, temp.getInt(Student.COL_ACADEMIC_YEAR));

@@ -68,6 +68,9 @@ public class MainActivity extends AppCompatActivity {
                 pref.edit().clear().apply();
                 startActivity(new Intent(MainActivity.this, LoginActivity.class));
                 break;
+            case R.id.nav_edit_profile:
+                startActivity(new Intent(MainActivity.this, UpdateProfileActivity.class));
+                break;
         }
 
         return super.onOptionsItemSelected(item);
@@ -87,7 +90,6 @@ public class MainActivity extends AppCompatActivity {
         runLocationService();
 
 
-        updateUserStatus("Online");
 
         bottomNavigationView.setOnNavigationItemSelectedListener(bottomNavListener);
 
@@ -106,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
         }
 
+        updateUserStatus("Online");
         PreferenceManager.setDefaultValues(this, R.xml.settings, false);
     }
 

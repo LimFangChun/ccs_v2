@@ -689,7 +689,52 @@ public class MqttHelper {
                 result = temp.toString();
                 break;
             }
-            case MqttHeader.SET_USER_PROFILE:{
+            case MqttHeader.UPDATE_USER:{
+                User user = (User)data;
+                temp.append(MqttHeader.UPDATE_USER)
+                        .append(",")
+                        .append(user.getUser_id())
+                        .append(",")
+                        .append(user.getUsername())
+                        .append(",")
+                        .append(user.getDisplay_name())
+                        .append(",")
+                        .append(user.getPosition())
+                        .append(",")
+                        .append(user.getGender())
+                        .append(",")
+                        .append(user.getDobString(User.SQL_DATE_FORMAT))
+                        .append(",")
+                        .append(user.getPhone_number())
+                        .append(",")
+                        .append(user.getEmail());
+                        //.append(",")
+                        //.append(user.getAddress())
+                        //.append(",")
+                        //.append(user.getCity_id());
+                result = temp.toString();
+
+                break;
+            }
+            case MqttHeader.UPDATE_STUDENT:{
+
+            	Student student = (Student)data;
+            	temp.append(MqttHeader.UPDATE_STUDENT)
+						.append(",")
+						.append(student.getUser_id())
+						.append(",")
+						.append(student.getStudent_id())
+						.append(",")
+						.append(student.getFaculty())
+						.append(",")
+						.append(student.getCourse())
+						.append(",")
+						.append(student.getTutorial_group())
+						.append(",")
+						.append(student.getIntake())
+						.append(",")
+						.append(student.getAcademic_year());
+            	result=temp.toString();
                 break;
             }
         }

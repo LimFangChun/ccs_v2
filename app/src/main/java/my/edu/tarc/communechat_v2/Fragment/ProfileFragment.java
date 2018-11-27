@@ -70,8 +70,8 @@ public class ProfileFragment extends Fragment {
 		imageViewProfilePic.setOnLongClickListener(new View.OnLongClickListener() {
 			@Override
 			public boolean onLongClick(View view) {
-				Intent intent = new Intent(getContext(), TestEncryptionActivity.class);
-//				Intent intent = new Intent(getContext(), UpdateProfileActivity.class);
+//				Intent intent = new Intent(getContext(), TestEncryptionActivity.class);
+				Intent intent = new Intent(getContext(), UpdateProfileActivity.class);
 				startActivity(intent);
 				return false;
 			}

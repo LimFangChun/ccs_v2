@@ -56,6 +56,9 @@
         <activity
             android:name=".SettingsActivity"
             android:parentActivityName=".SettingsActivity" />
+        <activity
+            android:name=".UpdateProfileActivity"
+            android:parentActivityName=".UpdateProfileActivity" />
         <!-- <activity -->
         <!-- android:name=".chatEngine.ChatRoomActivity" -->
         <!-- android:label="@string/title_activity_chat_room" -->

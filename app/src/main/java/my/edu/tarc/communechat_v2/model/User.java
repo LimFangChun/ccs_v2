@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 
 /**
  * Created by Xeosz on 26-Sep-17.
@@ -25,6 +26,7 @@ public class User {
     public static final String COL_POSITION = "position";
     public static final String COL_GENDER = "gender";
     public static final String COL_NRIC = "nric";
+    public static final String COL_DATE_OF_BIRTH = "date_of_birth";
     public static final String COL_PHONE_NUMBER = "phone_number";
     public static final String COL_EMAIL = "email";
     public static final String COL_ADDRESS = "address";
@@ -36,6 +38,12 @@ public class User {
     public static final String COL_DISTANCE = "distance";
 	public static final String COL_PUBLIC_KEY = "public_key";
 	public static final String COL_PRIVATE_KEY = "private_key";
+    public static final String GENDER_MALE = "M";
+    public static final String GENDER_FEMALE = "F";
+    public static final String POSITION_STUDENT = "Student";
+    public static final String POSITION_LECTURER = "Lecturer";
+    public static final String SIMPLE_DATE_FORMAT = "dd/MM/yy";
+    public static final String SQL_DATE_FORMAT = "yyyy-MM-dd";
 
     //variables for encapsulation
     @PrimaryKey
@@ -47,6 +55,7 @@ public class User {
     private String position;
     private String gender;
     private String nric;
+    private Calendar dateOfBirth;
     private String phone_number;
     private String email;
     private String address;
@@ -131,6 +140,14 @@ public class User {
 
     public void setNric(String nric) {
         this.nric = nric;
+    }
+
+    public Calendar getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(Calendar dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 
     public String getPhone_number() {
@@ -276,4 +293,27 @@ public class User {
     public Bitmap getProfilePictureBitmap() {
         return BitmapFactory.decodeByteArray(profile_picture, 0, profile_picture.length);
     }
+
+    public void setDobFromString(String dob, String format){
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.ENGLISH);
+        try {
+            dateOfBirth = Calendar.getInstance();
+            dateOfBirth.setTime(sdf.parse(dob));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public String getDobString(String format){
+        String dob = "";
+
+        if(dateOfBirth!=null){
+            SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.ENGLISH);
+
+            dob = sdf.format(dateOfBirth.getTime());
+        }
+        return dob;
+    }
+
 }

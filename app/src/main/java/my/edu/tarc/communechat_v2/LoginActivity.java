@@ -277,13 +277,13 @@ public class LoginActivity extends AppCompatActivity {
                         editor.putInt(Student.COL_ACADEMIC_YEAR, temp.getInt(Student.COL_ACADEMIC_YEAR));
                     }
 
-                    editor.commit();
-
+                    if (editor.commit()) {
+                        finish();
+                    }
 
                     //check if RSA keys are generated
                     //generate one if none
                     //setupRSA();
-                    finish();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

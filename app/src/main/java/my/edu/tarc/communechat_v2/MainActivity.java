@@ -21,11 +21,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import my.edu.tarc.communechat_v2.Background.BackgroundService;
 import my.edu.tarc.communechat_v2.Fragment.ChatFragment;
 import my.edu.tarc.communechat_v2.Fragment.FindFriendFragment;
 import my.edu.tarc.communechat_v2.Fragment.FriendListFragment;
@@ -85,11 +83,17 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView = (BottomNavigationView) findViewById(R.id.nav_bottom);
         pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
+        //check user login status
+        //if not logged in, redirect user to login activity
+        if (pref == null || pref.getInt(User.COL_USER_ID, -1) == -1) {
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+        }
+
         //check if user has GPS turn on
         //if not ask user if they want to turn on
         runLocationService();
 
-
+        updateUserStatus("Online");
 
         bottomNavigationView.setOnNavigationItemSelectedListener(bottomNavListener);
 
@@ -102,13 +106,6 @@ public class MainActivity extends AppCompatActivity {
                     .commit();
         }
 
-        //check user login status
-        //if not logged in, redirect user to login activity
-        if (pref == null || pref.getInt(User.COL_USER_ID, -1) == -1) {
-            startActivity(new Intent(MainActivity.this, LoginActivity.class));
-        }
-
-        updateUserStatus("Online");
         PreferenceManager.setDefaultValues(this, R.xml.settings, false);
     }
 
@@ -188,14 +185,6 @@ public class MainActivity extends AppCompatActivity {
 
         //disconnect mqtt helper
         mqttHelper.disconnect();
-
-        //stop the background service
-        this.stopService(new Intent(getApplicationContext(), BackgroundService.class));
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
     }
 
     private void updateUserStatus(String status) {
@@ -222,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
 
             pref.edit().putFloat(User.COL_LAST_LONGITUDE, (float) location.getLongitude()).apply();
             pref.edit().putFloat(User.COL_LAST_LATITUDE, (float) location.getLatitude()).apply();
-            Log.d("[LocationService]", "Location changed, lgt: " + location.getLongitude() + " ltd: " + location.getLatitude());
+            //Log.d("[LocationService]", "Location changed, lgt: " + location.getLongitude() + " ltd: " + location.getLatitude());
             updateUserLocation(location.getLongitude(), location.getLatitude());
         }
 

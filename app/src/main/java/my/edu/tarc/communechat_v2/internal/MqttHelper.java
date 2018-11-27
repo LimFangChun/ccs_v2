@@ -40,7 +40,7 @@ public class MqttHelper {
     private String receivedResult;
 
     //change MQTT broker IP address here
-    private static final String serverUri = "tcp://192.168.0.4:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
+    private static final String serverUri = "tcp://192.168.0.120:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
 
     //private static final String serverUri = "tcp://broker.hivemq.com:1883";
     //private static String mqttUsername = "";
@@ -254,6 +254,7 @@ public class MqttHelper {
     public void disconnect() {
         if (mqttAndroidClient != null && mqttAndroidClient.isConnected()) {
             try {
+                mqttAndroidClient.unregisterResources();
                 IMqttToken disconnectToken = mqttAndroidClient.disconnect();
                 disconnectToken.setActionCallback(new IMqttActionListener() {
                     @Override

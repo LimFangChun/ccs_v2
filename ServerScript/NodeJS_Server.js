@@ -1,6 +1,6 @@
 var mysql = require('mysql');
 var mqtt = require('mqtt');
-var serverAddress = 'tcp://192.168.0.110:1883';//change to broker's ip
+var serverAddress = 'tcp://172.22.6.184:1883';//change to broker's ip
 var mqttClient = mqtt.connect(serverAddress);
 var DB_CONNECTION;
 
@@ -66,6 +66,7 @@ function processReceivedData(topic, message) {
     var temp = message.toString().split(',');
     switch (temp[0]) {
         case "SEND_ROOM_MESSAGE":
+            console.log(temp[0]);
             SEND_ROOM_MESSAGE(topic, message);
             break;
         case "FIND_BY_ADDRESS":
@@ -102,9 +103,9 @@ function SEND_ROOM_MESSAGE(topic, message) {
     var receivedData = message.toString().substring(message.toString().indexOf(',') + 1);
     var messageJSON = JSON.parse(receivedData);
 
-    var sql = `INSERT INTO Message (message, sender_id, room_id) 
-                        VALUES (?, ?, ?)`;
-    var input = [messageJSON['message'], messageJSON['sender_id'], messageJSON['room_id']];
+    var sql = `INSERT INTO Message (message, sender_id, room_id, message_type, media) 
+                        VALUES (?, ?, ?, ?, ?)`;
+    var input = [messageJSON['message'], messageJSON['sender_id'], messageJSON['room_id'], messageJSON['message_type'], messageJSON['media']];
 
     DB_CONNECTION.query(sql, input, function (err, result) {
         if (err) {

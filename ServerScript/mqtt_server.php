@@ -111,7 +111,7 @@ $client_id = "CCS_SERVER";
  */
  
 //$server = "broker.hivemq.com";     		// change to your broker's ip
-$server = "192.168.0.110";
+$server = "172.22.6.184";
 $port = 1883;                     		// change if necessary, default is 1883
 $username = "";                 // set your username
 $password = "";             // set your password
@@ -141,7 +141,7 @@ $mqtt->close();
 //MQTT publish message
 //DO NOT MODIFY, except ip address
 function publishMessage($topic, $ack_message){
-	$server = "192.168.0.110";     		// change if necessary
+	$server = "172.22.6.184";     		// change if necessary
 	$port = 1883;                     		// change if necessary
 	$username = "";                 // set your username
 	$password = "";             // set your password
@@ -170,85 +170,77 @@ function publishMessage($topic, $ack_message){
 
 //Server Responses
 //add your new function to here
-function procmsg($topic, $msg){
+function procmsg($topic, $msg){		
 		$ack_message = "";
 		echo "=====================================================";
 		echo "\nReceiving message:";
 		echo "\nTopic: ".$topic;
 		echo "\nReceived Message: ".$msg."\n";
-
+		
 		if(!empty($msg)){
-			$commandmsg = explode(",", $msg);
+			$commandmsg = explode(",", $msg);				
 			switch($commandmsg[0]){
 				case "LOGIN":	{
-					$ack_message = LOGIN($msg);
+					$ack_message = LOGIN($msg); 
 					publishMessage($topic, $ack_message);
 					break;}
 				case "REGISTER_USER":	{
-					$ack_message = REGISTER_USER($msg);
+					$ack_message = REGISTER_USER($msg); 
 					publishMessage($topic, $ack_message);
 					break;}
 				case "UPDATE_USER_STATUS": {
-					$ack_message = UPDATE_USER_STATUS($msg);
+					$ack_message = UPDATE_USER_STATUS($msg); 
 					break;}
 				case "GET_CHAT_ROOM": {
-					$ack_message = GET_CHAT_ROOM($msg);
+					$ack_message = GET_CHAT_ROOM($msg); 
 					publishMessage($topic, $ack_message);
 					break;}
 				case "GET_ROOM_MESSAGE": {
-					$ack_message = GET_ROOM_MESSAGE($msg);
+					$ack_message = GET_ROOM_MESSAGE($msg); 
 					publishMessage($topic, $ack_message);
 					break;}
 				// case "SEND_ROOM_MESSAGE": {
 				// 	$ack_message = SEND_ROOM_MESSAGE($msg); break;}
 				case "DELETE_CHAT_ROOM":{
-					$ack_message = DELETE_CHAT_ROOM($msg);
+					$ack_message = DELETE_CHAT_ROOM($msg); 
 					publishMessage($topic, $ack_message);
 					break;}
 				case "GET_ROOM_INFO":{
-					$ack_message = GET_ROOM_INFO($msg);
+					$ack_message = GET_ROOM_INFO($msg); 
 					publishMessage($topic, $ack_message);
 					break;}
 				case "ADD_PEOPLE_TO_GROUP":{
-					$ack_message = ADD_PEOPLE_TO_GROUP($msg);
+					$ack_message = ADD_PEOPLE_TO_GROUP($msg); 
 					publishMessage($topic, $ack_message);
 					break;}
 				case "REMOVE_PEOPLE_FROM_GROUP":{
-					$ack_message = REMOVE_PEOPLE_FROM_GROUP($msg);
+					$ack_message = REMOVE_PEOPLE_FROM_GROUP($msg); 
 					publishMessage($topic, $ack_message);
 					break;}
 				case "GET_FRIEND_LIST_FOR_PARTICIPANT_ADD":{
-					$ack_message = GET_FRIEND_LIST_FOR_PARTICIPANT_ADD($msg);
+					$ack_message = GET_FRIEND_LIST_FOR_PARTICIPANT_ADD($msg); 
 					publishMessage($topic, $ack_message);
 					break;}
 				case "GET_PARTICIPANT_LIST_REMOVE":{
-					$ack_message = GET_PARTICIPANT_LIST_REMOVE($msg);
+					$ack_message = GET_PARTICIPANT_LIST_REMOVE($msg); 
 					publishMessage($topic, $ack_message);
 					break;}
 				case "CREATE_CHAT_ROOM":{
-					$ack_message = CREATE_CHAT_ROOM($msg);
+					$ack_message = CREATE_CHAT_ROOM($msg); 
 					publishMessage($topic, $ack_message);
 					break;}
 				case "GET_FRIEND_LIST":	{
-					$ack_message = GET_FRIEND_LIST($msg);
-					publishMessage($topic, $ack_message);
-					break;}
-				case "GET_STATES":	{
-					$ack_message = GET_STATES($msg);
-					publishMessage($topic, $ack_message);
-					break;}
-				case "GET_CITY_BY_STATE":	{
-					$ack_message = GET_CITY_BY_STATE($msg);
+					$ack_message = GET_FRIEND_LIST($msg); 
 					publishMessage($topic, $ack_message);
 					break;}
 				// case "FIND_BY_ADDRESS":	{
 				// 	$ack_message = FIND_BY_ADDRESS($msg); break;}
 				// case "FIND_BY_PROGRAMME":	{
-				// 	$ack_message = FIND_BY_PROGRAMME($msg);
+				// 	$ack_message = FIND_BY_PROGRAMME($msg); 
 				// 	publishMessage($topic, $ack_message);
 				// 	break;}
 				// case "FIND_BY_TUTORIAL_GROUP":	{
-				// 	$ack_message = FIND_BY_TUTORIAL_GROUP($msg);
+				// 	$ack_message = FIND_BY_TUTORIAL_GROUP($msg); 
 				// 	publishMessage($topic, $ack_message);
 				// 	break;}
 				// case "FIND_BY_AGE":	{
@@ -256,7 +248,7 @@ function procmsg($topic, $msg){
 				// 	publishMessage($topic, $ack_message);
 				// 	break;}
 				case "GET_FRIEND_REQUEST":{
-					$ack_message = GET_FRIEND_REQUEST($msg);
+					$ack_message = GET_FRIEND_REQUEST($msg); 
 					publishMessage($topic, $ack_message);
 					break;}
 				case "COUNT_FRIEND_REQUEST":{
@@ -264,34 +256,21 @@ function procmsg($topic, $msg){
 					publishMessage($topic, $ack_message);
 					break;}
 				case "ADD_FRIEND":	{
-					$ack_message = ADD_FRIEND($msg);
+					$ack_message = ADD_FRIEND($msg); 
 					publishMessage($topic, $ack_message);
 					break;}
 				case "REQ_ADD_FRIEND":	{
-					$ack_message = REQ_ADD_FRIEND($msg);
+					$ack_message = REQ_ADD_FRIEND($msg); 
 					publishMessage($topic, $ack_message);
 					break;}
 				case "DELETE_FRIEND":	{
-					$ack_message = DELETE_FRIEND($msg);
+					$ack_message = DELETE_FRIEND($msg); 
 					publishMessage($topic, $ack_message);
 					break;}
 				case "SEARCH_USER":	{
-					$ack_message = SEARCH_USER($msg);
+					$ack_message = SEARCH_USER($msg); 
 					publishMessage($topic, $ack_message);
 					break;}
-				case "GET_USER_PROFILE":	{
-					$ack_message = GET_USER_PROFILE($msg);
-					publishMessage($topic, $ack_message);
-					break;}
-				case "UPDATE_USER":	{
-					$ack_message = UPDATE_USER($msg);
-					publishMessage($topic, $ack_message);
-					break;}
-				case "UPDATE_STUDENT":	{
-					$ack_message = UPDATE_STUDENT($msg);
-					publishMessage($topic, $ack_message);
-					break;}
-				/*
 				case "UPDATE_PUBLIC_KEY": {
 					$ack_message = UPDATE_PUBLIC_KEY($msg);
 					publishMessage($topic, $ack_message);
@@ -304,10 +283,14 @@ function procmsg($topic, $msg){
 					$ack_message = GET_PUBLIC_KEY($msg);
 					publishMessage($topic, $ack_message);
 					break;}
+	            case "CHECK_NUM_PPL":	{
+					$ack_message = CHECK_NUM_PPL($msg);
+					publishMessage($topic, $ack_message);
+					break;}
 				// case "UPDATE_LOCATION": {
 				// 	$ack_message = UPDATE_LOCATION($msg); break;}
 				// case "FIND_BY_LOCATION": {
-				// 	$ack_message = FIND_BY_LOCATION($msg);
+				// 	$ack_message = FIND_BY_LOCATION($msg); 
 				// 	publishMessage($topic, $ack_message);
 				// 	break;}
 			}
@@ -335,7 +318,7 @@ function dbResult($sql){
 				echo("ERROR: Could not connect. " . mysqli_connect_error());
 			}
 			else{
-				mysqli_set_charset($link, "UTF8");
+				mysqli_set_charset($link, "UTF8");	
 				$result = mysqli_query($link, $sql);
 				if($result)
 					return $result;
@@ -346,9 +329,9 @@ function dbResult($sql){
 				mysqli_close($link);
 				return $result;
 			}
-}
+}	
 
-function dbResult_stmt($sql, $types, $params){
+function dbResult_stmt($sql, $types, $params, $param_count){
 	$hostname_localhost = "localhost";
 	$database_localhost = "ccs_master";//change to your database name
 	$username_localhost = "ccs_main";//change to your database username, it is recommended to add a new user with password
@@ -385,22 +368,22 @@ function dbResult_stmt($sql, $types, $params){
 //Update: For student LOGIN only
 function LOGIN($msg){
 	$ack_message = "";
-	$receivedData = explode(',', $msg);
-	echo "\nHeader: ".$receivedData[0]."\n";
-	echo "\nUsername: ".$receivedData[1]."\n";
+	$receivedData = explode(',', $msg);		 
+	echo "\nHeader: ".$receivedData[0]."\n"; 
+	echo "\nUsername: ".$receivedData[1]."\n"; 
 	echo "\nPassword: ".$receivedData[2]."\n";
 	$username = $receivedData[1];
 	$password = $receivedData[2];
 
 	$ack_message = "LOGIN_REPLY,";
 	$sql ="SELECT *
-			FROM `user`
+			FROM `user` 
 			INNER JOIN `student` ON `user`.`user_id` = `student`.`user_id`
-			WHERE BINARY `User`.`username` = '$username'
+			WHERE BINARY `User`.`username` = '$username' 
 			AND BINARY `User`.`password` = '$password'
 			AND user.status = 'Offline'";
 	//Note: BINARY to toggle case sensitive, by default not case sensitive
-
+	
 	$result = dbResult($sql);
 	if(mysqli_num_rows($result) > 0){
 		$temp = array();
@@ -409,8 +392,7 @@ function LOGIN($msg){
 			//echo "\nUser $row['user_id'], $row['username'] has logged in\n";
 			//update user login status
 			$temp1 = "1,".$row['user_id'].",".'Online';
-			//UPDATE_USER_STATUS($temp1);
-			forbidSecrets($row['user_id']);
+			UPDATE_USER_STATUS($temp1);
 		}
 		$ack_message .= json_encode($temp);
 	} else{
@@ -422,24 +404,24 @@ function LOGIN($msg){
 
 function REGISTER_USER($msg){
 	echo "\nRegistering new user...\n";
-
+	
 	//clean $ack_message
 	$ack_message = "REGISTER_USER_REPLY,";
-
-	$receivedData = explode(',', $msg);
+	
+	$receivedData = explode(',', $msg);		 
 	$username = $receivedData[1];
 	$password = $receivedData[2];
-
+	
 	$sql = "SELECT * FROM User WHERE BINARY username = '$username'";
 	$result = dbResult($sql);
 	if(mysqli_num_rows($result) == 0){
 		echo "Registering user:".$username;
-
+		
 		$sql = "INSERT INTO User (username, password, display_name) VALUES ('$username', '$password', '$username');";
 		$result = dbResult($sql);
 		if($result){
 			echo "\nNew user registered:".$username."\n";
-			$ack_message .= "SUCCESS";
+			$ack_message .= "SUCCESS";		
 		}else{
 			echo "\nCannot register user:".$username."\n";
 			$ack_message .= "NO_RESULT";
@@ -454,11 +436,11 @@ function REGISTER_USER($msg){
 function UPDATE_USER_STATUS(){
 	$temp = func_get_arg(0);
 	$ack_message = "NO_PUB, ";
-
+	
 	$temp = explode(',', $temp);
 	$user_id = $temp[1];
 	$status = $temp[2];
-
+	
 	$sql = "UPDATE User SET status = '$status', last_online = CURRENT_TIMESTAMP WHERE user_id = '$user_id'";
 	$result = dbResult($sql);
 	if($result){
@@ -475,24 +457,22 @@ function UPDATE_USER_STATUS(){
 function UPDATE_STUDENT($msg){
 	//TODO: GAN DO this
 	//update student table, everything (except user_id) from null to something
-	$receivedData = explode(',', $msg);	// 1=user_id, 2...=student_id, faculty, course, tutorial_group, intake, academic_year
+	$receivedData = explode(',', $msg);	// 1=user_id, 2...=faculty, course, tutorial_group, intake, academic_year
 	$user_id = $receivedData[1];
-	$student_id = $receivedData[2];
-	$faculty = $receivedData[3];
-	$course = $receivedData[4];
-	$tutorial_group = $receivedData[5];
-	$intake = $receivedData[6];
-	$academic_year = $receivedData[7];
+	$faculty = $receivedData[2];
+	$course = $receivedData[3];
+	$tutorial_group = $receivedData[4];
+	$intake = $receivedData[5];
+	$academic_year = $receivedData[6];
 
-	$sql = "UPDATE TABLE Student
-			SET student_id = $student_id, faculty = '$faculty', course = '$course', tutorial_group = '$tutorial_group', intake = '$intake', academic_year = '$academic_year'
-			WHERE user_id = $user_id";
+	$sql = "UPDATE Student SET faculty = 'faculty', course = '$course', tutorial_group = '$tutorial_group', intake = '$intake', academic_year = '$academic_year'
+			WHERE user_id = '$user_id'";
 	$result = dbResult($sql);
 
-	if($result){
-		echo "\nUpdated student: $user_id, $student_id\n";
+	if(mysqli_affected_rows($result) > 0){
+		echo "\nUpdated student: $user_id\n";
 	}else{
-		echo "\nFailed to update student: $user_id, $student_id, $status\n";
+		echo "\nFailed to update student: $user_id, $status\n";
 		echo mysqli_error($result)."\n";
 	}
 }
@@ -501,29 +481,31 @@ function UPDATE_USER($msg){
 	//TODO: GAN DO this
 	//update everything except user_id, status, last_online
 	//position = student by default
+	//username, nric, phone_number, email requires validation
 
-	echo "\nUpdating user...\n";
-	$temp = func_get_arg(0);
-	$temp = explode(',', $temp);	// 1,...=user_id, username, display_name, position, gender, date_of_birth, phone_number, email, address, city_id
-	$user_id = $temp[1];
-	$username = $temp[2];
-	$display_name = $temp[3];
-	$position = $temp[4];
-	$gender = $temp[5];
-	$date_of_birth = $temp[6];
-	$phone_number = $temp[7];
-	$email = $temp[8];
-	//$address = $receivedData[9];
-	//$city_id = $receivedData[10];
+	echo "\nupdating user...\n";
+	$receivedData = explode(',', $msg);	// 1,...=user_id, username, display_name, position, password, gender, nric, phone_number, email, address, city_id
+	$user_id = $receivedData[1];
+	$username = $receivedData[2];
+	$display_name = $receivedData[3];
+	$position = $receivedData[4];
+	$password = $receivedData[5];
+	$gender = $receivedData[6];
+	$nric = $receivedData[7];
+	$phone_number = $receivedData[8];
+	$email = $receivedData[9];
+	$address = $receivedData[10];
+	$city_id = $receivedData[11];
+	//if position="Student", create student table with user_id=[received user_id] (postponed, not now :P)
+	//$sql = "INSERT INTO Student (user_id) VALUES ('$user_id');";
 
-	$sql = "UPDATE User SET username = '$username', display_name = '$display_name', position = '$position', gender = '$gender',
-			date_of_birth = '$date_of_birth ', phone_number = '$phone_number', email = '$email'
-			WHERE user_id = '$user_id'";  //, address = '$address', city_id = '$city_id'
+	$sql = "UPDATE User SET username = '$username', display_name = '$display_name', position = '$position', password = '$password',
+	gender = '$gender', nric = '$nric', phone_number = '$phone_number', email = '$email', address = '$address', city_id = '$city_id' WHERE user_id = 'user_id'";
 	$result = dbResult($sql);
-	if($result){
+		if(mysqli_affected_rows($result) > 0){
 		echo "\nUpdated user: $user_id\n";
 	}else{
-		echo "\nFailed to update user: $user_id\n";
+		echo "\nFailed to user: $user_id, $status\n";
 		echo mysqli_error($result)."\n";
 	}
 }
@@ -556,13 +538,13 @@ function GET_USER_PROFILE($msg){
 function SEARCH_USER($msg){
 	echo "\nSearching user...\n";
 	$ack_message = "SEARCH_USER_REPLY,";
-
+	
 	$receivedData = explode(',', $msg);
 	$user_id = $receivedData[1];
 	$target_username = $receivedData[2];
-
+	
 	$sql = "SELECT user.user_id, display_name, student.course, student.tutorial_group
-			FROM User INNER JOIN Student ON User.user_id = Student.user_id
+			FROM User INNER JOIN Student ON User.user_id = Student.user_id 
 			WHERE display_name LIKE '%$target_username%' OR username LIKE '$target_username'";
 	$result = dbResult($sql);
 	if(mysqli_num_rows($result) > 0){
@@ -580,74 +562,6 @@ function SEARCH_USER($msg){
 	return $ack_message;
 }
 
-//used in login, where user changes device(or not lul.)
-function forbidSecrets(){
-	$user_id = func_get_arg(0);
-	echo "\nForbidding secret keys...\n";
-	$sql = "UPDATE RoomSecret
-			SET status = 'Forbidden'
-			WHERE user_id = '$user_id'";
-	$result = dbResult($sql);
-	if($result){
-		echo "\nSecret keys of user $user_id has been forbidden\n";
-	}else{
-		echo "\nFailed to forbid Secret keys of user $user_id\n";
-		echo mysqli_error($result)."\n";
-	}
-}
-
-function GET_STATES($msg){
-	echo "\nGetting list of states...\n";
-	$ack_message = "GET_STATES_REPLY,";
-
-	$sql = "SELECT state_id, state_name
-			FROM State";
-
-	$result = dbResult($sql);
-	if(mysqli_num_rows($result) > 0){
-		$temp = array();
-		while($row = mysqli_fetch_array($result)){
-			$temp[] = $row;
-		}
-		echo "\nList of states retrieved\n";
-		$ack_message .= json_encode($temp);
-	}else{
-		echo "\nNo result\n";
-		$ack_message .= "NO_RESULT";
-	}
-	echo "\n".$ack_message;
-	return $ack_message;
-}
-
-function GET_CITY_BY_STATE($msg){
-	echo "\nSearching user...\n";
-	$ack_message = "GET_CITY_BY_STATE_REPLY,";
-
-	$receivedData = explode(',', $msg);
-	$state_id = $receivedData[1];
-	$target_username = $receivedData[2];
-
-	$sql = "SELECT city_id, city_name
-			FROM City
-			WHERE state_id = '$state_id'";
-	$result = dbResult($sql);
-
-	if(mysqli_num_rows($result) > 0){
-		$temp = array();
-		while($row = mysqli_fetch_array($result)){
-			$temp[] = $row;
-		}
-		echo "\nCities found\n";
-		$ack_message .= json_encode($temp);
-	}else{
-		echo "\nNo result\n";
-		$ack_message .= "NO_RESULT";
-	}
-	echo "\n".$ack_message;
-	return $ack_message;
-}
-
-/*
 function UPDATE_PUBLIC_KEY(){
 	$temp = func_get_arg(0);
 	$ack_message = "UPDATE_PUBLIC_KEY_REPLY, ";
@@ -698,6 +612,34 @@ function GET_PUBLIC_KEY(){
 	echo "\n".$ack_message;
 	return $ack_message;
 }
+
+function CHECK_NUM_PPL(){
+	$temp = func_get_arg(0);
+	echo "\n counting room people...\n";
+	$ack_message = "CHECK_NUM_PPL_REPLY,";
+
+	$temp = explode(',', $temp);
+	$room_id = $temp[1];
+
+	$sql = "SELECT COUNT(user_id),room_name FROM Chat_Room ,Participant
+             WHERE Chat_Room.room_id = $room_id AND  Participant.room_id = Chat_Room.room_id";
+	$result = dbResult($sql);
+	if(mysqli_num_rows($result) > 0){
+		$temp = array();
+		while($row = mysqli_fetch_array($result)){
+			$temp[] = $row;
+		}
+		echo "\nCount finish\n";
+		$ack_message .= json_encode($temp);
+	}else{
+		echo "\nNo result\n";
+		$ack_message .= "NO_RESULT";
+	}
+	echo "\n".$ack_message;
+	return $ack_message;
+}
+
+
 
 //The following functions are
 //Done by 1st generation seniors

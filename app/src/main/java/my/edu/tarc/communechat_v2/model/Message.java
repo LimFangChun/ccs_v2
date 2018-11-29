@@ -4,7 +4,11 @@ import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.PrimaryKey;
+import android.content.Context;
+import android.net.Uri;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -51,6 +55,8 @@ public class Message {
 
     @ColumnInfo(name = COL_MEDIA)
     private byte[] media;
+
+    private Uri mediaPath;
 
     public Message() {
         date_created = Calendar.getInstance();
@@ -157,6 +163,42 @@ public class Message {
 
     public void setMedia(byte[] media) {
         this.media = media;
+    }
+
+    public void setMedia(String media) {
+        if (!media.isEmpty()) {
+            this.media = media.getBytes();
+        } else {
+            this.media = null;
+        }
+    }
+
+    public byte[] getByteArray(Context context, Uri uri) {
+        try {
+            InputStream inputStream = context.getContentResolver().openInputStream(uri);
+
+            ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+            int bufferSize = 1024;
+            byte[] buffer = new byte[bufferSize];
+
+            int len;
+            assert inputStream != null;
+            while ((len = inputStream.read(buffer)) != -1) {
+                byteBuffer.write(buffer, 0, len);
+            }
+            return byteBuffer.toByteArray();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public Uri getMediaPath() {
+        return mediaPath;
+    }
+
+    public void setMediaPath(Uri mediaPath) {
+        this.mediaPath = mediaPath;
     }
 }
 

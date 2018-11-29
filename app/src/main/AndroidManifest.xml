@@ -98,7 +98,8 @@
             android:parentActivityName=".TestEncryptionActivity" />
         <activity
             android:name=".ChatRoomActivity"
-            android:parentActivityName=".ChatRoomActivity" />
+            android:parentActivityName=".ChatRoomActivity"
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".GroupInfoActivity"
             android:parentActivityName=".GroupInfoActivity" />

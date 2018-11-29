@@ -61,8 +61,7 @@ class BackgroundService : IntentService("MqttBackground") {
                             context = applicationContext,
                             title = incomeMessage.getString(Message.COL_SENDER_NAME),
                             text = incomeMessage.getString(Message.COL_MESSAGE),
-                            intent = pendingIntent,
-                            drawable = null)
+                            intent = pendingIntent)
                 } catch (e: JSONException) {
                     e.printStackTrace()
                 }

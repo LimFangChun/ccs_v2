@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:gravity="start">
+
+    <ImageView
+        android:id="@+id/imageView_profilePic"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_margin="10dp"
+        android:src="@drawable/dog_face"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="name"
+        android:layout_toEndOf="@id/imageView_profilePic"
+        android:id="@+id/textView_name"
+        tools:ignore="HardcodedText" />
+
+    <android.support.v7.widget.CardView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxWidth="250dp"
+        android:layout_marginEnd="50dp"
+        app:cardCornerRadius="10dp"
+        app:cardBackgroundColor="@color/colorAccent"
+        android:layout_toEndOf="@+id/imageView_profilePic"
+        android:layout_below="@id/textView_name"
+        android:id="@+id/cardView_message">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView_message"
+            android:text="123"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:padding="3dp"
+            tools:ignore="HardcodedText" />
+    </android.support.v7.widget.CardView>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView_time"
+        android:layout_toEndOf="@id/textView_name"
+        android:text="time"
+        android:layout_marginStart="10dp"
+        tools:ignore="HardcodedText" />
+</RelativeLayout>

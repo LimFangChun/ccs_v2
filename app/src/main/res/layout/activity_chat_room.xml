@@ -1,9 +1,9 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context=".ChatRoomActivity">
 
     <ProgressBar
@@ -11,14 +11,59 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <com.shrikanthravi.chatview.widget.ChatView
-        android:id="@+id/chatView"
+    <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:leftBubbleLayoutColor="#ff7b7b"
-        app:leftBubbleTextColor="@android:color/white"
-        app:rightBubbleLayoutColor="@color/colorAccent2"
-        app:rightBubbleTextColor="@android:color/black"
-        app:showSenderLayout="true"
-        app:showSenderName="true" />
-</LinearLayout>
+        android:id="@+id/recyclerView_chat"
+        android:scrollbars="vertical"
+        android:layout_above="@id/layout_input" />
+
+    <RelativeLayout
+        android:id="@+id/layout_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:layout_margin="5dp">
+
+        <ImageButton
+            android:id="@+id/button_addImage"
+            android:layout_centerVertical="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/round_image_button1"
+            android:maxWidth="40dp"
+            android:maxHeight="40dp"
+            app:srcCompat="@drawable/ic_image"
+            android:layout_alignParentStart="true"
+            tools:ignore="ContentDescription" />
+
+        <EditText
+            android:id="@+id/editText_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="50dp"
+            android:inputType="textCapSentences|textMultiLine"
+            android:minLines="1"
+            android:maxLines="10"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:gravity="center_vertical"
+            android:background="@drawable/edittext_round_frame"
+            android:hint="@string/type_here"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            android:layout_toEndOf="@id/button_addImage"
+            android:layout_toStartOf="@id/button_send"
+            android:layout_marginEnd="5dp" />
+
+        <ImageButton
+            android:id="@+id/button_send"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            app:srcCompat="@drawable/ic_send_primary_24dp"
+            android:background="@drawable/round_image_button"
+            tools:ignore="ContentDescription"
+            android:layout_alignParentEnd="true" />
+    </RelativeLayout>
+</RelativeLayout>

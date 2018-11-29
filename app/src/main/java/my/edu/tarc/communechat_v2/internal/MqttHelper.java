@@ -343,17 +343,29 @@ public class MqttHelper {
                     messageJSON.put(Message.COL_MESSAGE, message.getMessage());
                     messageJSON.put(Message.COL_DATE_CREATED, message.getDate_created().toString());
                     messageJSON.put(Message.COL_SENDER_NAME, message.getSender_name());
-                    // Encode byte array into string
-                    if (message.getMedia() != null) {
-                        messageJSON.put(Message.COL_MEDIA, Base64.encodeToString(message.getMedia(), Base64.NO_WRAP));
-                    }
-
-
-
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
                 temp.append(MqttHeader.SEND_ROOM_MESSAGE)
+                        .append(",")
+                        .append(messageJSON.toString());
+                result = temp.toString();
+                break;
+            }
+            case MqttHeader.SEND_ROOM_IMAGE: {
+                Message message = (Message) data;
+                JSONObject messageJSON = new JSONObject();
+                try {
+                    messageJSON.put(Message.COL_ROOM_ID, String.valueOf(message.getRoom_id()));
+                    messageJSON.put(Message.COL_MEDIA, Base64.encodeToString(message.getMedia(), Base64.DEFAULT));
+                    messageJSON.put(Message.COL_SENDER_ID, String.valueOf(message.getSender_id()));
+                    messageJSON.put(Message.COL_MESSAGE_TYPE, message.getMessage_type());
+                    messageJSON.put(Message.COL_DATE_CREATED, message.getDate_created().toString());
+                    messageJSON.put(Message.COL_SENDER_NAME, message.getSender_name());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                temp.append(MqttHeader.SEND_ROOM_IMAGE)
                         .append(",")
                         .append(messageJSON.toString());
                 result = temp.toString();

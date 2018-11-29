@@ -4,18 +4,13 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.media.RingtoneManager
-import android.net.Uri
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.support.v4.app.NotificationCompat
 import android.widget.Toast
 import my.edu.tarc.communechat_v2.R
-import java.io.ByteArrayOutputStream
-import java.io.IOException
 
 
 object myUtil {
@@ -84,29 +79,5 @@ object myUtil {
 
     fun makeToast(context: Context, content: String) {
         Toast.makeText(context, content, Toast.LENGTH_LONG).show()
-    }
-
-    fun getByteArray(context: Context, uri: Uri): ByteArray? {
-        return try {
-            val contentResolver = context.contentResolver
-            val inputStream = contentResolver.openInputStream(uri)
-            val bitmap = BitmapFactory.decodeStream(inputStream)
-            val byteArrayOutputStream = ByteArrayOutputStream()
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
-
-            byteArrayOutputStream.toByteArray()
-        } catch (e: IOException) {
-            e.printStackTrace()
-            null
-        } catch (e: NullPointerException) {
-            e.printStackTrace()
-            null
-        }
-    }
-
-    fun getByteArray(bitmap: Bitmap): ByteArray {
-        val stream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
-        return stream.toByteArray()
     }
 }

@@ -72,12 +72,6 @@ class BackgroundService : IntentService("MqttBackground") {
                     }
                     val intent = Intent(applicationContext, MainActivity::class.java)
                     val pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intent, 0)
-//                    myUtil.makeNotification(
-//                            context = applicationContext,
-//                            title = incomeMessage.getString(Message.COL_SENDER_NAME),
-//                            text = incomeMessage.getString(Message.COL_MESSAGE),
-//                            intent = pendingIntent,
-//                            drawable = null)
                     NotificationView.sendNotification(applicationContext,received_message);
                 } catch (e: JSONException) {
                     e.printStackTrace()

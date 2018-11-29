@@ -40,7 +40,7 @@ public class MqttHelper {
     private String receivedResult;
 
     //change MQTT broker IP address here
-    private static final String serverUri = "tcp://192.168.0.120:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
+    private static final String serverUri = "tcp://172.22.6.184:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
 
     //private static final String serverUri = "tcp://broker.hivemq.com:1883";
     //private static String mqttUsername = "";
@@ -735,6 +735,14 @@ public class MqttHelper {
 						.append(",")
 						.append(student.getAcademic_year());
             	result=temp.toString();
+                break;
+            }
+            case MqttHeader.CHECK_NUM_PPL: {
+                Chat_Room room = (Chat_Room) data;
+                temp.append(MqttHeader.CHECK_NUM_PPL)
+                        .append(",")
+                        .append(room.getRoom_id());
+                result = temp.toString();
                 break;
             }
         }

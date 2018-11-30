@@ -49,13 +49,18 @@ public class NotificationView {
     private static String DEFAULT_CHANNEL_NAME = "CCS";
     private static String currentID = "";
     private static String KEY_REPLY = "notif_action_reply";
-    private static String ROOM_NAME;
+    public static String ROOM_NAME;
 
     private static String REPLY_ACTION = "reply_action";
     private static String KEY_MESSAGE_ID = "key_message_id";
     public static String NOTIFICTION_DISMISS = "notification_dismiss";
     private static int NOTIFICATION_ID;
-    private static String CHAT_ROOM_TYPE;
+    public static String CHAT_ROOM_TYPE;
+    public static String PRIVATE="private";
+    public static String GROUP="group";
+
+
+
     private static int numMessage = 0;
 
 
@@ -112,16 +117,16 @@ public class NotificationView {
         String strRingtonePreference;
 
 
-        boolean isMute = false;
-        //  if(notificationType.equals(PRIVATE_CHAT_ROOM)) {
-        strRingtonePreference = pref.getString("ring_tone_pref", "content://settings/system/notification_sound");
-        uri = Uri.parse(strRingtonePreference);
-        isMute = pref.getBoolean("mute_key", false);
-//        }else{
-//            strRingtonePreference = pref.getString("group_ring_tone_pref", "content://settings/system/notification_sound");
-//            uri = Uri.parse(strRingtonePreference);
-//            isMute = pref.getBoolean("group_mute_key", false);
-//        }
+        boolean isMute=false;
+        if(notificationType.equals(PRIVATE)) {
+            strRingtonePreference = pref.getString("ring_tone_pref", "content://settings/system/notification_sound");
+            uri = Uri.parse(strRingtonePreference);
+            isMute = pref.getBoolean("mute_key", false);
+        }else{
+            strRingtonePreference = pref.getString("group_ring_tone_pref", "content://settings/system/notification_sound");
+            uri = Uri.parse(strRingtonePreference);
+            isMute = pref.getBoolean("group_mute_key", false);
+        }
 
         if (isMute) {
             uri = null;
@@ -226,35 +231,45 @@ public class NotificationView {
 //            }
 //        }
 
+    public static void checkRoom(Context mContext,int roomID){
+//        Chat_Room chat_room=new Chat_Room();
+//        chat_room.setRoom_id(roomID);
+//        String topic = "checkNumPpl/" + chat_room.getRoom_id();
+//        String header = MqttHeader.CHECK_NUM_PPL;
+//        MqttHelper mqttHelper = new MqttHelper();
+//        mqttHelper.connectPublishSubscribe(mContext, topic, header, chat_room);
+//        mqttHelper.getMqttClient().setCallback(getNumPplCallback);
+
+    }
+
 
     public static void sendNotification(Context mContext, Message chat) {
         String str ="";
         String notificationType="";
         NOTIFICATION_ID = (int) chat.getRoom_id();
+        CHAT_ROOM_TYPE=getChatRoomType();
+        ROOM_NAME=getRoomName();
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mContext);
         boolean isOn = pref.getBoolean("notification_key", false);
         Uri uri = null;
         if (isOn) {
-            Chat_Room chat_room=new Chat_Room();
-            chat_room.setRoom_id(chat.getRoom_id());
-            String topic = "checkNumPpl/" + chat_room.getRoom_id();
-            String header = MqttHeader.CHECK_NUM_PPL;
-            mqttHelper.connectPublishSubscribe(mContext, topic, header, chat_room);
-            mqttHelper.getMqttClient().setCallback(getNumPplCallback);
+            //checkRoom(mContext,chat.getRoom_id());
             NotificationManager mNotificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-
+            Log.v("TESTING_NEW",CHAT_ROOM_TYPE+ROOM_NAME);
             List<String> oldMessage=loadArray(String.valueOf(chat.getRoom_id()),mContext);
             setPendingNotificationsCount(oldMessage.size()+1);
 
-            if (CHAT_ROOM_TYPE.equals("GROUP")) {
-                notificationType="GROUP";
+            if (CHAT_ROOM_TYPE.equals(GROUP)) {
+                notificationType=GROUP;
             }else
-                notificationType="PRIVATE";
+                notificationType=PRIVATE;
 
+            String roomName = "Group";
             String sender = chat.getSender_name();
             if (getPendingNotificationsCount() > 1) {
-                if (CHAT_ROOM_TYPE.equals("GROUP")) {
-                    ROOM_NAME += " (" + getPendingNotificationsCount() + " message)";
+                if (CHAT_ROOM_TYPE.equals(GROUP)) {
+                    roomName =ROOM_NAME;
+                    roomName += " (" + getPendingNotificationsCount() + " message)";
 
                 } else {
                     sender += " (" + getPendingNotificationsCount() + " message)";
@@ -265,18 +280,19 @@ public class NotificationView {
             createNotificationChannel(mNotificationManager, uri);
 
             NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
-            NotificationCompat.MessagingStyle messageingStyle =new NotificationCompat.MessagingStyle(chat.getSender_name()).setConversationTitle(ROOM_NAME);
+            NotificationCompat.MessagingStyle messagingStyle =new NotificationCompat.MessagingStyle(chat.getSender_name()).setConversationTitle(roomName);
 
             String incomingMessage=chat.getMessage();
 
             Log.v("testingLOADSIZE", String.valueOf(oldMessage.size()));
+
             if(oldMessage.size()>0){
                 oldMessage.add(new String(incomingMessage));
                 boolean store = saveArray(oldMessage, String.valueOf(chat.getRoom_id()), mContext);
 
                 for (int i = 0; i <oldMessage.size() ; i++) {
-                    if(CHAT_ROOM_TYPE.equals("GROUP")){
-                        messageingStyle.addMessage(oldMessage.get(i),0,chat.getSender_name());
+                    if(CHAT_ROOM_TYPE.equals(GROUP)){
+                        messagingStyle.addMessage(oldMessage.get(i),0,chat.getSender_name());
                     }else {
                         inboxStyle.addLine(oldMessage.get(i));
                     }
@@ -285,8 +301,8 @@ public class NotificationView {
             }else{
                 List<String> message = new ArrayList<String>();
                 message.add(new String (incomingMessage));
-                if(CHAT_ROOM_TYPE.equals("GROUP")){
-                    messageingStyle.addMessage(incomingMessage,0,chat.getSender_name());
+                if(CHAT_ROOM_TYPE.equals(GROUP)){
+                    messagingStyle.addMessage(incomingMessage,0,chat.getSender_name());
                 }else {
                     inboxStyle.addLine(incomingMessage);
                     str = incomingMessage;
@@ -295,13 +311,20 @@ public class NotificationView {
             }
 
             boolean showMessagePreview = pref.getBoolean("message_preview_key", true);
-             str = "New Message";
-
-            if (showMessagePreview) {
-                str = chat.getMessage();
+            if(oldMessage.size()==0){
+                if (showMessagePreview) {
+                    str = chat.getMessage();
+                }else{
+                    str = "You have a new message";
+                }
             }else{
-                str="[image]";
+                if (!showMessagePreview) {
+                    str = "You have "+oldMessage.size()+" new message";
+                }
             }
+
+
+
 
             Intent dismissIntent = new Intent(mContext, NotificationBroadcastReceiver.class);
             dismissIntent.putExtra("notificationID",NOTIFICATION_ID);
@@ -310,30 +333,32 @@ public class NotificationView {
             PendingIntent dismissNotification = PendingIntent.getBroadcast(mContext, NOTIFICATION_ID, dismissIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 
-            if(CHAT_ROOM_TYPE.equals("PRIVATE")) {
-                Notification mNotification = new NotificationCompat.Builder(mContext, getChannelID())
+            if(CHAT_ROOM_TYPE.equals(PRIVATE)) {
+                setNotifID(NOTIFICATION_ID);
+                NotificationCompat.Builder mNotification = new NotificationCompat.Builder(mContext, getChannelID());
                         //.setContentIntent(chatIntent)
-                        .setContentTitle(sender)   //Set the title of Notification
-                        .setContentText(str)
-                        .setSmallIcon(R.mipmap.ic_launcher)
-                        .setSound(uri)
-                        .setNumber(numMessage)
-                        .setAutoCancel(true)
-                        .setShowWhen(true)
+                mNotification.setContentTitle(sender);  //Set the title of Notification
+                mNotification.setContentText(str);
+                mNotification.setSmallIcon(R.mipmap.ic_launcher);
+                mNotification.setSound(uri);
+                mNotification.setNumber(numMessage);
+                mNotification.setAutoCancel(true);
+                mNotification.setShowWhen(true);
                         //.setPriority(priority)
                         //.addAction(replyAction)
-                        .setVibrate(new long[]{100, 100, 100, 100, 100})
-                        .setDeleteIntent(dismissNotification)
-                        .setVisibility(Notification.VISIBILITY_PUBLIC)
-                        .setStyle(inboxStyle)
-                        .build();
-
-                setNotifID(chat.getRoom_id());
-                mNotificationManager.notify(getNotifID(), mNotification);
+                mNotification.setVibrate(new long[]{100, 100, 100, 100, 100});
+                mNotification.setDeleteIntent(dismissNotification);
+                mNotification.setVisibility(Notification.VISIBILITY_PUBLIC);
+                if(showMessagePreview) {
+                    mNotification.setStyle(inboxStyle);
+                }else{
+                    mNotification.setContentText(str);
+                }
+                mNotificationManager.notify(getNotifID(), mNotification.build());
             }else{
                 setNotifID(NOTIFICATION_ID);
                 NotificationCompat.Builder mNotification = new NotificationCompat.Builder(mContext, getChannelID())
-                        .setStyle(messageingStyle)
+                        .setStyle(messagingStyle)
                         .setSmallIcon(R.mipmap.ic_launcher)
                         //.setContentIntent(chatIntent)
                         .setSound(uri)
@@ -343,7 +368,7 @@ public class NotificationView {
                         .setVibrate(new long[]{100, 100, 100, 100, 100})
                         //.setPriority(priority)
                         //.addAction(replyAction)
-                        //.setDeleteIntent(dismissNotification)
+                        .setDeleteIntent(dismissNotification)
                         .setVisibility(Notification.VISIBILITY_PUBLIC);
 
                 mNotificationManager.notify(getNotifID(), mNotification.build());
@@ -366,7 +391,7 @@ public class NotificationView {
         int size = prefs.getInt(arrayName + "_size", 0);
         List<String> message = new ArrayList<String>();
 
-        Log.v("Loopsize", String.valueOf(size));
+
         for (int i = 0; i < size; i++) {
             message.add(new String( prefs.getString(arrayName + "_" + i, null)));
         }
@@ -400,44 +425,22 @@ public class NotificationView {
         numMessage = pendingNotifications;
     }
 
-    private static MqttCallback getNumPplCallback = new MqttCallback() {
-        @Override
-        public void connectionLost(Throwable cause) {
+    public static String getRoomName() {
+        return ROOM_NAME;
+    }
 
-        }
+    public static void setRoomName(String roomName) {
+        ROOM_NAME = roomName;
+    }
 
-        @Override
-        public void messageArrived(String topic, MqttMessage message) throws Exception {
-            MqttHelper helper = new MqttHelper();
-            helper.decode(message.toString());
-            if (helper.getReceivedHeader().equals(MqttHeader.CHECK_NUM_PPL_REPLY)) {
-                String receivedResult=helper.getReceivedResult();
-                try {
-                    JSONArray jsonResult = new JSONArray(receivedResult);
-                    Log.v("TESTING", String.valueOf(jsonResult));
+    public static String getChatRoomType() {
+        return CHAT_ROOM_TYPE;
+    }
 
-                        JSONObject temp = jsonResult.getJSONObject(0);
-                        int num=temp.getInt("COUNT(user_id)");
-                    ROOM_NAME=temp.getString("room_name");
-                        if(num>2){
-                            CHAT_ROOM_TYPE="GROUP";
-                        }else{
-                            CHAT_ROOM_TYPE="PRIVATE";
-                        }
+    public static void setChatRoomType(String chatRoomType) {
+        CHAT_ROOM_TYPE = chatRoomType;
+    }
 
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                mqttHelper.unsubscribe(topic);
-            }
-        }
-
-        @Override
-        public void deliveryComplete(IMqttDeliveryToken token) {
-
-        }
-    };
 }
 
 

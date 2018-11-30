@@ -232,4 +232,6 @@
     <string name="username">Username</string>
     <string name="display_name">Display name</string>
     <string name="today">Today</string>
+    <string name="open_tarcapp">Open TarcApp</string>
+    <string name="open_google_classroom">Open Google Classroom</string>
 </resources>

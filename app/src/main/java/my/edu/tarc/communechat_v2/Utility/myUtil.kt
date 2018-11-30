@@ -6,11 +6,13 @@ import android.app.PendingIntent
 import android.content.Context
 import android.media.RingtoneManager
 import android.os.Build
+import android.os.Environment
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.support.v4.app.NotificationCompat
 import android.widget.Toast
 import my.edu.tarc.communechat_v2.R
+import java.io.File
 
 
 object myUtil {
@@ -79,5 +81,14 @@ object myUtil {
 
     fun makeToast(context: Context, content: String) {
         Toast.makeText(context, content, Toast.LENGTH_LONG).show()
+    }
+
+    fun getLocalImagePath(): String {
+        val rootPath = Environment.getExternalStorageDirectory().toString() + "/Tarc"
+        val imageDir = File(rootPath)
+        if (!imageDir.exists()) {
+            imageDir.mkdir()
+        }
+        return imageDir.absolutePath
     }
 }

@@ -26,6 +26,7 @@ public class Message {
     public static final String COL_STATUS = "status";
     public static final String COL_SENDER_NAME = "sender_name";
     public static final String COL_MEDIA = "media";
+    public static final String COL_IMAGE = "image";
 
     //variables for encapsulation
     @PrimaryKey(autoGenerate = true)

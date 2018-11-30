@@ -23,6 +23,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import my.edu.tarc.communechat_v2.Fragment.ChatFragment;
 import my.edu.tarc.communechat_v2.Fragment.FindFriendFragment;
@@ -41,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
 
     private SharedPreferences pref;
     private BottomNavigationView bottomNavigationView;
+
     @Override
     //inflate top right menu bar items
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -51,14 +53,29 @@ public class MainActivity extends AppCompatActivity {
     @Override
     //override method for top right menu bar
     public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
         int itemId = item.getItemId();
         switch (itemId) {
             case R.id.nav_settings:
-
-                //new ChatEngineStartup(this).execute();
-                //MainActivity.mqttHelper.subscribe(my.edu.tarc.communechat_v2.chatEngine.ChatFragment.CURRENT_USER_ID +"");
-               // MainActivity.mqttHelper.getMqttClient().setCallback(new ChatSubscribeCallBack(this));
                 startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+                break;
+            case R.id.nav_tarc_app:
+                intent = getPackageManager().getLaunchIntentForPackage("app.tarc.edu.my");
+                if (intent != null) {
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(this, "Your phone didn't install TarcApp. You may download it from Google PlayStore", Toast.LENGTH_LONG).show();
+                }
+                break;
+            case R.id.nav_google_classroom:
+                intent = getPackageManager().getLaunchIntentForPackage("com.google.android.apps.classroom");
+                if (intent != null) {
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(this, "Your phone didn't install Google Classroom. You may download it from Google PlayStore", Toast.LENGTH_LONG).show();
+                }
                 break;
             case R.id.nav_log_out:
                 //clear shared preference then navigate user to login activity
@@ -243,7 +260,7 @@ public class MainActivity extends AppCompatActivity {
         mqttHelper.connectPublish(this, topic, header, user);
     }
 
-    public void backupReminder(){
+    public void backupReminder() {
         AlertDialog.Builder reminder = new AlertDialog.Builder(MainActivity.this);
         reminder.setTitle(R.string.gps_not_found);
         reminder.setMessage(R.string.gps_not_found_desc1);

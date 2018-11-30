@@ -40,7 +40,7 @@ public class MqttHelper {
     private String receivedResult;
 
     //change MQTT broker IP address here
-    private static final String serverUri = "tcp://192.168.0.110:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
+    private static final String serverUri = "tcp://172.16.118.254:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
 
     //private static final String serverUri = "tcp://broker.hivemq.com:1883";
     //private static String mqttUsername = "";
@@ -371,6 +371,14 @@ public class MqttHelper {
                 result = temp.toString();
                 break;
             }
+            case MqttHeader.DOWNLOAD_IMAGE: {
+                Message message = (Message) data;
+                temp.append(MqttHeader.DOWNLOAD_IMAGE)
+                        .append(",")
+                        .append(message.getMessage_id());
+                result = temp.toString();
+                break;
+            }
             case MqttHeader.CREATE_CHAT_ROOM: {
                 Friendship friendship = (Friendship) data;
                 temp.append(MqttHeader.CREATE_CHAT_ROOM)
@@ -380,6 +388,9 @@ public class MqttHelper {
                         .append(friendship.getFriend_id());
                 result = temp.toString();
                 break;
+            }
+            case MqttHeader.CREATE_PUBLIC_CHAT_ROOM: {
+                //todo
             }
             case MqttHeader.ADD_PEOPLE_TO_GROUP: {
                 Participant participant = (Participant) data;

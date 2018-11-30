@@ -87,16 +87,19 @@ public class ChatFragment extends Fragment {
                 TextView textViewRoomID = view.findViewById(R.id.textView_roomID);
                 TextView textViewRoomName = view.findViewById(R.id.textView_header);
                 TextView textViewRole = view.findViewById(R.id.textView_role);
+                TextView textViewRoomType = view.findViewById(R.id.textView_roomType);
 
                 Chat_Room chatRoom = new Chat_Room();
                 chatRoom.setRoom_id(Integer.parseInt(textViewRoomID.getText().toString()));
                 chatRoom.setRoom_name(textViewRoomName.getText().toString());
                 chatRoom.setRole(textViewRole.getText().toString());
+                chatRoom.setRoom_type(textViewRoomType.getText().toString());
 
                 Intent intent = new Intent(getActivity(), ChatRoomActivity.class);
                 intent.putExtra(Chat_Room.COL_ROOM_ID, chatRoom.getRoom_id());
                 intent.putExtra(Chat_Room.COL_ROOM_NAME, chatRoom.getRoom_name());
                 intent.putExtra(Participant.COL_ROLE, chatRoom.getRole());
+                intent.putExtra(Chat_Room.COL_ROOM_TYPE, chatRoom.getRoom_type());
                 startActivity(intent);
             }
         });
@@ -144,6 +147,7 @@ public class ChatFragment extends Fragment {
                                 room.setOwner_id(temp.getInt(Chat_Room.COL_OWNER_ID));
                                 room.setLast_update(temp.getString(Chat_Room.COL_LAST_UPDATE));
                                 room.setRole(temp.getString(Participant.COL_ROLE));
+                                room.setRoom_type(temp.getString(Chat_Room.COL_ROOM_TYPE));
 
                                 resultList.add(room);
                                 roomID[i] = room.getRoom_id();

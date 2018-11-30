@@ -14,6 +14,8 @@ import android.preference.PreferenceManager
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
+import android.util.Base64
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -72,10 +74,10 @@ class ChatRoomActivity : AppCompatActivity() {
         }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        if (chatRoom!!.role == "Admin") {
-            menuInflater.inflate(R.menu.room_admin_menu, menu)
-        } else {
-            menuInflater.inflate(R.menu.room_member_menu, menu)
+        when {
+            chatRoom!!.room_type == "Private" -> menuInflater.inflate(R.menu.room_private_menu, menu)
+            chatRoom!!.role == "Admin" -> menuInflater.inflate(R.menu.room_admin_menu, menu)
+            else -> menuInflater.inflate(R.menu.room_member_menu, menu)
         }
         return true
     }
@@ -118,6 +120,7 @@ class ChatRoomActivity : AppCompatActivity() {
         pref = PreferenceManager.getDefaultSharedPreferences(applicationContext)
 
         chatRoom = Chat_Room()
+        chatRoom!!.room_type = intent.getStringExtra(Chat_Room.COL_ROOM_TYPE)
         chatRoom!!.role = intent.getStringExtra(Participant.COL_ROLE)
         chatRoom!!.room_id = intent.getIntExtra(Chat_Room.COL_ROOM_ID, -1)
 
@@ -161,7 +164,7 @@ class ChatRoomActivity : AppCompatActivity() {
 
             editText_message.text.clear()
             messageArrayList.add(message)
-            chatRoomRecyclerAdapter.notifyItemInserted(chatRoomRecyclerAdapter.getLastIndex())
+            chatRoomRecyclerAdapter.notifyItemInserted(messageArrayList.size - 1)
             recyclerView_chat.smoothScrollToPosition(chatRoomRecyclerAdapter.getLastIndex())
         }
 
@@ -274,8 +277,10 @@ class ChatRoomActivity : AppCompatActivity() {
             mqttHelper.decode(message.toString())
             if (mqttHelper.receivedHeader == MqttHeader.GET_ROOM_MESSAGE_REPLY) {
                 initializeRoomMessages(mqttHelper.receivedResult)
-            } else if (mqttHelper.receivedHeader == MqttHeader.SEND_ROOM_MESSAGE) {
+            } else if (mqttHelper.receivedHeader == MqttHeader.SEND_ROOM_MESSAGE ||
+                    mqttHelper.receivedHeader == MqttHeader.SEND_ROOM_IMAGE) {
                 addReceivedMessage(mqttHelper.receivedResult)
+                makeVibrationOrSound()
             }
         }
 
@@ -297,6 +302,7 @@ class ChatRoomActivity : AppCompatActivity() {
 
                 //put into message object
                 val message = Message()
+                message.message_id = receivedMessage.getInt(Message.COL_MESSAGE_ID)
                 message.room_id = receivedMessage.getInt(Message.COL_ROOM_ID)
                 message.message = receivedMessage.getString(Message.COL_MESSAGE)
                 message.message_type = receivedMessage.getString(Message.COL_MESSAGE_TYPE)
@@ -352,6 +358,10 @@ class ChatRoomActivity : AppCompatActivity() {
 
             if (message.message_type == TEXT) {
                 message.message = receivedMessage.getString(Message.COL_MESSAGE)
+            } else if (message.message_type == IMAGE) {
+                //todo test
+                Log.d(TAG, "isImage: $message")
+                message.media = Base64.decode(receivedMessage.getString(Message.COL_MEDIA), Base64.DEFAULT)
             }
 
             message.setDate_created(receivedMessage.getString(Message.COL_DATE_CREATED))
@@ -377,7 +387,6 @@ class ChatRoomActivity : AppCompatActivity() {
         message.room_id = chatRoom!!.room_id
         message.message_type = IMAGE
         message.sender_name = pref!!.getString(User.COL_DISPLAY_NAME, "")
-        message.mediaPath = filePath
 
         val compressImageAsync = CompressImageAsync(this, topic = topic,
                 recyclerView = recyclerView_chat, message = message, messageArrayList = messageArrayList,

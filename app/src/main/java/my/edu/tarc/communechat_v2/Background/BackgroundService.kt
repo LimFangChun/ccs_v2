@@ -27,6 +27,11 @@ class BackgroundService : IntentService("MqttBackground") {
         helper.connect(applicationContext)
     }
 
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        return IntentService.START_STICKY
+        //todo test
+    }
+
     override fun onHandleIntent(intent: Intent) {
         val roomID = intent.getIntArrayExtra(Chat_Room.COL_ROOM_ID)
         for (x in roomID) {

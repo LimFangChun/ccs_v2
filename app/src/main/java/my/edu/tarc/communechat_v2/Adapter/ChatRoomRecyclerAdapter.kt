@@ -1,9 +1,10 @@
 package my.edu.tarc.communechat_v2.Adapter
 
 import android.content.Context
-import android.graphics.BitmapFactory
 import android.preference.PreferenceManager
 import android.support.v7.widget.RecyclerView
+import android.util.Base64
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,9 +17,20 @@ import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.chat_action_row.view.*
 import kotlinx.android.synthetic.main.chat_date_row.view.*
 import kotlinx.android.synthetic.main.chat_left_image.view.*
+import my.edu.tarc.communechat_v2.MainActivity.mqttHelper
 import my.edu.tarc.communechat_v2.R
+import my.edu.tarc.communechat_v2.Utility.StoreImageAsync
+import my.edu.tarc.communechat_v2.Utility.myUtil
+import my.edu.tarc.communechat_v2.internal.MqttHeader
+import my.edu.tarc.communechat_v2.internal.MqttHelper
 import my.edu.tarc.communechat_v2.model.Message
 import my.edu.tarc.communechat_v2.model.User
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
+import org.eclipse.paho.client.mqttv3.MqttCallback
+import org.eclipse.paho.client.mqttv3.MqttMessage
+import org.json.JSONArray
+import org.json.JSONObject
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -50,6 +62,7 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
     }
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
+        Log.d("ChatRoom", "viewType: $viewType")
         val layoutType: Int =
                 when (viewType) {
                     LEFT_TEXT -> R.layout.chat_left_text
@@ -77,7 +90,7 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
         init {
             //todo
             itemView.setOnLongClickListener {
-                Toast.makeText(context, "Clicked item " + messageList[currentPosition].sender_name, Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "Clicked item " + messageList[currentPosition].message_id, Toast.LENGTH_LONG).show()
                 true
             }
         }
@@ -142,32 +155,62 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
             val imageViewProfilePic = itemView.findViewById<ImageView>(R.id.imageView_profilePic)
             imageViewProfilePic.setImageDrawable(textDrawable)
 
-            val bitmap = BitmapFactory.decodeByteArray(message.media, 0, message.media.size)
-            itemView.imageView_image.setImageBitmap(bitmap)
-
             val textViewName = itemView.findViewById<TextView>(R.id.textView_name)
             textViewName.text = message.sender_name
+
+            val localImageFile = File(myUtil.getLocalImagePath(), "${message.message_id}.jpg")
+            when {
+                message.mediaPath != null ->
+                    Picasso.get().load(message.mediaPath)
+                            .centerCrop()
+                            .resize(500, 500)
+                            .into(itemView.imageView_image)
+                localImageFile.exists() ->
+                    Picasso.get().load(localImageFile)
+                            .centerCrop()
+                            .resize(500, 500)
+                            .into(itemView.imageView_image)
+                message.media != null -> {
+                    //todo test this
+                    val messageArray = JSONArray()
+                    val messageObject = JSONObject()
+                    messageObject.put(Message.COL_MESSAGE_ID, message.message_id)
+                    messageObject.put(Message.COL_IMAGE, Base64.encode(message.media, Base64.DEFAULT))
+                    messageArray.put(messageObject)
+                    StoreImageAsync(messageArray.toString(), itemView.imageView_image).execute()
+                }
+                else -> {
+                    itemView.imageView_image.setImageResource(R.drawable.ic_file_download_black_24dp)
+                    itemView.imageView_image.setOnClickListener {
+                        downloadImage(message, itemView.imageView_image)
+                    }
+                }
+            }
         }
 
         private fun inflateRightImage(message: Message) {
-//            val bitmap = BitmapFactory.decodeByteArray(message.media, 0, message.media.size)
-//            val stream = ByteArrayOutputStream()
-//            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
-//            val resizedBitmap = Bitmap.createScaledBitmap(bitmap, (bitmap.width*0.7).toInt(), (bitmap.height*0.7).toInt(), true)
-//            itemView.imageView_image.setImageBitmap(resizedBitmap)
-
             //if media path has value
             //means this image come from local
             //use Picasso to do it
-            if (message.mediaPath != null) {
-                Picasso.get().load(message.mediaPath)
-                        .centerCrop()
-                        .resize(500, 500)
-                        .into(itemView.imageView_image)
-            } else {
-                Picasso.get().load(R.drawable.ic_file_download_black_24dp)
-                        .resize(200, 200)
-                        .into(itemView.imageView_image)
+            val localImageFile = File(myUtil.getLocalImagePath(), "${message.message_id}.jpg")
+            when {
+                message.mediaPath != null ->
+                    Picasso.get().load(message.mediaPath)
+                            .centerCrop()
+                            .resize(500, 500)
+                            .into(itemView.imageView_image)
+                localImageFile.exists() ->
+                    Picasso.get().load(localImageFile)
+                            .centerCrop()
+                            .resize(500, 500)
+                            .into(itemView.imageView_image)
+                else -> {
+                    downloadImage(message, itemView.imageView_image)
+//                    itemView.imageView_image.setImageResource(R.drawable.ic_file_download_black_24dp)
+//                    itemView.imageView_image.setOnClickListener {
+//                        downloadImage(message, itemView.imageView_image)
+//                    }
+                }
             }
         }
 
@@ -176,18 +219,23 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
         }
 
         private fun inflateActionRow(message: Message) {
+            //todo test
             val stringBuilder = StringBuilder()
             stringBuilder.append(calculateTime(message)).append("\n").append(message.message)
             itemView.textView_action.text = stringBuilder
         }
 
         private fun calculateTime(message: Message?): String {
-            return with(message!!) {
+            var hour = message!!.date_created.get(Calendar.HOUR)
+            //**NOTE** In calendar class 0 represents Noon 12 or Midnight 12
+            //Its strange I know, we need manual checking
+            if (hour == 0) hour = 12
+            return with(message) {
                 when {
                     isToday(date_created) -> {
-                        date_created.get(Calendar.HOUR).toString() +
+                        String.format("%2d", hour) +
                                 ":" +
-                                date_created.get(Calendar.MINUTE) +
+                                String.format("%2d", date_created.get(Calendar.MINUTE)) +
                                 " " +
                                 if (date_created.get(Calendar.AM_PM) == 0) "AM" else "PM"
                     }
@@ -196,9 +244,9 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
                                 " " +
                                 getMonthName(date_created.get(Calendar.MONTH)) +
                                 " " +
-                                date_created.get(Calendar.HOUR) +
+                                String.format("%2d", hour) +
                                 ":" +
-                                date_created.get(Calendar.MINUTE) +
+                                String.format("%2d", date_created.get(Calendar.MINUTE)) +
                                 " " +
                                 if (date_created.get(Calendar.AM_PM) == 0) "AM" else "PM"
                     }
@@ -219,6 +267,30 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
         private fun isDifferentDay(message1: Message, message2: Message): Boolean {
             return (message1.date_created.get(Calendar.DAY_OF_MONTH) != message2.date_created.get(Calendar.DAY_OF_MONTH))
         }
+
+        private fun downloadImage(message: Message, imageView: ImageView) {
+            //todo it works
+            val topic = "downloadImage/${message.message_id}"
+            val header = MqttHeader.DOWNLOAD_IMAGE
+
+            mqttHelper.connectPublishSubscribe(context, topic, header, message)
+            mqttHelper.mqttClient.setCallback(object : MqttCallback {
+                override fun messageArrived(topic: String?, message: MqttMessage?) {
+                    val helper = MqttHelper()
+                    helper.decode(message.toString())
+                    if (helper.receivedHeader == MqttHeader.DOWNLOAD_IMAGE_REPLY) {
+                        mqttHelper.unsubscribe(topic)
+                        StoreImageAsync(helper.receivedResult, imageView).execute()
+                    }
+                }
+
+                override fun connectionLost(cause: Throwable?) {
+                }
+
+                override fun deliveryComplete(token: IMqttDeliveryToken?) {
+                }
+            })
+        }
     }
 
     override fun getItemCount(): Int {
@@ -226,7 +298,7 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
     }
 
     fun getLastIndex(): Int {
-        return messageList.size - 1
+        return if (messageList.isEmpty()) 0 else messageList.size - 1
     }
 
     private fun isMine(userID: Int): Boolean {

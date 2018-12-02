@@ -115,7 +115,7 @@ var GET_FORBIDDEN_SECRETS = function (topic, message) {
 }
 
 function executeQuery(sql, inserts, topic, output) {
-    DB_CONNECTION.query(sql, inserts, function (err, result) {
+    connector.DB_CONNECTION.query(sql, inserts, function (err, result) {
         if (err) {
             console.log(err);
             output += "NO_RESULT";
@@ -125,7 +125,7 @@ function executeQuery(sql, inserts, topic, output) {
         } else {
             output += "NO_RESULT";
         }
-        mqttClient.publish(topic, output);
+        connector.mqttClient.publish(topic, output);
     });
 }
 

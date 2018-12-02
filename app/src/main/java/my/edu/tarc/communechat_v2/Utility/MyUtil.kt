@@ -4,7 +4,9 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.media.RingtoneManager
+import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.os.VibrationEffect
@@ -13,9 +15,10 @@ import android.support.v4.app.NotificationCompat
 import android.widget.Toast
 import my.edu.tarc.communechat_v2.R
 import java.io.File
+import java.util.*
 
 
-object myUtil {
+object MyUtil {
     const val VIBRATE_LONG = 500
     const val VIBRATE_SHORT = 100
 
@@ -90,5 +93,29 @@ object myUtil {
             imageDir.mkdir()
         }
         return imageDir.absolutePath
+    }
+
+    fun openPlayStore(context: Context, targetAppName: String) {
+        val url = try {
+            //Check whether Google Play store is installed or not:
+            context.packageManager.getPackageInfo("com.android.vending", 0)
+
+            "market://details?id=$targetAppName"
+        } catch (e: Exception) {
+            "https://play.google.com/store/apps/details?id=$targetAppName"
+        }
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(intent)
+    }
+
+    fun isToday(time: Calendar): Boolean {
+        val calendar = Calendar.getInstance()
+        return time.get(Calendar.DAY_OF_MONTH) == calendar.get(Calendar.DAY_OF_MONTH)
+    }
+
+    fun isSameHour(time: Calendar): Boolean {
+        val calendar = Calendar.getInstance()
+        return time.get(Calendar.HOUR_OF_DAY) == calendar.get(Calendar.HOUR_OF_DAY)
     }
 }

@@ -19,13 +19,16 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.animation.Animation
+import android.view.animation.AnimationSet
+import android.view.animation.AnimationUtils
 import android.widget.ProgressBar
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_chat_room.*
 import my.edu.tarc.communechat_v2.Adapter.ChatRoomRecyclerAdapter
 import my.edu.tarc.communechat_v2.MainActivity.mqttHelper
 import my.edu.tarc.communechat_v2.Utility.CompressImageAsync
-import my.edu.tarc.communechat_v2.Utility.myUtil
+import my.edu.tarc.communechat_v2.Utility.MyUtil
 import my.edu.tarc.communechat_v2.internal.MqttHeader
 import my.edu.tarc.communechat_v2.internal.MqttHelper
 import my.edu.tarc.communechat_v2.internal.RoomSecretHelper
@@ -38,10 +41,11 @@ import org.eclipse.paho.client.mqttv3.MqttCallback
 import org.eclipse.paho.client.mqttv3.MqttMessage
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
 
-class ChatRoomActivity : AppCompatActivity() {
+class ChatRoomActivity : AppCompatActivity(), View.OnClickListener {
 
     companion object {
         const val TAG = "ChatRoomActivity"
@@ -119,6 +123,12 @@ class ChatRoomActivity : AppCompatActivity() {
         //init views
         pref = PreferenceManager.getDefaultSharedPreferences(applicationContext)
 
+        //hide button and text view that use for camera and select images
+        button_addImage.visibility = View.GONE
+        button_camera.visibility = View.GONE
+        textView_addImage.visibility = View.GONE
+        textView_camera.visibility = View.GONE
+
         chatRoom = Chat_Room()
         chatRoom!!.room_type = intent.getStringExtra(Chat_Room.COL_ROOM_TYPE)
         chatRoom!!.role = intent.getStringExtra(Participant.COL_ROLE)
@@ -168,11 +178,25 @@ class ChatRoomActivity : AppCompatActivity() {
             recyclerView_chat.smoothScrollToPosition(chatRoomRecyclerAdapter.getLastIndex())
         }
 
+        parent_layout.setOnClickListener(this)
+
+        button_openTool.setOnClickListener(this)
+
         button_addImage.setOnClickListener {
             val intent = Intent()
             intent.type = "image/*"
             intent.action = Intent.ACTION_GET_CONTENT
             startActivityForResult(intent, REQUEST_GALLERY)
+        }
+
+        button_camera.setOnClickListener {
+            //todo has bug fix this
+            val intent = Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE)
+            val file = File(this.externalCacheDir,
+                    System.currentTimeMillis().toString() + ".jpg")
+            val fileUri = Uri.fromFile(file)
+            intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, fileUri)
+            startActivityForResult(intent, REQUEST_CAMERA)
         }
     }
 
@@ -200,8 +224,8 @@ class ChatRoomActivity : AppCompatActivity() {
         if (interval) {
             val audio = getSystemService(Context.AUDIO_SERVICE) as AudioManager
             when (audio.ringerMode) {
-                AudioManager.RINGER_MODE_NORMAL -> myUtil.makeSound(this)
-                AudioManager.RINGER_MODE_VIBRATE -> myUtil.makeVibration(this, myUtil.VIBRATE_SHORT)
+                AudioManager.RINGER_MODE_NORMAL -> MyUtil.makeSound(this)
+                AudioManager.RINGER_MODE_VIBRATE -> MyUtil.makeVibration(this, MyUtil.VIBRATE_SHORT)
             }
         }
 
@@ -259,7 +283,7 @@ class ChatRoomActivity : AppCompatActivity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
+        Log.d("CameraMain", "resultCode: $resultCode data: $data")
         if (resultCode == Activity.RESULT_OK && data != null) {
             when (requestCode) {
                 REQUEST_CAMERA, REQUEST_GALLERY -> {
@@ -273,13 +297,14 @@ class ChatRoomActivity : AppCompatActivity() {
     private val getRoomMessagesCallback = object : MqttCallback {
         override fun messageArrived(topic: String?, message: MqttMessage?) {
             //initialize room messages
-            val mqttHelper = MqttHelper()
-            mqttHelper.decode(message.toString())
-            if (mqttHelper.receivedHeader == MqttHeader.GET_ROOM_MESSAGE_REPLY) {
-                initializeRoomMessages(mqttHelper.receivedResult)
-            } else if (mqttHelper.receivedHeader == MqttHeader.SEND_ROOM_MESSAGE ||
-                    mqttHelper.receivedHeader == MqttHeader.SEND_ROOM_IMAGE) {
-                addReceivedMessage(mqttHelper.receivedResult)
+            val helper = MqttHelper()
+            helper.decode(message.toString())
+            if (helper.receivedHeader == MqttHeader.GET_ROOM_MESSAGE_REPLY) {
+                mqttHelper.unsubscribe(topic)
+                initializeRoomMessages(helper.receivedResult)
+            } else if (helper.receivedHeader == MqttHeader.SEND_ROOM_MESSAGE ||
+                    helper.receivedHeader == MqttHeader.SEND_ROOM_IMAGE) {
+                addReceivedMessage(helper.receivedResult)
                 makeVibrationOrSound()
             }
         }
@@ -315,7 +340,7 @@ class ChatRoomActivity : AppCompatActivity() {
 
             //add an extra item that indicate remaining messages are today
             for (x in messageArrayList.size - 1 downTo 0) {
-                if (!isToday(messageArrayList[x].date_created)) {
+                if (!MyUtil.isToday(messageArrayList[x].date_created)) {
                     if (x == messageArrayList.size - 1) {
                         break
                     }
@@ -329,7 +354,6 @@ class ChatRoomActivity : AppCompatActivity() {
             //layout manager indicate how the recycler view should display, such as grid view, linear vertical etc
             layoutManager.orientation = LinearLayoutManager.VERTICAL
             recyclerView_chat.layoutManager = layoutManager
-            recyclerView_chat.setHasFixedSize(true)
 
             //put the adapter to recycler view
             recyclerView_chat.adapter = chatRoomRecyclerAdapter
@@ -360,7 +384,6 @@ class ChatRoomActivity : AppCompatActivity() {
                 message.message = receivedMessage.getString(Message.COL_MESSAGE)
             } else if (message.message_type == IMAGE) {
                 //todo test
-                Log.d(TAG, "isImage: $message")
                 message.media = Base64.decode(receivedMessage.getString(Message.COL_MEDIA), Base64.DEFAULT)
             }
 
@@ -368,8 +391,7 @@ class ChatRoomActivity : AppCompatActivity() {
             message.sender_id = receivedMessage.getInt(Message.COL_SENDER_ID)
             message.sender_name = receivedMessage.getString(User.COL_DISPLAY_NAME)
 
-            messageArrayList.add(message)
-            chatRoomRecyclerAdapter.notifyItemInserted(chatRoomRecyclerAdapter.getLastIndex())
+            chatRoomRecyclerAdapter.addMessage(message)
             //todo test
             if (layoutManager.findLastCompletelyVisibleItemPosition() == chatRoomRecyclerAdapter.itemCount) {
                 recyclerView_chat.smoothScrollToPosition(chatRoomRecyclerAdapter.getLastIndex())
@@ -387,20 +409,70 @@ class ChatRoomActivity : AppCompatActivity() {
         message.room_id = chatRoom!!.room_id
         message.message_type = IMAGE
         message.sender_name = pref!!.getString(User.COL_DISPLAY_NAME, "")
+        message.mediaPath = filePath
 
-        val compressImageAsync = CompressImageAsync(this, topic = topic,
+        CompressImageAsync(this, topic = topic,
                 recyclerView = recyclerView_chat, message = message, messageArrayList = messageArrayList,
                 adapter = chatRoomRecyclerAdapter, filePath = filePath)
-        compressImageAsync.execute()
-    }
-
-    private fun isToday(time: Calendar): Boolean {
-        val calendar = Calendar.getInstance()
-        return time.get(Calendar.DAY_OF_MONTH) == calendar.get(Calendar.DAY_OF_MONTH)
+                .execute()
     }
 
     private fun isMine(userID: Int): Boolean {
         val pref = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         return pref.getInt(User.COL_USER_ID, -1) == userID
+    }
+
+    private var isOpen = false
+    override fun onClick(v: View?) {
+        //todo got some visual bug no big deal
+        when (v!!.id) {
+            R.id.button_openTool -> if (!isOpen) {
+                isOpen = true
+                setToolsVisibility(View.VISIBLE)
+            } else {
+                isOpen = false
+                setToolsVisibility(View.GONE)
+            }
+            else -> {
+                isOpen = false
+                setToolsVisibility(View.GONE)
+            }
+        }
+    }
+
+    private fun setToolsVisibility(visibility: Int) {
+        //animation cuz we are fabulous LUL
+        val animationSet = AnimationSet(true)
+        if (visibility == View.VISIBLE) {
+            val slideUp = AnimationUtils.loadAnimation(this, R.anim.chat_room_tool_slide_up)
+            val fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in)
+            animationSet.addAnimation(slideUp)
+            animationSet.addAnimation(fadeIn)
+        } else {
+            val slideDown = AnimationUtils.loadAnimation(this, R.anim.chat_room_tool_slide_down)
+            val fadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out)
+            animationSet.addAnimation(slideDown)
+            animationSet.addAnimation(fadeOut)
+        }
+
+        animationSet.setAnimationListener(object : Animation.AnimationListener {
+            override fun onAnimationRepeat(p0: Animation?) {
+            }
+
+            override fun onAnimationEnd(p0: Animation?) {
+                button_addImage.visibility = visibility
+                button_camera.visibility = visibility
+                textView_addImage.visibility = visibility
+                textView_camera.visibility = visibility
+            }
+
+            override fun onAnimationStart(p0: Animation?) {
+            }
+        })
+
+        button_addImage.startAnimation(animationSet)
+        button_camera.startAnimation(animationSet)
+        textView_addImage.startAnimation(animationSet)
+        textView_camera.startAnimation(animationSet)
     }
 }

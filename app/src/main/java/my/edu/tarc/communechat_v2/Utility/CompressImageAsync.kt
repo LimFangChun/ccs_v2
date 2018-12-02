@@ -23,7 +23,7 @@ class CompressImageAsync(context: Context,
                          val topic: String?,
                          val filePath: Uri)
     : AsyncTask<Void, Boolean, Boolean>() {
-    val recyclerView: WeakReference<RecyclerView> = WeakReference(recyclerView)
+    private val recyclerView: WeakReference<RecyclerView> = WeakReference(recyclerView)
     private val weakReference: WeakReference<Context> = WeakReference(context)
 
     override fun doInBackground(vararg p0: Void?): Boolean {
@@ -44,7 +44,7 @@ class CompressImageAsync(context: Context,
             null
         }
 
-        return message.media != null
+        return message.media != null || message.media!!.isNotEmpty()
     }
 
     override fun onPostExecute(result: Boolean?) {
@@ -54,8 +54,7 @@ class CompressImageAsync(context: Context,
             val header = MqttHeader.SEND_ROOM_IMAGE
             MainActivity.mqttHelper.connectPublish(weakReference.get(), topic, header, message)
 
-            messageArrayList.add(message)
-            adapter.notifyItemInserted(adapter.getLastIndex())
+            adapter.addMessage(message)
             recyclerView.get()!!.smoothScrollToPosition(adapter.getLastIndex())
         } else {
             Toast.makeText(weakReference.get(), "Failed to upload image", Toast.LENGTH_LONG).show()

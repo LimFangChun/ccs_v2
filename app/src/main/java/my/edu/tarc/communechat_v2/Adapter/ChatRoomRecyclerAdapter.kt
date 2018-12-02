@@ -1,10 +1,10 @@
 package my.edu.tarc.communechat_v2.Adapter
 
 import android.content.Context
+import android.content.Intent
 import android.preference.PreferenceManager
 import android.support.v7.widget.RecyclerView
 import android.util.Base64
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,10 +17,11 @@ import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.chat_action_row.view.*
 import kotlinx.android.synthetic.main.chat_date_row.view.*
 import kotlinx.android.synthetic.main.chat_left_image.view.*
+import my.edu.tarc.communechat_v2.ImageFullscreenActivity
 import my.edu.tarc.communechat_v2.MainActivity.mqttHelper
 import my.edu.tarc.communechat_v2.R
+import my.edu.tarc.communechat_v2.Utility.MyUtil
 import my.edu.tarc.communechat_v2.Utility.StoreImageAsync
-import my.edu.tarc.communechat_v2.Utility.myUtil
 import my.edu.tarc.communechat_v2.internal.MqttHeader
 import my.edu.tarc.communechat_v2.internal.MqttHelper
 import my.edu.tarc.communechat_v2.model.Message
@@ -62,7 +63,6 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
     }
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
-        Log.d("ChatRoom", "viewType: $viewType")
         val layoutType: Int =
                 when (viewType) {
                     LEFT_TEXT -> R.layout.chat_left_text
@@ -113,7 +113,9 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
                 val textViewTime = itemView.findViewById<TextView>(R.id.textView_time)
                 if (position == 0 ||
                         isDifferentDay(messageList[position], messageList[position - 1]) ||
-                        messageList[position].sender_id != messageList[position - 1].sender_id) {
+                        messageList[position - 1].message_type == "Action" ||
+                        messageList[position].sender_id != messageList[position - 1].sender_id ||
+                        MyUtil.isSameHour(messageList[position].date_created)) {
                     textViewTime.visibility = TextView.VISIBLE
                     textViewTime.text = calculateTime(message)
                 } else {
@@ -158,18 +160,30 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
             val textViewName = itemView.findViewById<TextView>(R.id.textView_name)
             textViewName.text = message.sender_name
 
-            val localImageFile = File(myUtil.getLocalImagePath(), "${message.message_id}.jpg")
+            val localImageFile = File(MyUtil.getLocalImagePath(), "${message.message_id}.jpg")
             when {
-                message.mediaPath != null ->
+                message.mediaPath != null -> {
                     Picasso.get().load(message.mediaPath)
                             .centerCrop()
                             .resize(500, 500)
                             .into(itemView.imageView_image)
-                localImageFile.exists() ->
+                    itemView.imageView_image.setOnClickListener {
+                        val intent = Intent(context, ImageFullscreenActivity::class.java)
+                        intent.putExtra("ImagePath", localImageFile.absolutePath)
+                        context.startActivity(intent)
+                    }
+                }
+                localImageFile.exists() -> {
                     Picasso.get().load(localImageFile)
                             .centerCrop()
                             .resize(500, 500)
                             .into(itemView.imageView_image)
+                    itemView.imageView_image.setOnClickListener {
+                        val intent = Intent(context, ImageFullscreenActivity::class.java)
+                        intent.putExtra("ImagePath", localImageFile.absolutePath)
+                        context.startActivity(intent)
+                    }
+                }
                 message.media != null -> {
                     //todo test this
                     val messageArray = JSONArray()
@@ -192,24 +206,35 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
             //if media path has value
             //means this image come from local
             //use Picasso to do it
-            val localImageFile = File(myUtil.getLocalImagePath(), "${message.message_id}.jpg")
+            val localImageFile = File(MyUtil.getLocalImagePath(), "${message.message_id}.jpg")
             when {
-                message.mediaPath != null ->
+                message.mediaPath != null -> {
                     Picasso.get().load(message.mediaPath)
                             .centerCrop()
                             .resize(500, 500)
                             .into(itemView.imageView_image)
-                localImageFile.exists() ->
+                    itemView.imageView_image.setOnClickListener {
+                        val intent = Intent(context, ImageFullscreenActivity::class.java)
+                        intent.putExtra("ImagePath", localImageFile.absolutePath)
+                        context.startActivity(intent)
+                    }
+                }
+                localImageFile.exists() -> {
                     Picasso.get().load(localImageFile)
                             .centerCrop()
                             .resize(500, 500)
                             .into(itemView.imageView_image)
+                    itemView.imageView_image.setOnClickListener {
+                        val intent = Intent(context, ImageFullscreenActivity::class.java)
+                        intent.putExtra("ImagePath", localImageFile.absolutePath)
+                        context.startActivity(intent)
+                    }
+                }
                 else -> {
-                    downloadImage(message, itemView.imageView_image)
-//                    itemView.imageView_image.setImageResource(R.drawable.ic_file_download_black_24dp)
-//                    itemView.imageView_image.setOnClickListener {
-//                        downloadImage(message, itemView.imageView_image)
-//                    }
+                    itemView.imageView_image.setImageResource(R.drawable.ic_file_download_black_24dp)
+                    itemView.imageView_image.setOnClickListener {
+                        downloadImage(message, itemView.imageView_image)
+                    }
                 }
             }
         }
@@ -219,10 +244,7 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
         }
 
         private fun inflateActionRow(message: Message) {
-            //todo test
-            val stringBuilder = StringBuilder()
-            stringBuilder.append(calculateTime(message)).append("\n").append(message.message)
-            itemView.textView_action.text = stringBuilder
+            itemView.textView_action.text = message.message
         }
 
         private fun calculateTime(message: Message?): String {
@@ -232,10 +254,10 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
             if (hour == 0) hour = 12
             return with(message) {
                 when {
-                    isToday(date_created) -> {
-                        String.format("%2d", hour) +
+                    MyUtil.isToday(date_created) -> {
+                        String.format("%02d", hour) +
                                 ":" +
-                                String.format("%2d", date_created.get(Calendar.MINUTE)) +
+                                String.format("%02d", date_created.get(Calendar.MINUTE)) +
                                 " " +
                                 if (date_created.get(Calendar.AM_PM) == 0) "AM" else "PM"
                     }
@@ -244,19 +266,14 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
                                 " " +
                                 getMonthName(date_created.get(Calendar.MONTH)) +
                                 " " +
-                                String.format("%2d", hour) +
+                                String.format("%02d", hour) +
                                 ":" +
-                                String.format("%2d", date_created.get(Calendar.MINUTE)) +
+                                String.format("%02d", date_created.get(Calendar.MINUTE)) +
                                 " " +
                                 if (date_created.get(Calendar.AM_PM) == 0) "AM" else "PM"
                     }
                 }
             }
-        }
-
-        private fun isToday(time: Calendar): Boolean {
-            val calendar = Calendar.getInstance()
-            return time.get(Calendar.DAY_OF_MONTH) == calendar.get(Calendar.DAY_OF_MONTH)
         }
 
         private fun getMonthName(month: Int): String {
@@ -269,7 +286,6 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
         }
 
         private fun downloadImage(message: Message, imageView: ImageView) {
-            //todo it works
             val topic = "downloadImage/${message.message_id}"
             val header = MqttHeader.DOWNLOAD_IMAGE
 
@@ -299,6 +315,11 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
 
     fun getLastIndex(): Int {
         return if (messageList.isEmpty()) 0 else messageList.size - 1
+    }
+
+    fun addMessage(message: Message) {
+        messageList.add(message)
+        notifyItemInserted(getLastIndex())
     }
 
     private fun isMine(userID: Int): Boolean {

@@ -74,34 +74,6 @@ function GET_ROOM_MESSAGE($msg){
 	return $ack_message;
 }
 
-//receive room messages from client
-//Note: the chat room last update column will be updated by trigger
-//see ccs.sql > Trg_Insert_New_Message
-function SEND_ROOM_MESSAGE($msg){
-	echo "\nStoring received room message...\n";
-	$ack_message = "NO_PUB,";
-	
-	$receivedData = explode(',', $msg, 2);	
-	$messageJSON = json_decode($receivedData[1], true);
-	
-	$message = $messageJSON['message']; 
-	$sender_id = $messageJSON['sender_id'];
-	$room_id = $messageJSON['room_id'];
-	
-	$sql = "INSERT INTO Message (message, sender_id, room_id) 
-						VALUES ('$message', $sender_id, $room_id)";
-				
-	$result = dbResult($sql);
-	if($result){
-		echo "\nMessage has been stored\n";
-		$ack_message .= "SUCCESS";
-	}else{
-		echo "\nFailed to store message\n";
-		$ack_message .= "NO_RESULT";
-	}
-	return $ack_message;
-}
-
 function DELETE_CHAT_ROOM($msg){
 	echo "\n Deleting chat room, user exiting group...\n";
 	$ack_message = "DELETE_CHAT_ROOM_REPLY,";
@@ -110,7 +82,7 @@ function DELETE_CHAT_ROOM($msg){
 	$room_id = $receivedData[1];
 	$user_id = $receivedData[2];
 	
-	$sql = "DELETE FROM Participant 
+	$sql = "UPDATE Participant SET status = 'Left'
 			WHERE room_id = $room_id AND user_id = $user_id";
 	
 	$result = dbResult($sql);
@@ -194,12 +166,8 @@ function REMOVE_PEOPLE_FROM_GROUP($msg){
 	$room_id = $receivedData[1];
 	$user_id = $receivedData[2];
 	
-	$sql = "DELETE FROM Message 
-			WHERE sender_id = $user_id;";
-	
-	if(dbResult($sql)){
-		$sql = "DELETE FROM Participant 
-			WHERE room_id = $room_id AND user_id = $user_id;";
+		$sql = "UPDATE Participant SET status = 'Removed' 
+		WHERE room_id = $room_id AND participant_id = $user_id";
 		
 		if(dbResult($sql)){
 			echo "\nUser $user_id has been removed from chat room $room_id\n";
@@ -208,10 +176,6 @@ function REMOVE_PEOPLE_FROM_GROUP($msg){
 			echo "\nFailed to remove user $user_id from chat room $room_id\n";
 			$ack_message .= "NO_RESULT";
 		}
-	}else{
-		echo "\nFailed to remove user $user_id from chat room $room_id\n";
-		$ack_message .= "NO_RESULT";
-	}
 	return $ack_message;
 }
 
@@ -234,7 +198,7 @@ function GET_FRIEND_LIST_FOR_PARTICIPANT_ADD($msg){
 				User.user_id NOT IN (
 					SELECT user_id
 					FROM Participant
-					WHERE Participant.room_id = $room_id)
+					WHERE Participant.room_id = $room_id AND status = 'Active')
 			ORDER BY 
 				CASE 
 					WHEN User.status = 'Online' THEN 1
@@ -273,7 +237,7 @@ function GET_PARTICIPANT_LIST_REMOVE($msg){
 				User.user_id IN (
 					SELECT user_id
 					FROM Participant
-					WHERE Participant.room_id = $room_id)
+					WHERE Participant.room_id = $room_id AND status = 'Active')
 			ORDER BY 
 				CASE 
 					WHEN User.status = 'Online' THEN 1
@@ -324,7 +288,7 @@ function CREATE_CHAT_ROOM($msg){
 		echo "\n Returning chat room id $chat_room_id to client \n";
 		$ack_message .= $chat_room_id;
 	}else{
-		$sql = "insert into Chat_Room (owner_id, room_name) values ($owner_id, '');";
+		$sql = "INSERT INTO Chat_Room (owner_id, room_name) values ($owner_id, '');";
 
 		$hostname_localhost = "localhost";
 		$database_localhost = "ccs_master";
@@ -349,6 +313,21 @@ function CREATE_CHAT_ROOM($msg){
 				if(mysqli_query($link, $sql)){
 					echo "\n$friend_id has been added into chat room $new_room_id\n";
 				}
+				$sql = "SELECT display_name FROM User WHERE user_id = $owner_id";
+				$result = mysqli_query($link, $sql);
+				if($result){
+					$row = mysqli_fetch_assoc($result);
+					$creator_name = $row['display_name'];
+					date_default_timezone_set("Asia/Kuala_Lumpur");
+					$date = date('d M Y, h:i A');
+					$message = "$creator_name created the chat room on $date";
+					echo "\n$message\n";
+					$sql = "INSERT INTO Message (message, sender_id, room_id, message_type) 
+							VALUES ('$message', $owner_id, $new_room_id, 'Action')";
+					if(mysqli_query($link, $sql)){
+						echo "Success\n";
+					}
+				}
 				echo "\n New chat room, ID ($new_room_id) has been created \n";
 				$ack_message .= $new_room_id;
 			}else{
@@ -359,6 +338,77 @@ function CREATE_CHAT_ROOM($msg){
 		mysqli_close($link);
 	}
 	
+	return $ack_message;
+}
+
+function CREATE_PUBLIC_CHAT_ROOM($msg){
+	echo "\n Creating public chat room...\n";
+	$ack_message = "CREATE_PUBLIC_CHAT_ROOM_REPLY,";
+	
+	$hostname_localhost = "localhost";
+	$database_localhost = "ccs_master";
+	$username_localhost = "ccs_main";
+	$password_localhost = "123456";
+	$link = mysqli_connect($hostname_localhost, $username_localhost, $password_localhost, $database_localhost);
+	// Check connection
+	if($link === false){
+		die ("ERROR: Could not connect. " . mysqli_connect_error());
+	}
+
+	//todo
+	$receivedData = explode(',', $msg, 4);
+	$user_id = $receivedData[1];
+	$room_name = $receivedData[2];
+	$targetUserJson = json_decode($receivedData[3], true);
+	
+	//step 1 create room and get new room id
+	$sql = "INSERT INTO Chat_Room (owner_id, room_name, room_type) values ($user_id, '$room_name', 'Public');";
+	mysqli_set_charset($link, "UTF8");
+	$result = mysqli_query($link, $sql);
+
+	//step 2 insert all selected users into the chat room as participant
+	if($result){
+		$new_room_id = mysqli_insert_id($link);
+
+		//insert owner into participant
+		$sql = "INSERT into participant(room_id, user_id) values ($new_room_id, $user_id)";
+		if(mysqli_query($link, $sql)){
+			echo "\nOwner $user_id has join the chat room";
+		}
+		
+		for ($x = 0; $x < sizeof($targetUserJson); $x++){
+			$paticipant_id = $targetUserJson[$x]['user_id'];
+			$sql = "INSERT into participant(room_id, user_id) values ($new_room_id, $paticipant_id)";
+			
+			if(!mysqli_query($link, $sql)){
+				echo "\nError occured while inserting user $paticipant_id\n";
+				$ack_message .= "NO_RESULT";
+				break;
+			}
+		}
+
+		$sql = "SELECT display_name FROM User WHERE user_id = $user_id";
+		$result = mysqli_query($link, $sql);
+		if($result){
+			$row = mysqli_fetch_assoc($result);
+			$creator_name = $row['display_name'];
+			date_default_timezone_set("Asia/Kuala_Lumpur");
+			$date = date('d M Y, h:i A');
+			$message = "$creator_name created the group chat on $date";
+			$sql = "INSERT INTO Message (message, sender_id, room_id, message_type) 
+					VALUES ('$message', $user_id, $new_room_id, 'Action')";
+			if(mysqli_query($link, $sql)){
+				echo "Success";
+			}
+		}
+		$ack_message .= "$new_room_id";
+	}else{
+		echo "\nFailed to create new public chat room\n";
+		echo "$result\n";
+		$ack_message .= "NO_RESULT";
+	}
+
+	mysqli_close($link);
 	return $ack_message;
 }
 ?>

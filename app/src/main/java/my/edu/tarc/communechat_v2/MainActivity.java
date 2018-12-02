@@ -23,12 +23,12 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import my.edu.tarc.communechat_v2.Fragment.ChatFragment;
 import my.edu.tarc.communechat_v2.Fragment.FindFriendFragment;
 import my.edu.tarc.communechat_v2.Fragment.FriendListFragment;
 import my.edu.tarc.communechat_v2.Fragment.ProfileFragment;
+import my.edu.tarc.communechat_v2.Utility.MyUtil;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
 import my.edu.tarc.communechat_v2.internal.MqttHelper;
 import my.edu.tarc.communechat_v2.model.User;
@@ -60,21 +60,43 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, SettingsActivity.class));
                 break;
             case R.id.nav_tarc_app:
-                intent = getPackageManager().getLaunchIntentForPackage("app.tarc.edu.my");
+                final String tarcAppName = "app.tarc.edu.my";
+                intent = getPackageManager().getLaunchIntentForPackage(tarcAppName);
                 if (intent != null) {
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
                 } else {
-                    Toast.makeText(this, "Your phone didn't install TarcApp. You may download it from Google PlayStore", Toast.LENGTH_LONG).show();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle(R.string.error);
+                    builder.setTitle(R.string.no_tarc_app_install_desc);
+                    builder.setPositiveButton(R.string.download, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            MyUtil.INSTANCE.openPlayStore(MainActivity.this, tarcAppName);
+                        }
+                    });
+                    builder.setNegativeButton(R.string.not_now, null);
+                    builder.show();
                 }
                 break;
             case R.id.nav_google_classroom:
-                intent = getPackageManager().getLaunchIntentForPackage("com.google.android.apps.classroom");
+                final String classroomAppName = "com.google.android.apps.classroom";
+                intent = getPackageManager().getLaunchIntentForPackage(classroomAppName);
                 if (intent != null) {
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
                 } else {
-                    Toast.makeText(this, "Your phone didn't install Google Classroom. You may download it from Google PlayStore", Toast.LENGTH_LONG).show();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle(R.string.error);
+                    builder.setTitle(R.string.no_classroom_install_desc);
+                    builder.setPositiveButton(R.string.download, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            MyUtil.INSTANCE.openPlayStore(MainActivity.this, classroomAppName);
+                        }
+                    });
+                    builder.setNegativeButton(R.string.not_now, null);
+                    builder.show();
                 }
                 break;
             case R.id.nav_log_out:

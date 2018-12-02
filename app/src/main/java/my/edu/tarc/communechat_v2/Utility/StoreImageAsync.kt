@@ -1,10 +1,12 @@
 package my.edu.tarc.communechat_v2.Utility
 
+import android.content.Intent
 import android.os.AsyncTask
 import android.util.Base64
 import android.widget.ImageView
 import android.widget.Toast
 import com.squareup.picasso.Picasso
+import my.edu.tarc.communechat_v2.ImageFullscreenActivity
 import my.edu.tarc.communechat_v2.model.Message
 import org.json.JSONArray
 import java.io.File
@@ -28,8 +30,8 @@ class StoreImageAsync(val message: String, imageView: ImageView)
             messageID = messageJson.getInt(Message.COL_MESSAGE_ID)
 
             //construct a path
-            filePath = File(myUtil.getLocalImagePath())
-            imagePath = File(myUtil.getLocalImagePath(), "$messageID.jpg")
+            filePath = File(MyUtil.getLocalImagePath())
+            imagePath = File(MyUtil.getLocalImagePath(), "$messageID.jpg")
             image = Base64.decode(messageJson.getString(Message.COL_IMAGE), Base64.DEFAULT)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -54,7 +56,9 @@ class StoreImageAsync(val message: String, imageView: ImageView)
         if (result!!) {
             Picasso.get().load(imagePath).into(imageView.get())
             imageView.get()!!.setOnClickListener {
-                //todo open activity to view image full screen
+                val intent = Intent(imageView.get()!!.context, ImageFullscreenActivity::class.java)
+                intent.putExtra("ImagePath", imagePath.absolutePath)
+                imageView.get()!!.context.startActivity(intent)
             }
             imageView.clear()
         } else {

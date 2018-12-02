@@ -1,5 +1,6 @@
 package my.edu.tarc.communechat_v2
 
+import android.app.Activity
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -11,7 +12,6 @@ import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import kotlinx.android.synthetic.main.activity_add_group_chat.*
-import my.edu.tarc.communechat_v2.Fragment.ChatFragment
 import my.edu.tarc.communechat_v2.MainActivity.mqttHelper
 import my.edu.tarc.communechat_v2.internal.MqttHeader
 import my.edu.tarc.communechat_v2.internal.MqttHelper
@@ -91,7 +91,7 @@ class AddGroupChatActivity : AppCompatActivity() {
                         Log.i("MqttHelper", mqttAndroidClient.clientId + " failed to connect. " + exception)
                     }
                 }
-            } catch (e: MqttException) {
+            } catch (e: Exception) {
                 e.printStackTrace()
             }
 
@@ -117,7 +117,7 @@ class AddGroupChatActivity : AppCompatActivity() {
                         intent.putExtra(Chat_Room.COL_ROOM_ID, helper.receivedResult.toInt())
                         intent.putExtra(Chat_Room.COL_ROOM_TYPE, "Public")
                         intent.putExtra(Participant.COL_ROLE, "Admin")
-                        setResult(ChatFragment.REQUEST_CHAT_ROOM, intent)
+                        setResult(Activity.RESULT_OK, intent)
                         finish()
                     }
                     progressBar_add.visibility = View.GONE

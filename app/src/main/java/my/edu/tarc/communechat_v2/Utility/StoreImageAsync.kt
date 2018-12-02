@@ -54,13 +54,16 @@ class StoreImageAsync(val message: String, imageView: ImageView)
 
     override fun onPostExecute(result: Boolean?) {
         if (result!!) {
-            Picasso.get().load(imagePath).into(imageView.get())
-            imageView.get()!!.setOnClickListener {
-                val intent = Intent(imageView.get()!!.context, ImageFullscreenActivity::class.java)
-                intent.putExtra("ImagePath", imagePath.absolutePath)
-                imageView.get()!!.context.startActivity(intent)
+            try {
+                Picasso.get().load(imagePath).into(imageView.get())
+                imageView.get()!!.setOnClickListener {
+                    val intent = Intent(imageView.get()?.context, ImageFullscreenActivity::class.java)
+                    intent.putExtra("ImagePath", imagePath.absolutePath)
+                    imageView.get()?.context?.startActivity(intent)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-            imageView.clear()
         } else {
             Toast.makeText(imageView.get()!!.context, "Failed to download image", Toast.LENGTH_LONG).show()
         }

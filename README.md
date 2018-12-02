@@ -1,10 +1,10 @@
-Commune Chat System For Tunku Abdul Rahman University College, KL Main Campus
+Commune Chat System For Tunku Abdul Rahman University College, KL Main Campus<br>
 
-Supervisor: Miss Pua Bee Lian
-Moderator: Miss Gan Lay Kee
+Supervisor: Miss Pua Bee Lian<br>
+Moderator: Miss Gan Lay Kee<br>
 
-Minimum API level: 19
-Target API level: 26
+Minimum API level: 19<br>
+Target API level: 26<br>
 
 <h1>Introduction</h1>
 Hello there and welcome.

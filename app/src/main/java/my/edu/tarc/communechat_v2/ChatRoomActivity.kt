@@ -165,7 +165,7 @@ class ChatRoomActivity : AppCompatActivity(), View.OnClickListener {
             val message = Message()
             message.sender_id = pref!!.getInt(User.COL_USER_ID, -1)
             message.date_created = Calendar.getInstance()
-            message.message = editText_message.text.toString().trim()
+            message.message = editText_message.text.toString().trim() //todo encrypt here
             message.room_id = chatRoom!!.room_id
             message.message_type = TEXT
             message.sender_name = pref!!.getString(User.COL_DISPLAY_NAME, "")
@@ -329,7 +329,7 @@ class ChatRoomActivity : AppCompatActivity(), View.OnClickListener {
                 val message = Message()
                 message.message_id = receivedMessage.getInt(Message.COL_MESSAGE_ID)
                 message.room_id = receivedMessage.getInt(Message.COL_ROOM_ID)
-                message.message = receivedMessage.getString(Message.COL_MESSAGE)
+                message.message = receivedMessage.getString(Message.COL_MESSAGE) //todo decrypt here
                 message.message_type = receivedMessage.getString(Message.COL_MESSAGE_TYPE)
                 message.setDate_created(receivedMessage.getString(Message.COL_DATE_CREATED))
                 message.sender_id = receivedMessage.getInt(Message.COL_SENDER_ID)
@@ -381,7 +381,7 @@ class ChatRoomActivity : AppCompatActivity(), View.OnClickListener {
             message.message_type = receivedMessage.getString(Message.COL_MESSAGE_TYPE)
 
             if (message.message_type == TEXT) {
-                message.message = receivedMessage.getString(Message.COL_MESSAGE)
+                message.message = receivedMessage.getString(Message.COL_MESSAGE) //todo decrypt
             } else if (message.message_type == IMAGE) {
                 //todo test
                 message.media = Base64.decode(receivedMessage.getString(Message.COL_MEDIA), Base64.DEFAULT)

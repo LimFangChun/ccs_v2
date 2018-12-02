@@ -230,6 +230,7 @@
     <string name="advanced_search_title">Select at least one criteria</string>
     <string name="username">Username</string>
     <string name="display_name">Display name</string>
+<<<<<<< HEAD
     <string name="edit_profile">Edit profile</string>
     <string name="title_position">I am a:</string>
     <string name="student">Student</string>
@@ -248,4 +249,17 @@
     <string name="finish">Finish</string>
     <string name="alert_empty_fields">Empty fields detected</string>
     <string name="alert_empty_fields_message">Every fields must be filled.</string>
+=======
+    <string name="today">Today</string>
+    <string name="open_tarcapp">Open TarcApp</string>
+    <string name="open_google_classroom">Open Google Classroom</string>
+    <string name="take_photo">Take photo</string>
+    <string name="add_image">Add image</string>
+    <string name="error">Error</string>
+    <string name="not_now">Not now</string>
+    <string name="download">Download</string>
+    <string name="no_tarc_app_install_desc">Your phone didn\'t install TarcApp.Download now?</string>
+    <string name="no_classroom_install_desc">Your phone didn\'t install Classroom. Download now?</string>
+    <string name="type_room_name_here">Type room name here</string>
+>>>>>>> LimFangChun
 </resources>

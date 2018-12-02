@@ -28,6 +28,7 @@ import my.edu.tarc.communechat_v2.Fragment.ChatFragment;
 import my.edu.tarc.communechat_v2.Fragment.FindFriendFragment;
 import my.edu.tarc.communechat_v2.Fragment.FriendListFragment;
 import my.edu.tarc.communechat_v2.Fragment.ProfileFragment;
+import my.edu.tarc.communechat_v2.Utility.MyUtil;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
 import my.edu.tarc.communechat_v2.internal.MqttHelper;
 import my.edu.tarc.communechat_v2.model.User;
@@ -41,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
 
     private SharedPreferences pref;
     private BottomNavigationView bottomNavigationView;
+
     @Override
     //inflate top right menu bar items
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -51,14 +53,51 @@ public class MainActivity extends AppCompatActivity {
     @Override
     //override method for top right menu bar
     public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
         int itemId = item.getItemId();
         switch (itemId) {
             case R.id.nav_settings:
-
-                //new ChatEngineStartup(this).execute();
-                //MainActivity.mqttHelper.subscribe(my.edu.tarc.communechat_v2.chatEngine.ChatFragment.CURRENT_USER_ID +"");
-               // MainActivity.mqttHelper.getMqttClient().setCallback(new ChatSubscribeCallBack(this));
                 startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+                break;
+            case R.id.nav_tarc_app:
+                final String tarcAppName = "app.tarc.edu.my";
+                intent = getPackageManager().getLaunchIntentForPackage(tarcAppName);
+                if (intent != null) {
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                } else {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle(R.string.error);
+                    builder.setTitle(R.string.no_tarc_app_install_desc);
+                    builder.setPositiveButton(R.string.download, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            MyUtil.INSTANCE.openPlayStore(MainActivity.this, tarcAppName);
+                        }
+                    });
+                    builder.setNegativeButton(R.string.not_now, null);
+                    builder.show();
+                }
+                break;
+            case R.id.nav_google_classroom:
+                final String classroomAppName = "com.google.android.apps.classroom";
+                intent = getPackageManager().getLaunchIntentForPackage(classroomAppName);
+                if (intent != null) {
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                } else {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle(R.string.error);
+                    builder.setTitle(R.string.no_classroom_install_desc);
+                    builder.setPositiveButton(R.string.download, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            MyUtil.INSTANCE.openPlayStore(MainActivity.this, classroomAppName);
+                        }
+                    });
+                    builder.setNegativeButton(R.string.not_now, null);
+                    builder.show();
+                }
                 break;
             case R.id.nav_log_out:
                 //clear shared preference then navigate user to login activity
@@ -246,7 +285,7 @@ public class MainActivity extends AppCompatActivity {
         mqttHelper.connectPublish(this, topic, header, user);
     }
 
-    public void backupReminder(){
+    public void backupReminder() {
         AlertDialog.Builder reminder = new AlertDialog.Builder(MainActivity.this);
         reminder.setTitle(R.string.gps_not_found);
         reminder.setMessage(R.string.gps_not_found_desc1);

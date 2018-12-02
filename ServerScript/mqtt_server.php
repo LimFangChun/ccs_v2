@@ -199,8 +199,6 @@ function procmsg($topic, $msg){
 					$ack_message = GET_ROOM_MESSAGE($msg);
 					publishMessage($topic, $ack_message);
 					break;}
-				// case "SEND_ROOM_MESSAGE": {
-				// 	$ack_message = SEND_ROOM_MESSAGE($msg); break;}
 				case "DELETE_CHAT_ROOM":{
 					$ack_message = DELETE_CHAT_ROOM($msg);
 					publishMessage($topic, $ack_message);
@@ -229,6 +227,11 @@ function procmsg($topic, $msg){
 					$ack_message = CREATE_CHAT_ROOM($msg);
 					publishMessage($topic, $ack_message);
 					break;}
+				case "CREATE_PUBLIC_CHAT_ROOM":{
+					$ack_message = CREATE_PUBLIC_CHAT_ROOM($msg); 
+					publishMessage($topic, $ack_message);
+					break;}
+					////////////////////////
 				case "GET_FRIEND_LIST":	{
 					$ack_message = GET_FRIEND_LIST($msg);
 					publishMessage($topic, $ack_message);
@@ -241,6 +244,7 @@ function procmsg($topic, $msg){
 					$ack_message = GET_CITY_BY_STATE($msg);
 					publishMessage($topic, $ack_message);
 					break;}
+<<<<<<< HEAD
 				// case "FIND_BY_ADDRESS":	{
 				// 	$ack_message = FIND_BY_ADDRESS($msg); break;}
 				// case "FIND_BY_PROGRAMME":	{
@@ -255,6 +259,8 @@ function procmsg($topic, $msg){
 				// 	$ack_message = FIND_BY_AGE($msg);
 				// 	publishMessage($topic, $ack_message);
 				// 	break;}
+=======
+>>>>>>> LimFangChun
 				case "GET_FRIEND_REQUEST":{
 					$ack_message = GET_FRIEND_REQUEST($msg);
 					publishMessage($topic, $ack_message);
@@ -304,12 +310,15 @@ function procmsg($topic, $msg){
 					$ack_message = GET_PUBLIC_KEY($msg);
 					publishMessage($topic, $ack_message);
 					break;}
+<<<<<<< HEAD
 				// case "UPDATE_LOCATION": {
 				// 	$ack_message = UPDATE_LOCATION($msg); break;}
 				// case "FIND_BY_LOCATION": {
 				// 	$ack_message = FIND_BY_LOCATION($msg);
 				// 	publishMessage($topic, $ack_message);
 				// 	break;}
+=======
+>>>>>>> LimFangChun
 			}
 		}
 }

@@ -136,9 +136,9 @@ public class FriendListFragment extends Fragment {
                         e.printStackTrace();
                     }
                 }
+                progressBarFriendList.setVisibility(View.INVISIBLE);
+                mqttHelper.unsubscribe(uniqueTopic);
             }
-            progressBarFriendList.setVisibility(View.INVISIBLE);
-            mqttHelper.unsubscribe(uniqueTopic);
         }
 
         @Override

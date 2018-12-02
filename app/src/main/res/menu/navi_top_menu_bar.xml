@@ -6,6 +6,17 @@
         android:icon="@drawable/ic_settings"
         android:title="@string/settings"
         app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/nav_tarc_app"
+        android:title="@string/open_tarcapp"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/nav_google_classroom"
+        android:title="@string/open_google_classroom"
+        app:showAsAction="never" />
+
     <item
         android:id="@+id/nav_edit_profile"
         android:title="@string/edit_profile"

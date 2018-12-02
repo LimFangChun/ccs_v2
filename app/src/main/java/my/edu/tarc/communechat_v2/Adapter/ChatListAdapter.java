@@ -36,6 +36,7 @@ public class ChatListAdapter extends ArrayAdapter<Chat_Room> {
         TextView textViewContent;
         TextView textViewRoomID;
         TextView textViewRole;
+        TextView textViewRoomType;
     }
 
     public ChatListAdapter(@NonNull Context context, int resource, @NonNull ArrayList<Chat_Room> objects) {
@@ -50,11 +51,13 @@ public class ChatListAdapter extends ArrayAdapter<Chat_Room> {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         final Chat_Room chatRoom = new Chat_Room();
-        chatRoom.setRoom_id(Objects.requireNonNull(getItem(position)).getRoom_id());
-        chatRoom.setOwner_id(Objects.requireNonNull(getItem(position)).getOwner_id());
-        chatRoom.setLast_update(Objects.requireNonNull(getItem(position)).getLast_update());
-        chatRoom.setRoom_name(Objects.requireNonNull(getItem(position)).getRoom_name());
-        chatRoom.setRole(Objects.requireNonNull(getItem(position)).getRole());
+        Chat_Room temp = Objects.requireNonNull(getItem(position));
+        chatRoom.setRoom_id(temp.getRoom_id());
+        chatRoom.setOwner_id(temp.getOwner_id());
+        chatRoom.setLast_update(temp.getLast_update());
+        chatRoom.setRoom_name(temp.getRoom_name());
+        chatRoom.setRole(temp.getRole());
+        chatRoom.setRoom_type(temp.getRoom_type());
 
         final ViewHolder holder;
 
@@ -71,6 +74,7 @@ public class ChatListAdapter extends ArrayAdapter<Chat_Room> {
             holder.textViewDate = convertView.findViewById(R.id.textView_lastDate);
             holder.textViewRoomID = convertView.findViewById(R.id.textView_roomID);
             holder.textViewRole = convertView.findViewById(R.id.textView_role);
+            holder.textViewRoomType = convertView.findViewById(R.id.textView_roomType);
 
             //set tag for future use
             convertView.setTag(holder);
@@ -92,6 +96,7 @@ public class ChatListAdapter extends ArrayAdapter<Chat_Room> {
         holder.textViewContent.setText("");
         holder.textViewRoomID.setText(String.valueOf(chatRoom.getRoom_id()));
         holder.textViewRole.setText(chatRoom.getRole());
+        holder.textViewRoomType.setText(chatRoom.getRoom_type());
 
         //make default image for each chat room
         //github: https://github.com/amulyakhare/TextDrawable/blob/master/README.md

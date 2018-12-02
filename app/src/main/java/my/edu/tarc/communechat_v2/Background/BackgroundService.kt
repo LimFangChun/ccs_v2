@@ -7,8 +7,12 @@ import android.preference.PreferenceManager
 import android.util.Base64
 import android.util.Log
 import my.edu.tarc.communechat_v2.MainActivity
+<<<<<<< HEAD
 import my.edu.tarc.communechat_v2.NotificationView
 import my.edu.tarc.communechat_v2.Utility.myUtil
+=======
+import my.edu.tarc.communechat_v2.Utility.MyUtil
+>>>>>>> LimFangChun
 import my.edu.tarc.communechat_v2.internal.MqttHeader
 import my.edu.tarc.communechat_v2.internal.MqttHelper
 import my.edu.tarc.communechat_v2.model.Chat_Room
@@ -27,6 +31,11 @@ class BackgroundService : IntentService("MqttBackground") {
     override fun onCreate() {
         super.onCreate()
         helper.connect(applicationContext)
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        return IntentService.START_STICKY
+        //todo test
     }
 
     override fun onHandleIntent(intent: Intent) {
@@ -72,6 +81,7 @@ class BackgroundService : IntentService("MqttBackground") {
                     }
                     val intent = Intent(applicationContext, MainActivity::class.java)
                     val pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intent, 0)
+<<<<<<< HEAD
 //                    myUtil.makeNotification(
 //                            context = applicationContext,
 //                            title = incomeMessage.getString(Message.COL_SENDER_NAME),
@@ -79,6 +89,13 @@ class BackgroundService : IntentService("MqttBackground") {
 //                            intent = pendingIntent,
 //                            drawable = null)
                     NotificationView.sendNotification(applicationContext,received_message);
+=======
+                    MyUtil.makeNotification(
+                            context = applicationContext,
+                            title = incomeMessage.getString(Message.COL_SENDER_NAME),
+                            text = incomeMessage.getString(Message.COL_MESSAGE),
+                            intent = pendingIntent)
+>>>>>>> LimFangChun
                 } catch (e: JSONException) {
                     e.printStackTrace()
                 }

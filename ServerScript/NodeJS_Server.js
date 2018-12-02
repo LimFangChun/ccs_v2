@@ -63,10 +63,17 @@ function initializeDbConnection() {
 
 function processReceivedData(topic, message) {
     var FindFriendModule = require("./FindFriendModule.js");
+    var ChatModule = require("./ChatModule.js");
     var temp = message.toString().split(',');
     switch (temp[0]) {
         case "SEND_ROOM_MESSAGE":
-            SEND_ROOM_MESSAGE(topic, message);
+            ChatModule.SEND_ROOM_MESSAGE(topic, message);
+            break;
+        case "SEND_ROOM_IMAGE":
+            ChatModule.SEND_ROOM_IMAGE(topic, message);
+            break;
+        case "DOWNLOAD_IMAGE":
+            ChatModule.DOWNLOAD_IMAGE(topic, message);
             break;
         case "FIND_BY_ADDRESS":
             FindFriendModule.FIND_BY_ADDRESS(topic, message);
@@ -95,27 +102,4 @@ function processReceivedData(topic, message) {
     }
 }
 
-function SEND_ROOM_MESSAGE(topic, message) {
-    console.log('Storing received room message...');
-    var output = "NO_PUB,";
 
-    var receivedData = message.toString().substring(message.toString().indexOf(',') + 1);
-    var messageJSON = JSON.parse(receivedData);
-
-    var sql = `INSERT INTO Message (message, sender_id, room_id) 
-                        VALUES (?, ?, ?)`;
-    var input = [messageJSON['message'], messageJSON['sender_id'], messageJSON['room_id']];
-
-    DB_CONNECTION.query(sql, input, function (err, result) {
-        if (err) {
-            output += "NO_RESULT";
-            console.log(err);
-        } else if (result || result.length > 0) {
-            output += "SUCCESS";
-        } else {
-            output += "NO_RESULT";
-        }
-        console.log("Message has been stored");
-        console.log('Output: ' + output);
-    });
-}

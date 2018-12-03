@@ -11,7 +11,6 @@ import my.edu.tarc.communechat_v2.MainActivity
 import my.edu.tarc.communechat_v2.NotificationView
 
 import my.edu.tarc.communechat_v2.Utility.MyUtil
->>>>>>> LimFangChun
 import my.edu.tarc.communechat_v2.internal.MqttHeader
 import my.edu.tarc.communechat_v2.internal.MqttHelper
 import my.edu.tarc.communechat_v2.model.Chat_Room

@@ -7,10 +7,9 @@ import android.preference.PreferenceManager
 import android.util.Base64
 import android.util.Log
 import my.edu.tarc.communechat_v2.MainActivity
-<<<<<<< HEAD
+
 import my.edu.tarc.communechat_v2.NotificationView
-import my.edu.tarc.communechat_v2.Utility.myUtil
-=======
+
 import my.edu.tarc.communechat_v2.Utility.MyUtil
 >>>>>>> LimFangChun
 import my.edu.tarc.communechat_v2.internal.MqttHeader

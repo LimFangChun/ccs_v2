@@ -1,6 +1,6 @@
 var mysql = require('mysql');
 var mqtt = require('mqtt');
-var serverAddress = 'tcp://172.22.6.184:1883';//change to broker's ip
+var serverAddress = 'tcp://172.22.6.237:1883';//change to broker's ip
 var mqttClient = mqtt.connect(serverAddress);
 var DB_CONNECTION;
 
@@ -63,12 +63,33 @@ function initializeDbConnection() {
 
 function processReceivedData(topic, message) {
     var FindFriendModule = require("./FindFriendModule.js");
+    var ChatModule = require("./ChatModule.js");
     var temp = message.toString().split(',');
     switch (temp[0]) {
+        //chat module
         case "SEND_ROOM_MESSAGE":
-            console.log(temp[0]);
-            SEND_ROOM_MESSAGE(topic, message);
+            ChatModule.SEND_ROOM_MESSAGE(topic, message);
             break;
+        case "SEND_ROOM_IMAGE":
+            ChatModule.SEND_ROOM_IMAGE(topic, message);
+            break;
+        case "DOWNLOAD_IMAGE":
+            ChatModule.DOWNLOAD_IMAGE(topic, message);
+            break;
+        case "PIN_MESSAGE":
+            ChatModule.PIN_MESSAGE(topic, message);
+            break;
+        case "UNPIN_MESSAGE":
+            ChatModule.UNPIN_MESSAGE(topic, message);
+            break;
+        case "GET_PINNED_MESSAGE":
+            ChatModule.GET_PINNED_MESSAGE(topic, message);
+            break;
+        case "DELETE_MESSAGE":
+            ChatModule.DELETE_MESSAGE(topic, message);
+            break;
+
+        //find friend module
         case "FIND_BY_ADDRESS":
             FindFriendModule.FIND_BY_ADDRESS(topic, message);
             break;
@@ -96,27 +117,4 @@ function processReceivedData(topic, message) {
     }
 }
 
-function SEND_ROOM_MESSAGE(topic, message) {
-    console.log('Storing received room message...');
-    var output = "NO_PUB,";
 
-    var receivedData = message.toString().substring(message.toString().indexOf(',') + 1);
-    var messageJSON = JSON.parse(receivedData);
-
-    var sql = `INSERT INTO Message (message, sender_id, room_id, message_type, media) 
-                        VALUES (?, ?, ?, ?, ?)`;
-    var input = [messageJSON['message'], messageJSON['sender_id'], messageJSON['room_id'], messageJSON['message_type'], messageJSON['media']];
-
-    DB_CONNECTION.query(sql, input, function (err, result) {
-        if (err) {
-            output += "NO_RESULT";
-            console.log(err);
-        } else if (result || result.length > 0) {
-            output += "SUCCESS";
-        } else {
-            output += "NO_RESULT";
-        }
-        console.log("Message has been stored");
-        console.log('Output: ' + output);
-    });
-}

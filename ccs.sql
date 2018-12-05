@@ -53,6 +53,7 @@ CREATE TABLE User(
 	password 	varchar(50),
 	gender 		varchar(10),
 	nric 		varchar(20),
+	date_of_birth   DATE,
 	phone_number 	varchar(20),
 	email 		varchar(50),
 	address 	varchar(200), 

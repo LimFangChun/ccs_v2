@@ -1,28 +1,4 @@
-var mysql = require('mysql');
-var mqtt = require('mqtt');
-var serverAddress = 'tcp://192.168.0.2:1883';
-var mqttClient = mqtt.connect(serverAddress);
-var DB_CONNECTION;
-
-mqttClient.on('connect', function () {
-    mqttClient.subscribe('/MY/TARUC/CCS/000000001/PUB/#');
-    console.log('================================================');
-    console.log('Node.js has connected to mqtt broker at ' + serverAddress);
-});
-
-
-DB_CONNECTION = mysql.createConnection({
-    host: "localhost",
-    user: "ccs_main",
-    password: "123456",
-    database: "ccs_master"
-});
-
-DB_CONNECTION.connect(function (err) {
-    if (err) throw err;
-    console.log("Connected to database");
-    console.log('================================================\n');
-});
+var connector = require("./NodeJS_Server.js");
 
 var UPDATE_PUBLIC_KEY = function (topic, message) {
 	console.log('Updating user public_key...');
@@ -139,7 +115,7 @@ var GET_FORBIDDEN_SECRETS = function (topic, message) {
 }
 
 function executeQuery(sql, inserts, topic, output) {
-    DB_CONNECTION.query(sql, inserts, function (err, result) {
+    connector.DB_CONNECTION.query(sql, inserts, function (err, result) {
         if (err) {
             console.log(err);
             output += "NO_RESULT";
@@ -149,7 +125,7 @@ function executeQuery(sql, inserts, topic, output) {
         } else {
             output += "NO_RESULT";
         }
-        mqttClient.publish(topic, output);
+        connector.mqttClient.publish(topic, output);
     });
 }
 

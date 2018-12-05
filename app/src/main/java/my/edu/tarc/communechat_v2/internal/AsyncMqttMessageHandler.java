@@ -16,6 +16,7 @@ import my.edu.tarc.communechat_v2.model.Chat_Room;
 import my.edu.tarc.communechat_v2.model.RSA;
 import my.edu.tarc.communechat_v2.model.User;
 
+import static my.edu.tarc.communechat_v2.MainActivity.mqttHelper;
 import static my.edu.tarc.communechat_v2.internal.RoomSecretHelper.getOrGenerateRoomKey;
 import static my.edu.tarc.communechat_v2.internal.RoomSecretHelper.getRoomPrefKey;
 
@@ -23,21 +24,21 @@ public class AsyncMqttMessageHandler extends AsyncTask<Object, Void, Void> {
 	private static final String TAG = "[HandleMessageAsync]";
 	@SuppressLint("StaticFieldLeak")
 	private Context context;
-	private MqttHelper mqttHelper;
+	private MqttHelper mqttHelperTemp;
 	private String header;
 	private String result;
 
 	public AsyncMqttMessageHandler(Context context, String message) {
 		super();
-		mqttHelper = new MqttHelper(); //for decode message only.
-		mqttHelper.decode(message);
+		mqttHelperTemp = new MqttHelper(); //for decode message only.
+		mqttHelperTemp.decode(message);
 		this.context = context;
 	}
 
 	@Override
 	protected Void doInBackground(Object... args) {
-		header = mqttHelper.getReceivedHeader();
-		result = mqttHelper.getReceivedResult();
+		header = mqttHelperTemp.getReceivedHeader();
+		result = mqttHelperTemp.getReceivedResult();
 
 		switch (header) {
 			case MqttHeader.GET_CHATROOM_SECRET_ALL_REPLY: {
@@ -133,7 +134,7 @@ public class AsyncMqttMessageHandler extends AsyncTask<Object, Void, Void> {
 		chat_room1.setSecret_key(rsa.encryptKey(chat_room.getSecret_key()));
 		Log.i(TAG, "Encrypted secret key: " + chat_room1.getSecret_key());
 		Object[] params = {user, chat_room1};
-		//mqttHelper.connectPublish(context, userTopic(user.getUser_id()), MqttHeader.SEND_CHATROOM_SECRET, chat_room);
+		//mqttHelperTemp.connectPublish(context, userTopic(user.getUser_id()), MqttHeader.SEND_CHATROOM_SECRET, chat_room);
 		mqttHelper.connectPublish(context, uniqueTopic, MqttHeader.SET_CHATROOM_SECRET, params);
 	}
 

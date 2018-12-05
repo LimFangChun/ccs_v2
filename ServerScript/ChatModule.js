@@ -83,6 +83,7 @@ var DOWNLOAD_IMAGE = function (topic, message) {
             console.log("Image has been retrieved. Returning back to client");
         } else {
             output += "NO_RESULT";
+            console.log(err);
         }
 
         connector.mqttClient.publish(topic, output);
@@ -90,8 +91,116 @@ var DOWNLOAD_IMAGE = function (topic, message) {
     });
 }
 
+var PIN_MESSAGE = function (topic, message) {
+    console.log("Pinning message...");
+    var output = "PIN_MESSAGE_REPLY,";
+
+    var receivedData = message.toString().split(",");
+    var messageID = receivedData[1];
+    var sql = "UPDATE Message SET status = 'Pinned' WHERE message_id = ?";
+    var input = [messageID];
+
+    connector.DB_CONNECTION.query(sql, input, function (err, result) {
+        if (err) {
+            output += "NO_RESULT";
+            console.log(err);
+        } else if (result && result.affectedRows == 1) {
+            output += "SUCCESS";
+            console.log(`Message ${messageID} has been pinned`);
+        } else {
+            output += "NO_RESULT";
+            console.log(err);
+        }
+        connector.mqttClient.publish(topic, output);
+        console.log('Output: ' + output);
+    });
+}
+
+var UNPIN_MESSAGE = function (topic, message) {
+    console.log("Unpinning message...");
+    var output = "UNPIN_MESSAGE_REPLY,";
+
+    var receivedData = message.toString().split(",");
+    var messageID = receivedData[1];
+    var sql = "UPDATE Message SET status = 'Unpinned' WHERE message_id = ?";
+    var input = [messageID];
+
+    connector.DB_CONNECTION.query(sql, input, function (err, result) {
+        if (err) {
+            output += "NO_RESULT";
+            console.log(err);
+        } else if (result && result.affectedRows == 1) {
+            output += "SUCCESS";
+            console.log(`Message ${messageID} has been unpinned`);
+        } else {
+            output += "NO_RESULT";
+            console.log(err);
+        }
+        connector.mqttClient.publish(topic, output);
+        console.log('Output: ' + output);
+    });
+}
+
+var GET_PINNED_MESSAGE = function (topic, message) {
+    console.log("Getting all pinned messages...");
+    var output = "GET_PINNED_MESSAGE_REPLY,";
+
+    var receivedData = message.toString().split(",");
+    var roomID = receivedData[1];
+
+    var sql = `SELECT Message.*, User.display_name 
+                FROM Message 
+                    INNER JOIN User ON Message.sender_id = User.user_id 
+                WHERE room_id = ? AND Message.status = 'Pinned'
+                ORDER BY date_created`;
+    var input = [roomID];
+
+    connector.DB_CONNECTION.query(sql, input, function (err, result) {
+        if (err) {
+            output += "NO_RESULT";
+            console.log(err);
+        } else if (result && result.length >= 1) {
+            console.log(`Successfully getting all pinned messages for room ${roomID}`);
+            output += JSON.stringify(result);
+        } else {
+            output += "NO_RESULT";
+            console.log(err);
+        }
+        connector.mqttClient.publish(topic, output);
+        console.log('Output: ' + output.substr(0, 200));
+    });
+}
+
+var DELETE_MESSAGE = function(topic, message){
+    console.log("Deleting message...");
+	var output = "DELETE_MESSAGE_REPLY,";
+    var receivedData = message.toString().split(",");
+    var messageID = receivedData[1];
+    var sql = "UPDATE Message SET status = 'Deleted' WHERE message_id = ?";
+    var input = [messageID];
+
+    connector.DB_CONNECTION.query(sql, input, function (err, result) {
+        if (err) {
+            output += "NO_RESULT";
+            console.log(err);
+        } else if (result && result.affectedRows == 1) {
+            output += "SUCCESS";
+            console.log(`Message ${messageID} has been deleted`);
+        } else {
+            output += "NO_RESULT";
+            console.log(err);
+        }
+        connector.mqttClient.publish(topic, output);
+        console.log('Output: ' + output);
+    });
+}
+
 module.exports = {
     SEND_ROOM_MESSAGE,
     SEND_ROOM_IMAGE,
-    DOWNLOAD_IMAGE
+    DOWNLOAD_IMAGE,
+    PIN_MESSAGE,
+    UNPIN_MESSAGE,
+    GET_PINNED_MESSAGE,
+    DELETE_MESSAGE
 }

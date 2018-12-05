@@ -111,7 +111,7 @@ $client_id = "CCS_SERVER";
  */
  
 //$server = "broker.hivemq.com";     		// change to your broker's ip
-$server = "192.168.0.110";
+$server = "172.16.112.193";
 $port = 1883;                     		// change if necessary, default is 1883
 $username = "";                 // set your username
 $password = "";             // set your password
@@ -141,7 +141,7 @@ $mqtt->close();
 //MQTT publish message
 //DO NOT MODIFY, except ip address
 function publishMessage($topic, $ack_message){
-	$server = "192.168.0.110";     		// change if necessary
+	$server = "172.16.112.193";     		// change if necessary
 	$port = 1883;                     		// change if necessary
 	$username = "";                 // set your username
 	$password = "";             // set your password
@@ -293,15 +293,6 @@ function procmsg($topic, $msg){
 					$ack_message = GET_PUBLIC_KEY($msg);
 					publishMessage($topic, $ack_message);
 					break;}
-<<<<<<< HEAD
-				// case "UPDATE_LOCATION": {
-				// 	$ack_message = UPDATE_LOCATION($msg); break;}
-				// case "FIND_BY_LOCATION": {
-				// 	$ack_message = FIND_BY_LOCATION($msg);
-				// 	publishMessage($topic, $ack_message);
-				// 	break;}
-=======
->>>>>>> LimFangChun
 			}
 		}
 }

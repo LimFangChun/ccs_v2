@@ -261,4 +261,5 @@
     <string name="type_room_name_here">Type room name here</string>
     <string name="privacyControl_msgBlocked">Our privacy control module reports that you have entered your private data in your message. Tell them to lower down the security if you find this annoying!</string>
     <string name="privacyControl_msgSent">Your message has been sent. Oh wait, a gentle reminder from our privacy control module: Make sure your private data is not handed to untrusted parties! (Yeah we know we are annoying tho)</string>
+    <string name="see_pinned_messages">See pinned messages</string>
 </resources>

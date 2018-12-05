@@ -125,6 +125,9 @@
             android:name=".AddGroupChatActivity"
             android:parentActivityName=".AddGroupChatActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".SeePinMessageActivity"
+            android:parentActivityName=".SeePinMessageActivity" />
     </application>
 
 </manifest>

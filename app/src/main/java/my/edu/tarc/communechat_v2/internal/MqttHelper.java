@@ -341,7 +341,7 @@ public class MqttHelper {
                     messageJSON.put(Message.COL_SENDER_ID, String.valueOf(message.getSender_id()));
                     messageJSON.put(Message.COL_MESSAGE_TYPE, message.getMessage_type());
                     messageJSON.put(Message.COL_MESSAGE, message.getMessage());
-                    messageJSON.put(Message.COL_DATE_CREATED, message.getDate_created().toString());
+                    messageJSON.put(Message.COL_DATE_CREATED, message.getDate_created().getTime().toString());
                     messageJSON.put(Message.COL_SENDER_NAME, message.getSender_name());
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -360,7 +360,7 @@ public class MqttHelper {
                     messageJSON.put(Message.COL_MEDIA, Base64.encodeToString(message.getMedia(), Base64.DEFAULT));
                     messageJSON.put(Message.COL_SENDER_ID, String.valueOf(message.getSender_id()));
                     messageJSON.put(Message.COL_MESSAGE_TYPE, message.getMessage_type());
-                    messageJSON.put(Message.COL_DATE_CREATED, message.getDate_created().toString());
+                    messageJSON.put(Message.COL_DATE_CREATED, message.getDate_created().getTime().toString());
                     messageJSON.put(Message.COL_SENDER_NAME, message.getSender_name());
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -374,6 +374,38 @@ public class MqttHelper {
             case MqttHeader.DOWNLOAD_IMAGE: {
                 Message message = (Message) data;
                 temp.append(MqttHeader.DOWNLOAD_IMAGE)
+                        .append(",")
+                        .append(message.getMessage_id());
+                result = temp.toString();
+                break;
+            }
+            case MqttHeader.GET_PINNED_MESSAGE: {
+                Chat_Room chatRoom = (Chat_Room) data;
+                temp.append(MqttHeader.GET_PINNED_MESSAGE)
+                        .append(",")
+                        .append(chatRoom.getRoom_id());
+                result = temp.toString();
+                break;
+            }
+            case MqttHeader.PIN_MESSAGE: {
+                Message message = (Message) data;
+                temp.append(MqttHeader.PIN_MESSAGE)
+                        .append(",")
+                        .append(message.getMessage_id());
+                result = temp.toString();
+                break;
+            }
+            case MqttHeader.UNPIN_MESSAGE: {
+                Message message = (Message) data;
+                temp.append(MqttHeader.UNPIN_MESSAGE)
+                        .append(",")
+                        .append(message.getMessage_id());
+                result = temp.toString();
+                break;
+            }
+            case MqttHeader.DELETE_MESSAGE: {
+                Message message = (Message) data;
+                temp.append(MqttHeader.DELETE_MESSAGE)
                         .append(",")
                         .append(message.getMessage_id());
                 result = temp.toString();

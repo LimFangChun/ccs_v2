@@ -17,6 +17,7 @@ SET time_zone = "+08:00";
 --  drop all tables first in case you have any duplicated table with same name
 --  drop in reverse order
 --  Also make your life easier when you have changes in database
+DROP TABLE IF EXISTS Message_Image;
 DROP TABLE IF EXISTS RoomSecret;
 DROP TABLE IF EXISTS Friendship;
 DROP TABLE IF EXISTS Message;
@@ -103,7 +104,8 @@ CREATE TABLE Friendship(
 CREATE TABLE Chat_Room(
 	room_id 	int(10) NOT NULL AUTO_INCREMENT,
 	owner_id 	int(10) NOT NULL,
-	room_name 	varchar(100) NOT NULL,
+	room_name 	varchar(100),
+	room_type 	varchar(100) DEFAULT 'Private',
 	date_created 	datetime DEFAULT CURRENT_TIMESTAMP,
 	last_update 	datetime DEFAULT CURRENT_TIMESTAMP,
 	topic_address varchar(200) NOT NULL,
@@ -117,23 +119,31 @@ CREATE TABLE Participant(
 	user_id 	int(10) NOT NULL,
 	role 		varchar(50) NOT NULL DEFAULT 'Member',
 	join_date 	datetime DEFAULT CURRENT_TIMESTAMP,
-	PRIMARY KEY (room_id, user_id),
+	status 	varchar(100) DEFAULT 'Active',
+	PRIMARY KEY (room_id, user_id, join_date),
 	FOREIGN KEY (room_id) REFERENCES Chat_Room(room_id),
 	FOREIGN KEY (user_id) REFERENCES User(user_id)
 );
 
 CREATE TABLE Message(
 	message_id 	int(20) NOT NULL AUTO_INCREMENT,
-	message 	varchar(300) NOT NULL,
+	message 	varchar(500) NOT NULL,
 	sender_id 	int(10) NOT NULL,
 	date_created datetime DEFAULT CURRENT_TIMESTAMP,
 	room_id 	int(10) NOT NULL,
 	message_type 	varchar(10) DEFAULT 'Text',
+	media_path 	varchar(200),
 	status 		varchar(20) DEFAULT 'Unpinned',
-	media 	longblob,
 	PRIMARY KEY (message_id),
 	FOREIGN KEY (sender_id) REFERENCES User(user_id),
 	FOREIGN KEY (room_id) REFERENCES Chat_Room(room_id)
+);
+
+CREATE TABLE Message_Image(
+	message_id 	int(20) NOT NULL,
+	image mediumtext,
+	PRIMARY KEY (message_id),
+	FOREIGN KEY (message_id) REFERENCES Message(message_id)
 );
 
 CREATE TABLE RoomSecret(
@@ -145,6 +155,95 @@ CREATE TABLE RoomSecret(
 	FOREIGN KEY (room_id) REFERENCES Chat_Room(room_id),
 	FOREIGN KEY (user_id) REFERENCES User(user_id)
 );
+
+
+-- Setup necessary triggers
+-- drop the triggers first, like we drop table before creating
+DROP TRIGGER IF EXISTS Trg_Insert_New_User;
+DROP TRIGGER IF EXISTS Trg_Log_User_Activity;
+DROP TRIGGER IF EXISTS Trg_Insert_New_Message;
+DROP TRIGGER IF EXISTS Trg_Create_New_Chat_Room;
+DROP TRIGGER IF EXISTS Trg_Update_Participant;
+DROP TRIGGER IF EXISTS Trg_Insert_Participant;
+DELIMITER //
+-- this trigger is to track user activity
+-- you may add more conditions in future
+CREATE TRIGGER Trg_Log_User_Activity
+AFTER UPDATE ON User
+FOR EACH ROW
+BEGIN
+	IF NEW.last_online <> OLD.last_online OR NEW.status <> OLD.status THEN
+		IF NEW.status LIKE 'Offline' THEN
+			INSERT INTO UserActivityLog (user_id, description) VALUES (NEW.user_id, 'Logged out');
+		ELSEIF NEW.status LIKE 'Online' THEN
+			INSERT INTO UserActivityLog (user_id, description) VALUES (NEW.user_id, 'Logged in');
+		END IF;
+	END IF;
+	
+	IF NEW.display_name <> OLD.display_name THEN
+		INSERT INTO UserActivityLog (user_id, description) VALUES (NEW.user_id, CONCAT('Changed display name to ', NEW.display_name));
+	END IF;
+	
+	IF NEW.last_latitude <> OLD.last_latitude OR NEW.last_longitude <> OLD.last_longitude THEN
+		INSERT INTO UserActivityLog (user_id, description) VALUES (NEW.user_id, CONCAT('Location updated.. Ltd: ', NEW.last_latitude, ', Lgn: ', NEW.last_longitude));
+	END IF;
+END;
+//
+
+-- update chat_room last_update everytime a new message is inserted
+CREATE TRIGGER Trg_Insert_New_Message
+AFTER INSERT ON Message
+FOR EACH ROW
+BEGIN
+	UPDATE Chat_Room SET last_update = CURRENT_TIMESTAMP WHERE room_id = NEW.room_id;
+END;
+//
+
+CREATE TRIGGER Trg_Update_Participant
+AFTER UPDATE ON Participant
+FOR each ROW
+Begin
+	DECLARE owner_name varchar(100);
+	DECLARE messages varchar(200);
+	DECLARE currentDate varchar(200);
+	SET currentDate := DATE_FORMAT(CURRENT_TIMESTAMP, "%d %b %Y, %I:%i %p");
+
+	Select display_name into owner_name FROM User WHERE user_id = NEW.user_id;
+
+	IF NEW.status <> OLD.status AND NEW.status LIKE 'Left' THEN 
+		SET messages := CONCAT(owner_name, " left the chat room on ", currentDate);
+
+		INSERT INTO Message (message, sender_id, room_id, message_type) 
+                        VALUES (messages, NEW.user_id, NEW.room_id, 'Action');
+	ELSEIF NEW.status <> OLD.status NEW.status LIKE 'Removed' THEN
+		SET messages := CONCAT(owner_name, " was removed from the chat room on ", currentDate);
+
+		INSERT INTO Message (message, sender_id, room_id, message_type) 
+                        VALUES (messages, NEW.user_id, NEW.room_id, 'Action');
+	END IF;
+END;
+//
+
+CREATE TRIGGER Trg_Insert_Participant
+AFTER INSERT ON Participant
+FOR EACH ROW
+Begin
+	DECLARE owner_name varchar(100);
+	DECLARE messages varchar(200);
+	DECLARE currentDate varchar(200);
+	SET currentDate := DATE_FORMAT(CURRENT_TIMESTAMP, "%d %b %Y, %I:%i %p");
+
+	Select display_name into owner_name FROM User WHERE user_id = NEW.user_id;
+
+	SET messages := CONCAT(owner_name, " joined the chat room on ", currentDate);
+
+	INSERT INTO Message (message, sender_id, room_id, message_type) 
+        VALUES (messages, NEW.user_id, NEW.room_id, 'Action');
+END;
+//
+
+DELIMITER ;
+
 --  Generate dummy data
 --  You may use mockaroo.com to generate dummy data, its free
 
@@ -505,7 +604,7 @@ insert into Friendship (user_id, friend_id, sender_id) values (11, 1, 11);
 -- Chat_Room table records
 -- Column: room_id(PK), owner_id, room_name, date_created, last_update, topic_address
 insert into Chat_Room (owner_id, room_name, date_created, last_update, topic_address) values (1, 'TestRoom1', '2018-10-01 14:59:01', '2018-10-01 13:59:01', 'room/room_1');
-insert into Chat_Room (owner_id, room_name, date_created, last_update, topic_address) values (1, 'TestRoom2', '2018-09-29 14:59:01', '2018-10-01 11:59:01', 'room/room_2');
+insert into Chat_Room (owner_id, room_name, room_type, date_created, last_update, topic_address) values (1, 'TestRoom2', 'Public', '2018-09-29 14:59:01', '2018-10-01 11:59:01', 'room/room_2');
 
 -- Done by: Lim Fang Chun
 -- Participant table records
@@ -518,55 +617,16 @@ insert into Participant (room_id, user_id, role) values (2, 3, 'Admin');
 insert into Participant (room_id, user_id, role) values (2, 4, 'Member');
 insert into Participant (room_id, user_id, role) values (2, 5, 'Member');
 
--- Setup necessary triggers
--- drop the triggers first, like we drop table before creating
-DROP TRIGGER IF EXISTS Trg_Insert_New_Supply;
-DROP TRIGGER IF EXISTS Trg_Log_User_Activity;
-DROP TRIGGER IF EXISTS Trg_Insert_New_Message;
-
 -- create a temporary student record for new user
 -- otherwise would cause error
 DELIMITER //
-CREATE TRIGGER Trg_Insert_New_Supply
+CREATE TRIGGER Trg_Insert_New_User
 AFTER INSERT ON User
 FOR EACH ROW
 BEGIN
 	INSERT INTO Student (student_id, user_id) values (NEW.user_id, NEW.user_id);
 END;
 //
-
--- this trigger is to track user activity
--- you may add more conditions in future
-CREATE TRIGGER Trg_Log_User_Activity
-AFTER UPDATE ON User
-FOR EACH ROW
-BEGIN
-	IF NEW.last_online <> OLD.last_online OR NEW.status <> OLD.status THEN
-		IF NEW.status LIKE 'Offline' THEN
-			INSERT INTO UserActivityLog (user_id, description) VALUES (NEW.user_id, 'Logged out');
-		ELSEIF NEW.status LIKE 'Online' THEN
-			INSERT INTO UserActivityLog (user_id, description) VALUES (NEW.user_id, 'Logged in');
-		END IF;
-	END IF;
-	
-	IF NEW.display_name <> OLD.display_name THEN
-		INSERT INTO UserActivityLog (user_id, description) VALUES (NEW.user_id, CONCAT('Changed display name to ', NEW.display_name));
-	END IF;
-	
-	IF NEW.last_latitude <> OLD.last_latitude OR NEW.last_longitude <> OLD.last_longitude THEN
-		INSERT INTO UserActivityLog (user_id, description) VALUES (NEW.user_id, CONCAT('Location updated.. Ltd: ', NEW.last_latitude, ', Lgn: ', NEW.last_longitude));
-	END IF;
-END;
-//
-
--- update chat_room last_update everytime a new message is inserted
-CREATE TRIGGER Trg_Insert_New_Message
-AFTER INSERT ON Message
-FOR EACH ROW
-BEGIN
-	UPDATE Chat_Room SET last_update = CURRENT_TIMESTAMP WHERE room_id = NEW.room_id;
-END;
-//
-
 DELIMITER ;
+
 COMMIT;

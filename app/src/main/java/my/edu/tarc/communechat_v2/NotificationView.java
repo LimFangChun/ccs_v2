@@ -56,8 +56,8 @@ public class NotificationView {
     public static String NOTIFICTION_DISMISS = "notification_dismiss";
     private static int NOTIFICATION_ID;
     public static String CHAT_ROOM_TYPE;
-    public static String PRIVATE="private";
-    public static String GROUP="group";
+    public static String PRIVATE="Private";
+    public static String PUBLIC="Public";
 
 
 
@@ -231,16 +231,6 @@ public class NotificationView {
 //            }
 //        }
 
-    public static void checkRoom(Context mContext,int roomID){
-//        Chat_Room chat_room=new Chat_Room();
-//        chat_room.setRoom_id(roomID);
-//        String topic = "checkNumPpl/" + chat_room.getRoom_id();
-//        String header = MqttHeader.CHECK_NUM_PPL;
-//        MqttHelper mqttHelper = new MqttHelper();
-//        mqttHelper.connectPublishSubscribe(mContext, topic, header, chat_room);
-//        mqttHelper.getMqttClient().setCallback(getNumPplCallback);
-
-    }
 
 
     public static void sendNotification(Context mContext, Message chat) {
@@ -259,16 +249,15 @@ public class NotificationView {
             List<String> oldMessage=loadArray(String.valueOf(chat.getRoom_id()),mContext);
             setPendingNotificationsCount(oldMessage.size()+1);
 
-            if (CHAT_ROOM_TYPE.equals(GROUP)) {
-                notificationType=GROUP;
+            if (CHAT_ROOM_TYPE.equals(PUBLIC)) {
+                notificationType=PUBLIC;
             }else
                 notificationType=PRIVATE;
 
-            String roomName = "Group";
+            String roomName = ROOM_NAME;
             String sender = chat.getSender_name();
             if (getPendingNotificationsCount() > 1) {
-                if (CHAT_ROOM_TYPE.equals(GROUP)) {
-                    roomName =ROOM_NAME;
+                if (CHAT_ROOM_TYPE.equals(PUBLIC)) {
                     roomName += " (" + getPendingNotificationsCount() + " message)";
 
                 } else {
@@ -291,7 +280,7 @@ public class NotificationView {
                 boolean store = saveArray(oldMessage, String.valueOf(chat.getRoom_id()), mContext);
 
                 for (int i = 0; i <oldMessage.size() ; i++) {
-                    if(CHAT_ROOM_TYPE.equals(GROUP)){
+                    if(CHAT_ROOM_TYPE.equals(PUBLIC)){
                         messagingStyle.addMessage(oldMessage.get(i),0,chat.getSender_name());
                     }else {
                         inboxStyle.addLine(oldMessage.get(i));
@@ -301,7 +290,7 @@ public class NotificationView {
             }else{
                 List<String> message = new ArrayList<String>();
                 message.add(new String (incomingMessage));
-                if(CHAT_ROOM_TYPE.equals(GROUP)){
+                if(CHAT_ROOM_TYPE.equals(PUBLIC)){
                     messagingStyle.addMessage(incomingMessage,0,chat.getSender_name());
                 }else {
                     inboxStyle.addLine(incomingMessage);

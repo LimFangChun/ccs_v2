@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="my.edu.tarc.communechat_v2">
 
+    <uses-sdk tools:overrideLibrary="com.shrikanthravi.chatview" />
+
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -11,8 +13,11 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
-    <uses-sdk tools:overrideLibrary="com.shrikanthravi.chatview" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -40,9 +45,8 @@
 
         <service
             android:name=".Background.BackgroundService"
-            tools:ignore="InnerclassSeparator"
-            android:exported="false" />
-
+            android:exported="false"
+            tools:ignore="InnerclassSeparator" />
          <receiver
          android:name=".NotificationBroadcastReceiver"
          android:enabled="true"
@@ -76,7 +80,10 @@
         <!-- android:theme="@style/AppTheme.NoActionBar" /> -->
 
 
-
+        <!-- <receiver -->
+        <!-- android:name=".NotificationBroadcastReceiver" -->
+        <!-- android:enabled="true" -->
+        <!-- android:exported="false" /> -->
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -101,7 +108,8 @@
             android:parentActivityName=".TestEncryptionActivity" />
         <activity
             android:name=".ChatRoomActivity"
-            android:parentActivityName=".ChatRoomActivity" />
+            android:parentActivityName=".ChatRoomActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".GroupInfoActivity"
             android:parentActivityName=".GroupInfoActivity" />
@@ -114,6 +122,16 @@
         <activity
             android:name=".AdvancedSearchActivity"
             android:parentActivityName=".AdvancedSearchActivity" />
+        <activity
+            android:name=".ImageFullscreenActivity"
+            android:parentActivityName=".ImageFullscreenActivity" />
+        <activity
+            android:name=".AddGroupChatActivity"
+            android:parentActivityName=".AddGroupChatActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".SeePinMessageActivity"
+            android:parentActivityName=".SeePinMessageActivity" />
     </application>
 
 </manifest>

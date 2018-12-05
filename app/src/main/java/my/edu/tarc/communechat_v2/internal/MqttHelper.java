@@ -40,7 +40,7 @@ public class MqttHelper {
     private String receivedResult;
 
     //change MQTT broker IP address here
-    private static final String serverUri = "tcp://192.168.0.120:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
+    private static final String serverUri = "tcp://172.22.6.237:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
 
     //private static final String serverUri = "tcp://broker.hivemq.com:1883";
     //private static String mqttUsername = "";
@@ -341,21 +341,73 @@ public class MqttHelper {
                     messageJSON.put(Message.COL_SENDER_ID, String.valueOf(message.getSender_id()));
                     messageJSON.put(Message.COL_MESSAGE_TYPE, message.getMessage_type());
                     messageJSON.put(Message.COL_MESSAGE, message.getMessage());
-                    messageJSON.put(Message.COL_DATE_CREATED, message.getDate_created().toString());
+                    messageJSON.put(Message.COL_DATE_CREATED, message.getDate_created().getTime().toString());
                     messageJSON.put(Message.COL_SENDER_NAME, message.getSender_name());
-                    // Encode byte array into string
-                    if (message.getMedia() != null) {
-                        messageJSON.put(Message.COL_MEDIA, Base64.encodeToString(message.getMedia(), Base64.NO_WRAP));
-                    }
-
-
-
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
                 temp.append(MqttHeader.SEND_ROOM_MESSAGE)
                         .append(",")
                         .append(messageJSON.toString());
+                result = temp.toString();
+                break;
+            }
+            case MqttHeader.SEND_ROOM_IMAGE: {
+                Message message = (Message) data;
+                JSONObject messageJSON = new JSONObject();
+                try {
+                    messageJSON.put(Message.COL_ROOM_ID, String.valueOf(message.getRoom_id()));
+                    messageJSON.put(Message.COL_MEDIA, Base64.encodeToString(message.getMedia(), Base64.DEFAULT));
+                    messageJSON.put(Message.COL_SENDER_ID, String.valueOf(message.getSender_id()));
+                    messageJSON.put(Message.COL_MESSAGE_TYPE, message.getMessage_type());
+                    messageJSON.put(Message.COL_DATE_CREATED, message.getDate_created().getTime().toString());
+                    messageJSON.put(Message.COL_SENDER_NAME, message.getSender_name());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                temp.append(MqttHeader.SEND_ROOM_IMAGE)
+                        .append(",")
+                        .append(messageJSON.toString());
+                result = temp.toString();
+                break;
+            }
+            case MqttHeader.DOWNLOAD_IMAGE: {
+                Message message = (Message) data;
+                temp.append(MqttHeader.DOWNLOAD_IMAGE)
+                        .append(",")
+                        .append(message.getMessage_id());
+                result = temp.toString();
+                break;
+            }
+            case MqttHeader.GET_PINNED_MESSAGE: {
+                Chat_Room chatRoom = (Chat_Room) data;
+                temp.append(MqttHeader.GET_PINNED_MESSAGE)
+                        .append(",")
+                        .append(chatRoom.getRoom_id());
+                result = temp.toString();
+                break;
+            }
+            case MqttHeader.PIN_MESSAGE: {
+                Message message = (Message) data;
+                temp.append(MqttHeader.PIN_MESSAGE)
+                        .append(",")
+                        .append(message.getMessage_id());
+                result = temp.toString();
+                break;
+            }
+            case MqttHeader.UNPIN_MESSAGE: {
+                Message message = (Message) data;
+                temp.append(MqttHeader.UNPIN_MESSAGE)
+                        .append(",")
+                        .append(message.getMessage_id());
+                result = temp.toString();
+                break;
+            }
+            case MqttHeader.DELETE_MESSAGE: {
+                Message message = (Message) data;
+                temp.append(MqttHeader.DELETE_MESSAGE)
+                        .append(",")
+                        .append(message.getMessage_id());
                 result = temp.toString();
                 break;
             }
@@ -737,9 +789,9 @@ public class MqttHelper {
             	result=temp.toString();
                 break;
             }
-            case MqttHeader.CHECK_NUM_PPL: {
+            case MqttHeader.CHECK_ROOM_TYPE: {
                 Chat_Room room = (Chat_Room) data;
-                temp.append(MqttHeader.CHECK_NUM_PPL)
+                temp.append(MqttHeader.CHECK_ROOM_TYPE)
                         .append(",")
                         .append(room.getRoom_id());
                 result = temp.toString();
@@ -771,5 +823,13 @@ public class MqttHelper {
 
     public MqttAndroidClient getMqttClient() {
         return mqttAndroidClient;
+    }
+
+    public String getTopicPrefix() {
+        return topicPrefix;
+    }
+
+    public String getServerUri() {
+        return serverUri;
     }
 }

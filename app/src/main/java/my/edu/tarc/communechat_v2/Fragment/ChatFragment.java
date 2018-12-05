@@ -7,7 +7,9 @@ import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -27,9 +29,11 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
 
 import my.edu.tarc.communechat_v2.Adapter.ChatListAdapter;
+import my.edu.tarc.communechat_v2.AddGroupChatActivity;
 import my.edu.tarc.communechat_v2.Background.BackgroundService;
 import my.edu.tarc.communechat_v2.ChatRoomActivity;
 import my.edu.tarc.communechat_v2.R;
@@ -40,15 +44,19 @@ import my.edu.tarc.communechat_v2.model.Chat_Room;
 import my.edu.tarc.communechat_v2.model.Participant;
 import my.edu.tarc.communechat_v2.model.User;
 
+import static android.app.Activity.RESULT_OK;
 import static my.edu.tarc.communechat_v2.MainActivity.mqttHelper;
 
 public class ChatFragment extends Fragment {
+
+    public static final int REQUEST_CHAT_ROOM = 10;
 
     private SharedPreferences pref;
     private ListView listViewChatList;
     private ProgressBar progressBarChat;
     private TextView textViewNoHistory;
     private Bundle savedInstanceState;
+    private FloatingActionButton fabAddGroup;
 
     @Override
     public void onResume() {
@@ -59,7 +67,7 @@ public class ChatFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         this.savedInstanceState = savedInstanceState;
 
         View view = inflater.inflate(R.layout.fragment_chat, container, false);
@@ -72,11 +80,30 @@ public class ChatFragment extends Fragment {
         progressBarChat.setVisibility(View.VISIBLE);
         progressBarChat.getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(getContext(), R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
         textViewNoHistory = view.findViewById(R.id.textView_chatFragment_Description);
+        fabAddGroup = view.findViewById(R.id.fab_add);
+        fabAddGroup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Objects.requireNonNull(getActivity()).startActivityForResult(new Intent(getActivity(), AddGroupChatActivity.class), REQUEST_CHAT_ROOM);
+            }
+        });
 
         initializeListViewListener();
 
-
         return view;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK && data != null) {
+            if (requestCode == REQUEST_CHAT_ROOM) {
+                Intent intent = new Intent(getActivity(), ChatRoomActivity.class);
+                intent.putExtra(Chat_Room.COL_ROOM_ID, data.getIntExtra(Chat_Room.COL_ROOM_ID, -1));
+                intent.putExtra(Chat_Room.COL_ROOM_TYPE, data.getStringExtra(Chat_Room.COL_ROOM_TYPE));
+                intent.putExtra(Participant.COL_ROLE, data.getStringExtra(Participant.COL_ROLE));
+                startActivity(intent);
+            }
+        }
     }
 
     private void initializeListViewListener() {
@@ -86,16 +113,19 @@ public class ChatFragment extends Fragment {
                 TextView textViewRoomID = view.findViewById(R.id.textView_roomID);
                 TextView textViewRoomName = view.findViewById(R.id.textView_header);
                 TextView textViewRole = view.findViewById(R.id.textView_role);
+                TextView textViewRoomType = view.findViewById(R.id.textView_roomType);
 
                 Chat_Room chatRoom = new Chat_Room();
                 chatRoom.setRoom_id(Integer.parseInt(textViewRoomID.getText().toString()));
                 chatRoom.setRoom_name(textViewRoomName.getText().toString());
                 chatRoom.setRole(textViewRole.getText().toString());
+                chatRoom.setRoom_type(textViewRoomType.getText().toString());
 
                 Intent intent = new Intent(getActivity(), ChatRoomActivity.class);
                 intent.putExtra(Chat_Room.COL_ROOM_ID, chatRoom.getRoom_id());
                 intent.putExtra(Chat_Room.COL_ROOM_NAME, chatRoom.getRoom_name());
                 intent.putExtra(Participant.COL_ROLE, chatRoom.getRole());
+                intent.putExtra(Chat_Room.COL_ROOM_TYPE, chatRoom.getRoom_type());
                 startActivity(intent);
             }
         });
@@ -143,6 +173,7 @@ public class ChatFragment extends Fragment {
                                 room.setOwner_id(temp.getInt(Chat_Room.COL_OWNER_ID));
                                 room.setLast_update(temp.getString(Chat_Room.COL_LAST_UPDATE));
                                 room.setRole(temp.getString(Participant.COL_ROLE));
+                                room.setRoom_type(temp.getString(Chat_Room.COL_ROOM_TYPE));
 
                                 resultList.add(room);
                                 roomID[i] = room.getRoom_id();
@@ -170,10 +201,10 @@ public class ChatFragment extends Fragment {
     }
 
     private void runBackgroundService(int[] roomID) {
-        if (!isMyServiceRunning(BackgroundService.class)) {
-            Log.d("ChatFragment", "running background service");
+        if (!isMyServiceRunning(BackgroundService.class) && getActivity() != null) {
+            Log.d("ChatFragment", "starting background service");
+            pref.edit().putString(Chat_Room.COL_ROOM_ID, Arrays.toString(roomID)).apply();
             Intent intent = new Intent(getActivity(), BackgroundService.class);
-            intent.putExtra(Chat_Room.COL_ROOM_ID, roomID);
             Objects.requireNonNull(getContext()).startService(intent);
         }
     }

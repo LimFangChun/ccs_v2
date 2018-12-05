@@ -17,6 +17,7 @@ public class Chat_Room {
     public static final String COL_ROOM_ID = "room_id";
     public static final String COL_OWNER_ID = "owner_id";
     public static final String COL_ROOM_NAME = "room_name";
+    public static final String COL_ROOM_TYPE = "room_type";
     public static final String COL_DATE_CREATED = "date_created";
     public static final String COL_LAST_UPDATE = "last_update";
     public static final String COL_TOPIC_ADDRESS = "topic_address";
@@ -49,6 +50,8 @@ public class Chat_Room {
     private String secret_key;
 
     private byte[] room_picture;
+
+    private String room_type;
 
     public Chat_Room(){
         date_created = Calendar.getInstance();
@@ -227,5 +230,13 @@ public class Chat_Room {
 
     public Bitmap getRoomPhotoBitmap() {
         return BitmapFactory.decodeByteArray(room_picture, 0, room_picture.length);
+    }
+
+    public String getRoom_type() {
+        return room_type;
+    }
+
+    public void setRoom_type(String room_type) {
+        this.room_type = room_type;
     }
 }

@@ -8,8 +8,8 @@ import android.util.Base64
 import android.util.Log
 import my.edu.tarc.communechat_v2.MainActivity
 import my.edu.tarc.communechat_v2.NotificationView
+import my.edu.tarc.communechat_v2.Utility.MyUtil
 import my.edu.tarc.communechat_v2.NotificationView.*
-import my.edu.tarc.communechat_v2.Utility.myUtil
 import my.edu.tarc.communechat_v2.internal.MqttHeader
 import my.edu.tarc.communechat_v2.internal.MqttHelper
 import my.edu.tarc.communechat_v2.model.Chat_Room
@@ -31,15 +31,28 @@ class BackgroundService : IntentService("MqttBackground") {
     override fun onCreate() {
         super.onCreate()
         helper.connect(applicationContext)
-    }
 
-    override fun onHandleIntent(intent: Intent) {
-        val roomID = intent.getIntArrayExtra(Chat_Room.COL_ROOM_ID)
+        val temp = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        val roomID = stringToIntArray(temp.getString(Chat_Room.COL_ROOM_ID, ""))
         for (x in roomID) {
             val topic = MqttHeader.SEND_ROOM_MESSAGE + "/room" + x
             helper.connectSubscribe(applicationContext, topic)
         }
         helper.mqttClient.setCallback(roomCallback)
+        Log.d("BackgroundService", "onCreate called")
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        return IntentService.START_STICKY
+        //todo test
+    }
+
+    override fun onHandleIntent(intent: Intent) {
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("BackgroundService", "onDestroy called, service shutdown")
     }
 
     private val roomCallback = object : MqttCallback {
@@ -63,10 +76,10 @@ class BackgroundService : IntentService("MqttBackground") {
                     }
                     val chat_room = Chat_Room()
                     chat_room.room_id = incomeMessage.getInt(Message.COL_ROOM_ID)
-                    val topic = "checkNumPpl/" + chat_room.room_id
-                    val header = MqttHeader.CHECK_NUM_PPL
+                    val topic = "checkRoomType/" + chat_room.room_id
+                    val header = MqttHeader.CHECK_ROOM_TYPE
                     mqttHelper.connectPublishSubscribe(applicationContext, topic, header, chat_room)
-                    mqttHelper.mqttClient.setCallback(getNumPplCallback)
+                    mqttHelper.mqttClient.setCallback(getRoomTypeCallback)
 
                     received_message.sender_id = incomeMessage.getInt(Message.COL_SENDER_ID)
                     received_message.message = incomeMessage.getString(Message.COL_MESSAGE)
@@ -82,8 +95,15 @@ class BackgroundService : IntentService("MqttBackground") {
                     }
                     val intent = Intent(applicationContext, MainActivity::class.java)
                     val pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intent, 0)
-                    //checkRoom(applicationContext,received_message);
-                  //  NotificationView.sendNotification(applicationContext,received_message);
+
+                    //NotificationView.sendNotification(applicationContext,received_message);
+
+//                    MyUtil.makeNotification(
+//                            context = applicationContext,
+//                            title = incomeMessage.getString(Message.COL_SENDER_NAME),
+//                            text = incomeMessage.getString(Message.COL_MESSAGE),
+//                            intent = pendingIntent)
+
                 } catch (e: JSONException) {
                     e.printStackTrace()
                 }
@@ -94,7 +114,7 @@ class BackgroundService : IntentService("MqttBackground") {
 
         }
     }
-    private val getNumPplCallback = object : MqttCallback {
+    private val getRoomTypeCallback = object : MqttCallback {
         override fun connectionLost(cause: Throwable) {
 
         }
@@ -103,20 +123,19 @@ class BackgroundService : IntentService("MqttBackground") {
         override fun messageArrived(topic: String, message: MqttMessage) {
             val helper = MqttHelper()
             helper.decode(message.toString())
-            if (helper.receivedHeader == MqttHeader.CHECK_NUM_PPL_REPLY) {
+            if (helper.receivedHeader == MqttHeader.CHECK_ROOM_TYPE_REPLY) {
                 val receivedResult = helper.receivedResult
                 try {
                     val jsonResult = JSONArray(receivedResult)
                     Log.v("TESTING", jsonResult.toString())
 
                     val temp = jsonResult.getJSONObject(0)
-                    val num = temp.getInt("COUNT(user_id)")
                     setRoomName(temp.getString("room_name"))
-                    if (num == 2) {
-                        setChatRoomType(PRIVATE)
-                    } else {
-                        setChatRoomType(GROUP)
-                    }
+                    setChatRoomType(temp.getString("room_type"))
+                    Log.v("TESTING ROOMNAME", getRoomName())
+                    Log.v("TESTING ROOMTYPE", getChatRoomType())
+
+
                     NotificationView.sendNotification(applicationContext,received_message);
 
 
@@ -131,5 +150,18 @@ class BackgroundService : IntentService("MqttBackground") {
         override fun deliveryComplete(token: IMqttDeliveryToken) {
 
         }
+    }
+
+    private fun stringToIntArray(string: String): IntArray {
+        var temp = string.replace("[", "")
+        temp = temp.replace("]", "")
+
+        val temp2 = temp.split(",")
+        var result = IntArray(temp2.size)
+        for (x in temp2) {
+            result += (x.trim().toInt())
+        }
+
+        return result
     }
 }

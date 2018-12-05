@@ -25,8 +25,6 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        //Log.i(NotificationBroadcastReceiver.class.getSimpleName(), "Service Stops! Oops!!!!");
-        //context.startService(new Intent(context, BackgroundService.class));
 
         NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         SharedPreferences prefs = context.getSharedPreferences("message", 0);

@@ -200,7 +200,7 @@ public class GroupInfoActivity extends AppCompatActivity {
 //                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filepath);
 //                imageViewGroupPicture.setImageBitmap(bitmap);
                 fabUpload.setVisibility(View.VISIBLE);
-               // Picasso.get().load(data.getData()).into(imageViewGroupPicture);
+                Picasso.get().load(data.getData()).into(imageViewGroupPicture);
             } catch (Exception e) {
                 e.printStackTrace();
             }

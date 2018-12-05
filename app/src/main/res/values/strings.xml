@@ -234,7 +234,7 @@
     <string name="title_position">I am a:</string>
     <string name="student">Student</string>
     <string name="lecturer">Lecturer</string>
-    <string name="change_password">Change password...</string>]
+    <string name="change_password">Change password…</string>]
     <string name="student_id">Student ID</string>
     <string name="intake">Intake</string>
     <string name="academic_year">Academic Year</string>
@@ -242,7 +242,7 @@
     <string name="male">Male</string>
     <string name="female">Female</string>
     <string name="date_of_birth">Date of birth</string>
-    <string name="select_from_calendar">Select from calendar...</string>
+    <string name="select_from_calendar">Select from calendar…</string>
     <string name="phone_number">Phone number</string>
     <string name="email_address">Email address</string>
     <string name="finish">Finish</string>
@@ -259,5 +259,7 @@
     <string name="no_tarc_app_install_desc">Your phone didn\'t install TarcApp.Download now?</string>
     <string name="no_classroom_install_desc">Your phone didn\'t install Classroom. Download now?</string>
     <string name="type_room_name_here">Type room name here</string>
+    <string name="privacyControl_msgBlocked">Our privacy control module reports that you have entered your private data in your message. Tell them to lower down the security if you find this annoying!</string>
+    <string name="privacyControl_msgSent">Your message has been sent. Oh wait, a gentle reminder from our privacy control module: Make sure your private data is not handed to untrusted parties! (Yeah we know we are annoying tho)</string>
     <string name="see_pinned_messages">See pinned messages</string>
 </resources>

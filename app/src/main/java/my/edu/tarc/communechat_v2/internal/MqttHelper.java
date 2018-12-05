@@ -40,7 +40,7 @@ public class MqttHelper {
     private String receivedResult;
 
     //change MQTT broker IP address here
-    private static final String serverUri = "tcp://192.168.0.120:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
+    private static final String serverUri = "tcp://192.168.0.11:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
 
     //private static final String serverUri = "tcp://broker.hivemq.com:1883";
     //private static String mqttUsername = "";
@@ -717,7 +717,7 @@ public class MqttHelper {
                 User user = (User)objects[0];
                 Chat_Room chat_room = (Chat_Room)objects[1];
 
-                temp.append(MqttHeader.GET_CHATROOM_SECRET_ALL)
+                temp.append(MqttHeader.GET_CHATROOM_SECRET)
                         .append(",")
                         .append(user.getUser_id())
                         .append(",")

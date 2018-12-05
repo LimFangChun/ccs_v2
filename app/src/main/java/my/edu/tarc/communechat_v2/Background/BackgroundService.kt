@@ -7,9 +7,7 @@ import android.preference.PreferenceManager
 import android.util.Base64
 import android.util.Log
 import my.edu.tarc.communechat_v2.MainActivity
-
 import my.edu.tarc.communechat_v2.NotificationView
-
 import my.edu.tarc.communechat_v2.Utility.MyUtil
 import my.edu.tarc.communechat_v2.internal.MqttHeader
 import my.edu.tarc.communechat_v2.internal.MqttHelper
@@ -87,9 +85,7 @@ class BackgroundService : IntentService("MqttBackground") {
                     }
                     val intent = Intent(applicationContext, MainActivity::class.java)
                     val pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intent, 0)
-
                     //NotificationView.sendNotification(applicationContext,received_message);
-
                     MyUtil.makeNotification(
                             context = applicationContext,
                             title = incomeMessage.getString(Message.COL_SENDER_NAME),

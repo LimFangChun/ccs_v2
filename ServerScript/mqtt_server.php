@@ -244,23 +244,6 @@ function procmsg($topic, $msg){
 					$ack_message = GET_CITY_BY_STATE($msg);
 					publishMessage($topic, $ack_message);
 					break;}
-<<<<<<< HEAD
-				// case "FIND_BY_ADDRESS":	{
-				// 	$ack_message = FIND_BY_ADDRESS($msg); break;}
-				// case "FIND_BY_PROGRAMME":	{
-				// 	$ack_message = FIND_BY_PROGRAMME($msg);
-				// 	publishMessage($topic, $ack_message);
-				// 	break;}
-				// case "FIND_BY_TUTORIAL_GROUP":	{
-				// 	$ack_message = FIND_BY_TUTORIAL_GROUP($msg);
-				// 	publishMessage($topic, $ack_message);
-				// 	break;}
-				// case "FIND_BY_AGE":	{
-				// 	$ack_message = FIND_BY_AGE($msg);
-				// 	publishMessage($topic, $ack_message);
-				// 	break;}
-=======
->>>>>>> LimFangChun
 				case "GET_FRIEND_REQUEST":{
 					$ack_message = GET_FRIEND_REQUEST($msg);
 					publishMessage($topic, $ack_message);
@@ -310,15 +293,6 @@ function procmsg($topic, $msg){
 					$ack_message = GET_PUBLIC_KEY($msg);
 					publishMessage($topic, $ack_message);
 					break;}
-<<<<<<< HEAD
-				// case "UPDATE_LOCATION": {
-				// 	$ack_message = UPDATE_LOCATION($msg); break;}
-				// case "FIND_BY_LOCATION": {
-				// 	$ack_message = FIND_BY_LOCATION($msg);
-				// 	publishMessage($topic, $ack_message);
-				// 	break;}
-=======
->>>>>>> LimFangChun
 			}
 		}
 }

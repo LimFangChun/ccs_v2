@@ -111,7 +111,7 @@ $client_id = "CCS_SERVER";
  */
  
 //$server = "broker.hivemq.com";     		// change to your broker's ip
-$server = "172.16.112.193";
+$server = "172.22.6.237";
 $port = 1883;                     		// change if necessary, default is 1883
 $username = "";                 // set your username
 $password = "";             // set your password
@@ -141,7 +141,7 @@ $mqtt->close();
 //MQTT publish message
 //DO NOT MODIFY, except ip address
 function publishMessage($topic, $ack_message){
-	$server = "172.16.112.193";     		// change if necessary
+	$server = "172.22.6.237";     		// change if necessary
 	$port = 1883;                     		// change if necessary
 	$username = "";                 // set your username
 	$password = "";             // set your password
@@ -199,6 +199,8 @@ function procmsg($topic, $msg){
 					$ack_message = GET_ROOM_MESSAGE($msg);
 					publishMessage($topic, $ack_message);
 					break;}
+				// case "SEND_ROOM_MESSAGE": {
+				// 	$ack_message = SEND_ROOM_MESSAGE($msg); break;}
 				case "DELETE_CHAT_ROOM":{
 					$ack_message = DELETE_CHAT_ROOM($msg);
 					publishMessage($topic, $ack_message);
@@ -227,11 +229,6 @@ function procmsg($topic, $msg){
 					$ack_message = CREATE_CHAT_ROOM($msg);
 					publishMessage($topic, $ack_message);
 					break;}
-				case "CREATE_PUBLIC_CHAT_ROOM":{
-					$ack_message = CREATE_PUBLIC_CHAT_ROOM($msg); 
-					publishMessage($topic, $ack_message);
-					break;}
-					////////////////////////
 				case "GET_FRIEND_LIST":	{
 					$ack_message = GET_FRIEND_LIST($msg);
 					publishMessage($topic, $ack_message);
@@ -280,7 +277,7 @@ function procmsg($topic, $msg){
 					$ack_message = UPDATE_STUDENT($msg);
 					publishMessage($topic, $ack_message);
 					break;}
-				/*
+
 				case "UPDATE_PUBLIC_KEY": {
 					$ack_message = UPDATE_PUBLIC_KEY($msg);
 					publishMessage($topic, $ack_message);
@@ -291,6 +288,10 @@ function procmsg($topic, $msg){
 					break;}
 				case "GET_PUBLIC_KEY":	{
 					$ack_message = GET_PUBLIC_KEY($msg);
+					publishMessage($topic, $ack_message);
+					break;}
+	            case "CHECK_ROOM_TYPE":	{
+					$ack_message = CHECK_ROOM_TYPE($msg);
 					publishMessage($topic, $ack_message);
 					break;}
 			}
@@ -630,7 +631,7 @@ function GET_CITY_BY_STATE($msg){
 	return $ack_message;
 }
 
-/*
+
 function UPDATE_PUBLIC_KEY(){
 	$temp = func_get_arg(0);
 	$ack_message = "UPDATE_PUBLIC_KEY_REPLY, ";
@@ -681,6 +682,36 @@ function GET_PUBLIC_KEY(){
 	echo "\n".$ack_message;
 	return $ack_message;
 }
+
+function CHECK_ROOM_TYPE(){
+	$temp = func_get_arg(0);
+	echo "\n checking room type...\n";
+	$ack_message = "CHECK_ROOM_TYPE_REPLY,";
+
+	$temp = explode(',', $temp);
+	$room_id = $temp[1];
+
+	$sql = "SELECT room_name,room_type FROM Chat_Room
+                         WHERE Chat_Room.room_id = $room_id";
+
+	$result = dbResult($sql);
+
+	if(mysqli_num_rows($result) > 0){
+		$temp = array();
+		while($row = mysqli_fetch_array($result)){
+			$temp[] = $row;
+		}
+		echo "\nCount finish\n";
+		$ack_message .= json_encode($temp);
+	}else{
+		echo "\nNo result\n";
+		$ack_message .= "NO_RESULT";
+	}
+	echo "\n".$ack_message;
+	return $ack_message;
+}
+
+
 
 //The following functions are
 //Done by 1st generation seniors

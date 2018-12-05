@@ -242,4 +242,5 @@
     <string name="no_tarc_app_install_desc">Your phone didn\'t install TarcApp.Download now?</string>
     <string name="no_classroom_install_desc">Your phone didn\'t install Classroom. Download now?</string>
     <string name="type_room_name_here">Type room name here</string>
+    <string name="see_pinned_messages">See pinned messages</string>
 </resources>

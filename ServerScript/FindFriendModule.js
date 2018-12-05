@@ -274,7 +274,7 @@ WHERE
 
 var UPDATE_LOCATION = function (topic, message) {
     console.log('Finding friends by location and gps...');
-    var output = "FIND_BY_LOCATION_REPLY,";
+    var output = "NO_PUB,";
 
     var receivedData = message.toString().split(",");
     var user_id = receivedData[1];

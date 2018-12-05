@@ -717,7 +717,7 @@ public class MqttHelper {
                 User user = (User)objects[0];
                 Chat_Room chat_room = (Chat_Room)objects[1];
 
-                temp.append(MqttHeader.GET_CHATROOM_SECRET_ALL)
+                temp.append(MqttHeader.GET_CHATROOM_SECRET)
                         .append(",")
                         .append(user.getUser_id())
                         .append(",")

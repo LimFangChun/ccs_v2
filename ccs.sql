@@ -215,7 +215,7 @@ Begin
 
 		INSERT INTO Message (message, sender_id, room_id, message_type) 
                         VALUES (messages, NEW.user_id, NEW.room_id, 'Action');
-	ELSEIF NEW.status <> OLD.status NEW.status LIKE 'Removed' THEN
+	ELSEIF NEW.status <> OLD.status AND NEW.status LIKE 'Removed' THEN
 		SET messages := CONCAT(owner_name, " was removed from the chat room on ", currentDate);
 
 		INSERT INTO Message (message, sender_id, room_id, message_type) 

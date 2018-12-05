@@ -29,6 +29,15 @@ class BackgroundService : IntentService("MqttBackground") {
     override fun onCreate() {
         super.onCreate()
         helper.connect(applicationContext)
+
+        val temp = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        val roomID = stringToIntArray(temp.getString(Chat_Room.COL_ROOM_ID, ""))
+        for (x in roomID) {
+            val topic = MqttHeader.SEND_ROOM_MESSAGE + "/room" + x
+            helper.connectSubscribe(applicationContext, topic)
+        }
+        helper.mqttClient.setCallback(roomCallback)
+        Log.d("BackgroundService", "onCreate called")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -37,12 +46,11 @@ class BackgroundService : IntentService("MqttBackground") {
     }
 
     override fun onHandleIntent(intent: Intent) {
-        val roomID = intent.getIntArrayExtra(Chat_Room.COL_ROOM_ID)
-        for (x in roomID) {
-            val topic = MqttHeader.SEND_ROOM_MESSAGE + "/room" + x
-            helper.connectSubscribe(applicationContext, topic)
-        }
-        helper.mqttClient.setCallback(roomCallback)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("BackgroundService", "onDestroy called, service shutdown")
     }
 
     private val roomCallback = object : MqttCallback {
@@ -96,5 +104,18 @@ class BackgroundService : IntentService("MqttBackground") {
         override fun deliveryComplete(token: IMqttDeliveryToken) {
 
         }
+    }
+
+    private fun stringToIntArray(string: String): IntArray {
+        var temp = string.replace("[", "")
+        temp = temp.replace("]", "")
+
+        val temp2 = temp.split(",")
+        var result = IntArray(temp2.size)
+        for (x in temp2) {
+            result += (x.trim().toInt())
+        }
+
+        return result
     }
 }

@@ -1,16 +1,17 @@
 package my.edu.tarc.communechat_v2.Adapter
 
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.preference.PreferenceManager
 import android.support.v7.widget.RecyclerView
 import android.util.Base64
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import com.amulyakhare.textdrawable.TextDrawable
 import com.amulyakhare.textdrawable.util.ColorGenerator
 import com.squareup.picasso.Picasso
@@ -35,7 +36,8 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
-class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<Message>) : RecyclerView.Adapter<ChatRoomRecyclerAdapter.ViewHolder>() {
+class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<Message>, val role: String) :
+        RecyclerView.Adapter<ChatRoomRecyclerAdapter.ViewHolder>() {
 
     companion object {
         const val LEFT_TEXT = 1
@@ -48,6 +50,9 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
         const val IMAGE = "Image"
         const val DATE = "Date"
         const val ACTION = "Action"
+        const val PIN_MESSAGE = "Pin message"
+        const val UNPIN_MESSAGE = "Unpin message"
+        const val DELETE_MESSAGE = "Delete message"
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -87,16 +92,12 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private var currentPosition: Int = 0
 
-        init {
-            //todo
-            itemView.setOnLongClickListener {
-                Toast.makeText(context, "Clicked item " + messageList[currentPosition].message_id, Toast.LENGTH_LONG).show()
-                true
-            }
-        }
-
         fun setData(message: Message?, position: Int) {
             currentPosition = position
+
+            if (role == "Admin" && message?.message_type != DATE && message?.message_type != ACTION) {
+                initItemListener(message)
+            }
 
             when (message!!.message_type) {
                 TEXT -> if (isMine(message.sender_id)) inflateRightText(message) else inflateLeftText(message)
@@ -113,7 +114,8 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
                 val textViewTime = itemView.findViewById<TextView>(R.id.textView_time)
                 if (position == 0 ||
                         isDifferentDay(messageList[position], messageList[position - 1]) ||
-                        messageList[position - 1].message_type == "Action" ||
+                        messageList[position - 1].message_type == ACTION ||
+                        messageList[position - 1].message_type == DATE ||
                         messageList[position].sender_id != messageList[position - 1].sender_id ||
                         MyUtil.isSameHour(messageList[position].date_created)) {
                     textViewTime.visibility = TextView.VISIBLE
@@ -306,6 +308,85 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
                 override fun deliveryComplete(token: IMqttDeliveryToken?) {
                 }
             })
+        }
+
+        private fun initItemListener(message: Message?) {
+            itemView.setOnLongClickListener {
+                val dialogBuilder = AlertDialog.Builder(context)
+                var items = arrayOf<CharSequence>()
+
+                items += if (message!!.status == "Pinned") {
+                    (UNPIN_MESSAGE)
+                } else {
+                    (PIN_MESSAGE)
+                }
+
+                items += (DELETE_MESSAGE)
+
+                dialogBuilder.setTitle("Select an action")
+                dialogBuilder.setItems(items) { _, position ->
+                    pinMessage(message, position, items)
+                }
+                dialogBuilder.show()
+                true
+            }
+        }
+
+        private fun pinMessage(message: Message, position: Int, items: Array<CharSequence>) {
+            Log.d("RecyclerAdapter", "Item clicked: ${message.message_id}, position: ${items[position]}")
+            val topic = "updateMessage/${message.message_id}"
+            val header: String = when (items[position]) {
+                PIN_MESSAGE -> MqttHeader.PIN_MESSAGE
+                UNPIN_MESSAGE -> MqttHeader.UNPIN_MESSAGE
+                DELETE_MESSAGE -> MqttHeader.DELETE_MESSAGE
+                else -> ""
+            }
+
+            mqttHelper.connectPublishSubscribe(context, topic, header, message)
+            mqttHelper.mqttClient.setCallback(object : MqttCallback {
+                override fun messageArrived(topic: String?, message: MqttMessage?) {
+                    processReceivedMessage(topic, message, position)
+                }
+
+                override fun connectionLost(cause: Throwable?) {
+                }
+
+                override fun deliveryComplete(token: IMqttDeliveryToken?) {
+                }
+            })
+        }
+
+        private fun processReceivedMessage(topic: String?, message: MqttMessage?, position: Int) {
+            mqttHelper.unsubscribe(topic)
+            val dialogBuilder = AlertDialog.Builder(context)
+            dialogBuilder.setNeutralButton(R.string.ok, null)
+            val helper = MqttHelper()
+            helper.decode(message.toString())
+            if (helper.receivedResult == MqttHeader.SUCCESS) {
+                dialogBuilder.setTitle(R.string.success)
+                when (helper.receivedHeader) {
+                    MqttHeader.PIN_MESSAGE_REPLY -> {
+                        dialogBuilder.setMessage("Message has been pinned")
+                        messageList[position].status = "Pinned"
+                        initItemListener(messageList[position])
+                    }
+                    MqttHeader.UNPIN_MESSAGE_REPLY -> {
+                        dialogBuilder.setMessage("Message has been unpinned")
+                        messageList[position].status = "Unpinned"
+                        initItemListener(messageList[position])
+                    }
+                    MqttHeader.DELETE_MESSAGE_REPLY -> {
+                        dialogBuilder.setMessage("Message has been deleted")
+                        messageList.removeAt(adapterPosition)
+                        notifyItemRemoved(adapterPosition)
+                        notifyItemRangeChanged(adapterPosition, messageList.size)
+                    }
+                }
+            } else {
+                dialogBuilder.setTitle(R.string.failed)
+                dialogBuilder.setMessage("Failed to perform action")
+            }
+            dialogBuilder.show()
         }
     }
 

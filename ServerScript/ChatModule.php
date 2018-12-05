@@ -24,7 +24,6 @@ function GET_CHAT_ROOM($msg){
 		//example: Bob and Alice are in same room, but the room has no name
 		//if request was sent by Bob, the room name will be replaced by 'Alice'
 		for ($x = 0; $x < sizeof($temp); $x++){
-			echo $temp[$x]['room_name'];
 			if($temp[$x]['room_name'] == ""){
 				$room_id = $temp[$x]['room_id'];
 				$sql = "SELECT display_name 
@@ -55,8 +54,9 @@ function GET_ROOM_MESSAGE($msg){
 	$room_id = $receivedData[1];
 	
 	$sql = "SELECT Message.*, User.display_name 
-			FROM Message INNER JOIN User ON Message.sender_id = User.user_id 
-			WHERE room_id = $room_id 
+			FROM Message 
+				INNER JOIN User ON Message.sender_id = User.user_id 
+			WHERE room_id = $room_id AND Message.status <> 'Deleted'
 			ORDER BY date_created";
 				
 	$result = dbResult($sql);
@@ -167,13 +167,14 @@ function REMOVE_PEOPLE_FROM_GROUP($msg){
 	$user_id = $receivedData[2];
 	
 		$sql = "UPDATE Participant SET status = 'Removed' 
-		WHERE room_id = $room_id AND participant_id = $user_id";
-		
-		if(dbResult($sql)){
+		WHERE room_id = $room_id AND user_id = $user_id";
+		$result = dbResult($sql);
+		if($result){
 			echo "\nUser $user_id has been removed from chat room $room_id\n";
 			$ack_message .= "SUCCESS";
 		}else{
 			echo "\nFailed to remove user $user_id from chat room $room_id\n";
+			echo "$result";
 			$ack_message .= "NO_RESULT";
 		}
 	return $ack_message;

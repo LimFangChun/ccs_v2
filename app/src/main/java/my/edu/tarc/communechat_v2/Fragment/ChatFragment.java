@@ -29,6 +29,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
 
 import my.edu.tarc.communechat_v2.Adapter.ChatListAdapter;
@@ -200,10 +201,10 @@ public class ChatFragment extends Fragment {
     }
 
     private void runBackgroundService(int[] roomID) {
-        if (!isMyServiceRunning(BackgroundService.class)) {
-            Log.d("ChatFragment", "running background service");
+        if (!isMyServiceRunning(BackgroundService.class) && getActivity() != null) {
+            Log.d("ChatFragment", "starting background service");
+            pref.edit().putString(Chat_Room.COL_ROOM_ID, Arrays.toString(roomID)).apply();
             Intent intent = new Intent(getActivity(), BackgroundService.class);
-            intent.putExtra(Chat_Room.COL_ROOM_ID, roomID);
             Objects.requireNonNull(getContext()).startService(intent);
         }
     }

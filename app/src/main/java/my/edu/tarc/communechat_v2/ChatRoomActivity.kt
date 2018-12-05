@@ -58,7 +58,7 @@ class ChatRoomActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private val messageArrayList = ArrayList<Message>()
-    private val chatRoomRecyclerAdapter = ChatRoomRecyclerAdapter(this@ChatRoomActivity, messageArrayList)
+    private lateinit var chatRoomRecyclerAdapter: ChatRoomRecyclerAdapter
     private val layoutManager = LinearLayoutManager(this@ChatRoomActivity)
 
     private var pref: SharedPreferences? = null
@@ -106,6 +106,13 @@ class ChatRoomActivity : AppCompatActivity(), View.OnClickListener {
                 intent.putExtra(Chat_Room.COL_ROOM_ID, chatRoom!!.room_id)
                 startActivity(intent)
             }
+            R.id.nav_see_pin -> {
+                intent = Intent(this@ChatRoomActivity, SeePinMessageActivity::class.java)
+                intent.putExtra(Chat_Room.COL_ROOM_ID, chatRoom!!.room_id)
+                intent.putExtra(Chat_Room.COL_ROOM_NAME, chatRoom!!.room_name)
+                intent.putExtra(Participant.COL_ROLE, chatRoom!!.role)
+                startActivity(intent)
+            }
         }
 
         return super.onOptionsItemSelected(item)
@@ -133,6 +140,7 @@ class ChatRoomActivity : AppCompatActivity(), View.OnClickListener {
         chatRoom!!.room_type = intent.getStringExtra(Chat_Room.COL_ROOM_TYPE)
         chatRoom!!.role = intent.getStringExtra(Participant.COL_ROLE)
         chatRoom!!.room_id = intent.getIntExtra(Chat_Room.COL_ROOM_ID, -1)
+        chatRoomRecyclerAdapter = ChatRoomRecyclerAdapter(this@ChatRoomActivity, messageArrayList, chatRoom!!.role)
 
         val secretKey = pref!!.getString(RoomSecretHelper.getRoomPrefKey(chatRoom!!.room_id), null)
         if (secretKey == null) {
@@ -207,6 +215,7 @@ class ChatRoomActivity : AppCompatActivity(), View.OnClickListener {
         val chatRoom = Chat_Room()
         chatRoom.room_id = intent.getIntExtra(Chat_Room.COL_ROOM_ID, -1)
         chatRoom.room_name = intent.getStringExtra(Chat_Room.COL_ROOM_NAME)
+        this.chatRoom!!.room_name = intent.getStringExtra(Chat_Room.COL_ROOM_NAME)
 
         if ("" != chatRoom.room_name) {
             title = chatRoom.room_name
@@ -283,7 +292,7 @@ class ChatRoomActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        Log.d("CameraMain", "resultCode: $resultCode data: $data")
+        Log.d("CameraMain", "resultCode: ${resultCode == RESULT_OK} data: $data")
         if (resultCode == Activity.RESULT_OK && data != null) {
             when (requestCode) {
                 REQUEST_CAMERA, REQUEST_GALLERY -> {
@@ -299,7 +308,9 @@ class ChatRoomActivity : AppCompatActivity(), View.OnClickListener {
             //initialize room messages
             val helper = MqttHelper()
             helper.decode(message.toString())
-            if (helper.receivedHeader == MqttHeader.GET_ROOM_MESSAGE_REPLY) {
+            if (helper.receivedResult == MqttHeader.NO_RESULT) {
+                return
+            } else if (helper.receivedHeader == MqttHeader.GET_ROOM_MESSAGE_REPLY) {
                 mqttHelper.unsubscribe(topic)
                 initializeRoomMessages(helper.receivedResult)
             } else if (helper.receivedHeader == MqttHeader.SEND_ROOM_MESSAGE ||
@@ -334,6 +345,7 @@ class ChatRoomActivity : AppCompatActivity(), View.OnClickListener {
                 message.setDate_created(receivedMessage.getString(Message.COL_DATE_CREATED))
                 message.sender_id = receivedMessage.getInt(Message.COL_SENDER_ID)
                 message.sender_name = receivedMessage.getString(User.COL_DISPLAY_NAME)
+                message.status = receivedMessage.getString(Message.COL_STATUS)
 
                 messageArrayList.add(message)
             }

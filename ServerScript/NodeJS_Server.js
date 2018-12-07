@@ -1,6 +1,8 @@
 var mysql = require('mysql');
 var mqtt = require('mqtt');
+
 var serverAddress = 'tcp://172.16.120.174:1883';//change to broker's ip
+
 var mqttClient = mqtt.connect(serverAddress);
 var DB_CONNECTION;
 

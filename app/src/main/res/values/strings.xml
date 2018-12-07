@@ -155,8 +155,6 @@
     <string name="pref_title_new_message_notifications">New message notifications</string>
 
     <string name="pref_title_ringtone">Ringtone</string>
-
-
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="no">No</string>
     <string name="find_by_location">Find by GPS</string>
@@ -183,17 +181,25 @@
     <string name="mute_key">mute_key</string>
     <string name="sound">Notification Sound</string>
     <string name="ring_tone_pref">ring_tone_pref</string>
+    <string name="pop_up">pop_up</string>
     <string name="summary_choose_ringtone">Choose notification sound</string>
+    <string name="group_mute_key">group_mute_key</string>
+    <string name="group_pop_up">group_pop_up</string>
+    <string name="group_ring_tone_pref">group_ring_tone_pref</string>
     <string name="pref_ringtone_silent">Silent</string>
     <string name="title_first_section">Notifications</string>
     <string name="title_second_section">Chat Contents</string>
     <string name="summary_message_preview">You can view message via notification</string>
-    <string name="title_activity_settings">Settings</string>
-    <string name="message_preview_key">message_preview_key</string>
     <string name="key_auto_download">key_auto_download</string>
     <string name="title_auto_download">Auto download</string>
     <string name="summary_upload_over_wifi">Automatically download the videos and image</string>
     <string name="notif_action_reply"></string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="message_preview_key">message_preview_key</string>
+    <string name="title_activity_group_management">GroupManagementActivity</string>
+    <string name="subtitle_message_notification">Message Notification</string>
+    <string name="subtitle_group_notification">Group Message Notification</string>
+
     <string name="profile_placeholderName">Gan Nar Psy</string>
     <string name="profile_placeholderUid">1</string>
     <string name="profile_placeholderGender">Male</string>
@@ -234,7 +240,7 @@
     <string name="title_position">I am a:</string>
     <string name="student">Student</string>
     <string name="lecturer">Lecturer</string>
-    <string name="change_password">Change password...</string>]
+    <string name="change_password">Change password…</string>]
     <string name="student_id">Student ID</string>
     <string name="intake">Intake</string>
     <string name="academic_year">Academic Year</string>
@@ -242,7 +248,7 @@
     <string name="male">Male</string>
     <string name="female">Female</string>
     <string name="date_of_birth">Date of birth</string>
-    <string name="select_from_calendar">Select from calendar...</string>
+    <string name="select_from_calendar">Select from calendar…</string>
     <string name="phone_number">Phone number</string>
     <string name="email_address">Email address</string>
     <string name="finish">Finish</string>
@@ -259,5 +265,7 @@
     <string name="no_tarc_app_install_desc">Your phone didn\'t install TarcApp.Download now?</string>
     <string name="no_classroom_install_desc">Your phone didn\'t install Classroom. Download now?</string>
     <string name="type_room_name_here">Type room name here</string>
+    <string name="privacyControl_msgBlocked">Our privacy control module reports that you have entered your private data in your message. Tell them to lower down the security if you find this annoying!</string>
+    <string name="privacyControl_msgSent">Your message has been sent. Oh wait, a gentle reminder from our privacy control module: Make sure your private data is not handed to untrusted parties! (Yeah we know we are annoying tho)</string>
     <string name="see_pinned_messages">See pinned messages</string>
 </resources>

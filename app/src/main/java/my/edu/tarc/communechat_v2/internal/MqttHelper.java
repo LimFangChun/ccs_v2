@@ -725,7 +725,7 @@ public class MqttHelper {
                 User user = (User)objects[0];
                 Chat_Room chat_room = (Chat_Room)objects[1];
 
-                temp.append(MqttHeader.GET_CHATROOM_SECRET_ALL)
+                temp.append(MqttHeader.GET_CHATROOM_SECRET)
                         .append(",")
                         .append(user.getUser_id())
                         .append(",")
@@ -795,6 +795,14 @@ public class MqttHelper {
 						.append(",")
 						.append(student.getAcademic_year());
             	result=temp.toString();
+                break;
+            }
+            case MqttHeader.CHECK_ROOM_TYPE: {
+                Chat_Room room = (Chat_Room) data;
+                temp.append(MqttHeader.CHECK_ROOM_TYPE)
+                        .append(",")
+                        .append(room.getRoom_id());
+                result = temp.toString();
                 break;
             }
         }

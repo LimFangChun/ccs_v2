@@ -10,8 +10,6 @@ object MqttHeader {
     const val REGISTER_USER = "REGISTER_USER"
     const val REGISTER_USER_REPLY = "REGISTER_USER_REPLY"
     const val UPDATE_USER_STATUS = "UPDATE_USER_STATUS"
-    const val UPDATE_STUDENT = "UPDATE_STUDENT"
-    const val UPDATE_USER = "UPDATE_USER"
     const val NO_REPLY = "NO_REPLY"
 
     //Chatting module
@@ -98,5 +96,10 @@ object MqttHeader {
     //profile module
     const val GET_USER_PROFILE = "GET_USER_PROFILE"
     const val GET_USER_PROFILE_REPLY = "GET_USER_PROFILE_REPLY"
-    const val SET_USER_PROFILE = "SET_USER_PROFILE"
+    const val UPDATE_STUDENT = "UPDATE_STUDENT"
+    const val UPDATE_USER = "UPDATE_USER"
+    const val GET_STATES = "GET_STATES"
+    const val GET_STATES_REPLY = "GET_STATES_REPLY"
+    const val GET_CITY_BY_STATE = "GET_CITY_BY_STATE"
+    const val GET_CITY_BY_STATE_REPLY = "GET_CITY_BY_STATE_REPLY"
 }

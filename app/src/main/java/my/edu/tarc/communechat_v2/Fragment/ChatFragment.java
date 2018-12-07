@@ -35,6 +35,7 @@ import java.util.Objects;
 import my.edu.tarc.communechat_v2.Adapter.ChatListAdapter;
 import my.edu.tarc.communechat_v2.AddGroupChatActivity;
 import my.edu.tarc.communechat_v2.Background.BackgroundService;
+import my.edu.tarc.communechat_v2.ChatBotActivity;
 import my.edu.tarc.communechat_v2.ChatRoomActivity;
 import my.edu.tarc.communechat_v2.R;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
@@ -121,12 +122,17 @@ public class ChatFragment extends Fragment {
                 chatRoom.setRole(textViewRole.getText().toString());
                 chatRoom.setRoom_type(textViewRoomType.getText().toString());
 
-                Intent intent = new Intent(getActivity(), ChatRoomActivity.class);
-                intent.putExtra(Chat_Room.COL_ROOM_ID, chatRoom.getRoom_id());
-                intent.putExtra(Chat_Room.COL_ROOM_NAME, chatRoom.getRoom_name());
-                intent.putExtra(Participant.COL_ROLE, chatRoom.getRole());
-                intent.putExtra(Chat_Room.COL_ROOM_TYPE, chatRoom.getRoom_type());
-                startActivity(intent);
+                if (chatRoom.getRoom_id() == 0) {
+                    Intent intent = new Intent(getActivity(), ChatBotActivity.class);
+                    startActivity(intent);
+                } else {
+                    Intent intent = new Intent(getActivity(), ChatRoomActivity.class);
+                    intent.putExtra(Chat_Room.COL_ROOM_ID, chatRoom.getRoom_id());
+                    intent.putExtra(Chat_Room.COL_ROOM_NAME, chatRoom.getRoom_name());
+                    intent.putExtra(Participant.COL_ROLE, chatRoom.getRole());
+                    intent.putExtra(Chat_Room.COL_ROOM_TYPE, chatRoom.getRoom_type());
+                    startActivity(intent);
+                }
             }
         });
     }
@@ -165,6 +171,16 @@ public class ChatFragment extends Fragment {
                             int[] roomID = new int[result.length()];
 
                             ArrayList<Chat_Room> resultList = new ArrayList<>();
+                            //add first item that redirect to chat bot activity
+                            Chat_Room chatBot = new Chat_Room();
+                            chatBot.setRoom_id(0);
+                            chatBot.setRoom_name("Chat bot (FAQ)");
+                            chatBot.setOwner_id(0);
+                            chatBot.setRole("ChatBot");
+                            chatBot.setRoom_type("ChatBot");
+                            resultList.add(chatBot);
+
+                            //add rest of the item to chat list
                             for (int i = 0; i <= result.length() - 1; i++) {
                                 JSONObject temp = result.getJSONObject(i);
                                 Chat_Room room = new Chat_Room();
@@ -218,9 +234,9 @@ public class ChatFragment extends Fragment {
         }
     }
 
-    private void initializeEncryption(){
+    private void initializeEncryption() {
         //listen to incoming secret key
-        if(pref.getInt(User.COL_USER_ID, -1) != -1) {
+        if (pref.getInt(User.COL_USER_ID, -1) != -1) {
             RoomSecretHelper.initializeRoomSecretHelper(getContext(), pref.getInt(User.COL_USER_ID, -1));
         }
     }

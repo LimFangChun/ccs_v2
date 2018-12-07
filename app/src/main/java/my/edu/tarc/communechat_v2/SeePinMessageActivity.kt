@@ -50,7 +50,8 @@ class SeePinMessageActivity : AppCompatActivity() {
         chatRoom.role = intent.getStringExtra(Participant.COL_ROLE)
 
         if ("" != chatRoom.room_name) {
-            title = chatRoom.room_name + " (Pinned messages)"
+            title = "Pinned messages"
+            supportActionBar?.subtitle = chatRoom.room_name
         }
 
         //chatRoom.setSecret_key(pref.getString(RoomSecretHelper.getRoomPrefKey(chatRoom.getRoom_id()),null).getBytes());

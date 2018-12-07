@@ -1,6 +1,6 @@
 var mysql = require('mysql');
 var mqtt = require('mqtt');
-var serverAddress = 'tcp://172.16.112.193:1883';//change to broker's ip
+var serverAddress = 'tcp://172.16.120.174:1883';//change to broker's ip
 var mqttClient = mqtt.connect(serverAddress);
 var DB_CONNECTION;
 
@@ -67,6 +67,9 @@ function processReceivedData(topic, message) {
     var temp = message.toString().split(',');
     switch (temp[0]) {
         //chat module
+        case "CHAT_BOT":
+            ChatModule.CHAT_BOT(topic, message);
+            break;
         case "SEND_ROOM_MESSAGE":
             ChatModule.SEND_ROOM_MESSAGE(topic, message);
             break;
@@ -87,6 +90,9 @@ function processReceivedData(topic, message) {
             break;
         case "DELETE_MESSAGE":
             ChatModule.DELETE_MESSAGE(topic, message);
+            break;
+        case "MODIFY_MESSAGE":
+            ChatModule.MODIFY_MESSAGE(topic, message);
             break;
 
         //find friend module

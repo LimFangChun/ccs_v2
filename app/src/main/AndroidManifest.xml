@@ -125,6 +125,9 @@
         <activity
             android:name=".SeePinMessageActivity"
             android:parentActivityName=".SeePinMessageActivity" />
+        <activity
+            android:name=".ChatBotActivity"
+            android:parentActivityName=".ChatBotActivity" />
     </application>
 
 </manifest>

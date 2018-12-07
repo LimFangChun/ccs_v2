@@ -166,6 +166,7 @@ class ChatRoomActivity : AppCompatActivity(), View.OnClickListener {
         button_send.setOnClickListener {
             //check for empty input
             if (editText_message.text.isEmpty()) {
+                editText_message.error = "Field can't be empty"
                 return@setOnClickListener
             }
 

@@ -47,6 +47,8 @@ object MqttHeader {
     const val DELETE_MESSAGE_REPLY = "DELETE_MESSAGE_REPLY"
     const val GET_PINNED_MESSAGE = "GET_PINNED_MESSAGE"
     const val GET_PINNED_MESSAGE_REPLY = "GET_PINNED_MESSAGE_REPLY"
+    const val CHAT_BOT = "CHAT_BOT"
+    const val CHAT_BOT_REPLY = "CHAT_BOT_REPLY"
 
     //Friend Management module
     const val COUNT_FRIEND_REQUEST = "COUNT_FRIEND_REQUEST"

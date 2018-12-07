@@ -171,9 +171,9 @@ var GET_PINNED_MESSAGE = function (topic, message) {
     });
 }
 
-var DELETE_MESSAGE = function(topic, message){
+var DELETE_MESSAGE = function (topic, message) {
     console.log("Deleting message...");
-	var output = "DELETE_MESSAGE_REPLY,";
+    var output = "DELETE_MESSAGE_REPLY,";
     var receivedData = message.toString().split(",");
     var messageID = receivedData[1];
     var sql = "UPDATE Message SET status = 'Deleted' WHERE message_id = ?";
@@ -195,6 +195,48 @@ var DELETE_MESSAGE = function(topic, message){
     });
 }
 
+var MODIFY_MESSAGE = function (topic, message) {
+    console.log("Modifiying message...");
+    var output = "MODIFY_MESSAGE_REPLY,";
+    var receivedData = message.toString().substring(message.toString().indexOf(',') + 1);
+    var messageJSON = JSON.parse(receivedData);
+    var messageID = messageJSON['message_id'];
+    var newMessage = messageJSON['message'];
+
+    var sql = "UPDATE Message set message = ? where message_id = ?";
+    var input = [newMessage, messageID];
+
+    connector.DB_CONNECTION.query(sql, input, function (err, result) {
+        if (err) {
+            output += "NO_RESULT";
+            console.log(err);
+        } else if (result && result.affectedRows == 1) {
+            output += "SUCCESS";
+            console.log(`Message ${messageID} has been modified`);
+            console.log(`New message: ${message}`);
+        } else {
+            output += "NO_RESULT";
+            console.log(err);
+        }
+        connector.mqttClient.publish(topic, output);
+        console.log('Output: ' + output);
+    });
+}
+
+var CHAT_BOT = async function (topic, message) {
+    try {
+        var df = require('./DialogFlow');
+        var output = "CHAT_BOT_REPLY,";
+        var receivedData = message.toString().substring(message.toString().indexOf(',') + 1)
+
+        var respond = await df.DialogFlow_Respond(receivedData);
+        
+        connector.mqttClient.publish(topic, output+respond);
+    } catch (e) {
+        console.log(e);
+    }
+}
+
 module.exports = {
     SEND_ROOM_MESSAGE,
     SEND_ROOM_IMAGE,
@@ -202,5 +244,7 @@ module.exports = {
     PIN_MESSAGE,
     UNPIN_MESSAGE,
     GET_PINNED_MESSAGE,
-    DELETE_MESSAGE
+    DELETE_MESSAGE,
+    MODIFY_MESSAGE,
+    CHAT_BOT
 }

@@ -66,6 +66,7 @@ function initializeDbConnection() {
 function processReceivedData(topic, message) {
     var FindFriendModule = require("./FindFriendModule.js");
     var ChatModule = require("./ChatModule.js");
+	var EndToEndEncryptionModule = require("./EndToEndEncryptionModule.js");
     var temp = message.toString().split(',');
     switch (temp[0]) {
         //chat module
@@ -119,6 +120,30 @@ function processReceivedData(topic, message) {
         case "ADVANCED_SEARCH":
             FindFriendModule.ADVANCED_SEARCH(topic, message);
             break;
+
+		//End-to-end encryption module
+		case "UPDATE_PUBLIC_KEY":
+            EndToEndEncryptionModule.UPDATE_PUBLIC_KEY(topic, message);
+            break;
+        case "GET_PUBLIC_KEY":
+            EndToEndEncryptionModule.GET_PUBLIC_KEY(topic, message);
+            break;
+        case "GET_PUBLIC_KEY_ROOM":
+            EndToEndEncryptionModule.GET_PUBLIC_KEY_ROOM(topic, message);
+            break;
+        case "GET_CHATROOM_SECRET":
+            EndToEndEncryptionModule.GET_CHATROOM_SECRET(topic, message);
+            break;
+        case "GET_CHATROOM_SECRET_ALL":
+            EndToEndEncryptionModule.GET_CHATROOM_SECRET_ALL(topic, message);
+            break;
+        case "SET_CHATROOM_SECRET":
+            EndToEndEncryptionModule.SET_CHATROOM_SECRET(topic, message);
+            break;
+        case "GET_FORBIDDEN_SECRETS":
+            EndToEndEncryptionModule.GET_FORBIDDEN_SECRETS(topic, message);
+            break;
+
         default:
             console.log('Invalid header');
             console.log('================================================');

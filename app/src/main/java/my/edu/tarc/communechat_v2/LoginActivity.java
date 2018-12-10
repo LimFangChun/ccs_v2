@@ -281,9 +281,9 @@ public class LoginActivity extends AppCompatActivity {
                         finish();
                     }
 
-                    //check if RSA keys are generated
-                    //generate one if none
-                    //setupRSA();
+//                    check if RSA private key is generated
+//                    generate one if none
+                    setupRSA();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

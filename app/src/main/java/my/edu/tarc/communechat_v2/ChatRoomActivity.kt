@@ -111,6 +111,7 @@ class ChatRoomActivity : AppCompatActivity(), View.OnClickListener {
                 intent.putExtra(Chat_Room.COL_ROOM_ID, chatRoom!!.room_id)
                 intent.putExtra(Chat_Room.COL_ROOM_NAME, chatRoom!!.room_name)
                 intent.putExtra(Participant.COL_ROLE, chatRoom!!.role)
+                intent.putExtra(Chat_Room.COL_SECRET_KEY, chatRoom!!.secret_key)
                 startActivity(intent)
             }
         }
@@ -148,12 +149,13 @@ class ChatRoomActivity : AppCompatActivity(), View.OnClickListener {
 //            chatViewRoom.getInputEditText().setHint("Initializing... please try again later.");
             editText_message.isEnabled = false
             editText_message.setText("Initializing...")
+            button_send.isEnabled = false
             val uniqueTopic = UUID.randomUUID().toString().substring(0, 8);
             val user = User()
             user.user_id = pref!!.getInt(User.COL_USER_ID, -1)
             val params = arrayOf(user, chatRoom)
             mqttHelper.connectPublishSubscribe(applicationContext, uniqueTopic, MqttHeader.GET_CHATROOM_SECRET, params)
-            mqttHelper.mqttClient.setCallback(getRoomSecretCallback)
+            mqttHelper.mqttClient.setCallback(getRoomMessagesCallback)
 
         } else {
             chatRoom!!.secret_key = secretKey
@@ -261,13 +263,12 @@ class ChatRoomActivity : AppCompatActivity(), View.OnClickListener {
             title = chatRoom.room_name
         }
 
-        //chatRoom.setSecret_key(pref.getString(RoomSecretHelper.getRoomPrefKey(chatRoom.getRoom_id()),null).getBytes());
-
-        val topic = "getRoomMessage/room" + chatRoom.room_id + "_user" + pref!!.getInt(User.COL_USER_ID, -1)
+        val topic = "getRoomMessage/room" + chatRoom!!.room_id + "_user" + pref!!.getInt(User.COL_USER_ID, -1)
         val header = MqttHeader.GET_ROOM_MESSAGE
-        mqttHelper.connectPublishSubscribe(this, topic, header, chatRoom)
+        mqttHelper.connectPublishSubscribe(this,topic, header, chatRoom)
         mqttHelper.mqttClient.setCallback(getRoomMessagesCallback)
     }
+
 
     private fun makeVibrationOrSound() {
         if (interval) {
@@ -357,7 +358,21 @@ class ChatRoomActivity : AppCompatActivity(), View.OnClickListener {
                     helper.receivedHeader == MqttHeader.SEND_ROOM_IMAGE) {
                 addReceivedMessage(helper.receivedResult)
                 makeVibrationOrSound()
-            }
+            } else if (helper.receivedHeader.equals(MqttHeader.GET_CHATROOM_SECRET_REPLY)){
+                //Todo: move this to other place later
+                        Log.i(TAG, "Saving chatroom secret...")
+                        mqttHelper.unsubscribe(topic)
+
+                        val jsonResult = JSONArray(helper.receivedResult)
+
+                        val editor = pref!!.edit()
+                        editor.putString(RoomSecretHelper.getRoomPrefKey(chatRoom!!.room_id), jsonResult.getJSONObject(0).getString(Chat_Room.COL_SECRET_KEY))
+                        editor.commit();
+
+                        editText_message.isEnabled = true
+                        editText_message.setText("")
+                        button_send.isEnabled = true
+                    }
         }
 
         override fun connectionLost(cause: Throwable?) {
@@ -367,28 +382,33 @@ class ChatRoomActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-    private val getRoomSecretCallback = object : MqttCallback {
-        override fun messageArrived(topic: String?, message: MqttMessage?) {
-            val helper = MqttHelper()
-            helper.decode(message.toString())
-            if (helper.receivedHeader == MqttHeader.GET_CHATROOM_SECRET_REPLY && helper.receivedResult != MqttHeader.NO_RESULT) {
-                mqttHelper.unsubscribe(topic)
-                val editor = pref!!.edit()
-                editor.putString(RoomSecretHelper.getRoomPrefKey(chatRoom!!.room_id), helper.receivedResult)
-                editor.commit();
-
-                editText_message.isEnabled = true
-                editText_message.setText("")
-            }
-        }
-
-        override fun connectionLost(cause: Throwable?) {
-        }
-
-        override fun deliveryComplete(token: IMqttDeliveryToken?) {
-        }
-
-    }
+//    private val getRoomSecretCallback = object : MqttCallback {
+//        override fun messageArrived(topic: String?, message: MqttMessage?) {
+//            val helper = MqttHelper()
+//            helper.decode(message.toString())
+//            if (helper.receivedHeader.equals(MqttHeader.GET_CHATROOM_SECRET_REPLY) && !helper.receivedResult.equals(MqttHeader.NO_RESULT)) {
+//                Log.i(TAG, "Saving chatroom secret...")
+//                mqttHelper.unsubscribe(topic)
+//
+//                val jsonResult = JSONArray(helper.receivedResult)
+//
+//                val editor = pref!!.edit()
+//                editor.putString(RoomSecretHelper.getRoomPrefKey(chatRoom!!.room_id), jsonResult.getJSONObject(0).getString(Chat_Room.COL_SECRET_KEY))
+//                editor.commit();
+//
+//                editText_message.isEnabled = true
+//                editText_message.setText("")
+//                button_send.isEnabled = true
+//            }
+//        }
+//
+//        override fun connectionLost(cause: Throwable?) {
+//        }
+//
+//        override fun deliveryComplete(token: IMqttDeliveryToken?) {
+//        }
+//
+//    }
 
     private fun initializeRoomMessages(receivedResult: String) {
         try {
@@ -410,7 +430,7 @@ class ChatRoomActivity : AppCompatActivity(), View.OnClickListener {
                 message.status = receivedMessage.getString(Message.COL_STATUS)
 
                 when (message.message_type) {
-                    TEXT, IMAGE -> message.message = AdvancedEncryptionStandard(chatRoom!!.secret_key).decrypt(receivedMessage.getString(Message.COL_MESSAGE))
+                    TEXT -> message.message = AdvancedEncryptionStandard(chatRoom!!.secret_key).decrypt(receivedMessage.getString(Message.COL_MESSAGE))
                     else -> message.message = receivedMessage.getString(Message.COL_MESSAGE)
                 }
                 messageArrayList.add(message)

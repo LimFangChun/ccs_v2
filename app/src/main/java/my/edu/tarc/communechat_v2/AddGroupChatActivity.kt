@@ -15,6 +15,7 @@ import kotlinx.android.synthetic.main.activity_add_group_chat.*
 import my.edu.tarc.communechat_v2.MainActivity.mqttHelper
 import my.edu.tarc.communechat_v2.internal.MqttHeader
 import my.edu.tarc.communechat_v2.internal.MqttHelper
+import my.edu.tarc.communechat_v2.internal.RoomSecretHelper
 import my.edu.tarc.communechat_v2.model.Chat_Room
 import my.edu.tarc.communechat_v2.model.Participant
 import my.edu.tarc.communechat_v2.model.Student
@@ -113,6 +114,11 @@ class AddGroupChatActivity : AppCompatActivity() {
                         builder.setPositiveButton(R.string.ok, null)
                         builder.show()
                     } else {
+
+                        val chat_room = Chat_Room()
+                        chat_room.room_id = helper.receivedResult.toInt()
+                        RoomSecretHelper.sendRoomSecret(applicationContext, chat_room)
+
                         val intent = Intent()
                         intent.putExtra(Chat_Room.COL_ROOM_ID, helper.receivedResult.toInt())
                         intent.putExtra(Chat_Room.COL_ROOM_TYPE, "Public")

@@ -63,7 +63,6 @@ public class ChatFragment extends Fragment {
     public void onResume() {
         super.onResume();
         initializeChatRoom();
-        initializeEncryption();
     }
 
     @Nullable
@@ -231,13 +230,6 @@ public class ChatFragment extends Fragment {
             Thread.sleep(time);
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }
-    }
-
-    private void initializeEncryption() {
-        //listen to incoming secret key
-        if (pref.getInt(User.COL_USER_ID, -1) != -1) {
-            RoomSecretHelper.initializeRoomSecretHelper(getContext(), pref.getInt(User.COL_USER_ID, -1));
         }
     }
 

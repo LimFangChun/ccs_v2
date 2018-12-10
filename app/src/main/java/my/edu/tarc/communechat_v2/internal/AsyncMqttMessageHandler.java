@@ -76,10 +76,11 @@ public class AsyncMqttMessageHandler extends AsyncTask<Object, Void, Void> {
 					e.printStackTrace();
 				}break;
 			}
-			case MqttHeader.GET_PUBLIC_KEY_REPLY: {
-				Log.i(TAG, "Public key reply: " + result);
+			case MqttHeader.GET_PUBLIC_KEY_REPLY:
+			case MqttHeader.GET_PUBLIC_KEY_ROOM_REPLY:{
 				//JSONArray of userID, pubKey
 				if (!result.equals(MqttHeader.NO_RESULT)) {
+					Log.i(TAG, "Public key reply: " + result);
 					try {
 						Chat_Room chat_room = (Chat_Room) args[0];
 						JSONArray resultArr = new JSONArray(result);
@@ -100,7 +101,6 @@ public class AsyncMqttMessageHandler extends AsyncTask<Object, Void, Void> {
 				}break;
 			}
 			case MqttHeader.GET_FORBIDDEN_SECRETS_REPLY:{
-				Log.i(TAG, "Forbidden secrets reply");
 				if (!result.equals(MqttHeader.NO_RESULT)) {
 					try {
 						JSONArray resultArr = new JSONArray(result);

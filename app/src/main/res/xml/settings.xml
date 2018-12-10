@@ -65,15 +65,15 @@
 
 <PreferenceCategory android:title="@string/title_second_section">
 <Preference
-    android:defaultValue="Not set"
-    android:key="storagePath"
-    android:title="@string/media_path" />
+    android:defaultValue="/storage/emulated/0/Tarc"
+    android:key="@string/pref_storagePath"
+    android:title="@string/storage_path" />
 
 <SwitchPreference
     android:defaultValue="true"
     android:key="privacyControl"
     android:summary="@string/privacy_control_info"
-    android:title="@string/privacy_control"></SwitchPreference>
+    android:title="@string/privacy_control"/>
 
 
 <CheckBoxPreference

@@ -11,6 +11,7 @@ import android.os.Build
 import android.os.Environment
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.preference.PreferenceManager
 import android.support.v4.app.NotificationCompat
 import android.widget.Toast
 import my.edu.tarc.communechat_v2.R
@@ -86,11 +87,14 @@ object MyUtil {
         Toast.makeText(context, content, Toast.LENGTH_LONG).show()
     }
 
-    fun getLocalImagePath(): String {
-        val rootPath = Environment.getExternalStorageDirectory().toString() + "/Tarc"
+    fun getLocalImagePath(context: Context): String {
+        val pref = PreferenceManager.getDefaultSharedPreferences(context)
+        //val rootPath = Environment.getExternalStorageDirectory().toString() + "/Tarc"
+        //val rootPath = pref.getString(context.getString(R.string.pref_storagePath), context.filesDir.toString() + "/Tarc")
+        val rootPath = context.filesDir.toString() + "/Tarc"
         val imageDir = File(rootPath)
         if (!imageDir.exists()) {
-            imageDir.mkdir()
+            imageDir.mkdirs()
         }
         return imageDir.absolutePath
     }

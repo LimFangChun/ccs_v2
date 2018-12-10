@@ -171,7 +171,7 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
             val textViewName = itemView.findViewById<TextView>(R.id.textView_name)
             textViewName.text = message.sender_name
 
-            val localImageFile = File(MyUtil.getLocalImagePath(), "${message.message_id}.jpg")
+            val localImageFile = File(MyUtil.getLocalImagePath(context), "${message.message_id}.jpg")
             when {
                 message.mediaPath != null -> {
                     Picasso.get().load(message.mediaPath)
@@ -202,7 +202,7 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
                     messageObject.put(Message.COL_MESSAGE_ID, message.message_id)
                     messageObject.put(Message.COL_IMAGE, Base64.encode(message.media, Base64.DEFAULT))
                     messageArray.put(messageObject)
-                    StoreImageAsync(messageArray.toString(), itemView.imageView_image).execute()
+                    StoreImageAsync(messageArray.toString(), itemView.imageView_image, context).execute()
                 }
                 else -> {
                     itemView.imageView_image.setImageResource(R.drawable.ic_file_download_black_24dp)
@@ -217,7 +217,7 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
             //if media path has value
             //means this image come from local
             //use Picasso to do it
-            val localImageFile = File(MyUtil.getLocalImagePath(), "${message.message_id}.jpg")
+            val localImageFile = File(MyUtil.getLocalImagePath(context), "${message.message_id}.jpg")
             when {
                 message.mediaPath != null -> {
                     Picasso.get().load(message.mediaPath)
@@ -317,7 +317,7 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
                     helper.decode(message.toString())
                     if (helper.receivedHeader == MqttHeader.DOWNLOAD_IMAGE_REPLY) {
                         mqttHelper.unsubscribe(topic)
-                        StoreImageAsync(helper.receivedResult, imageView).execute()
+                        StoreImageAsync(helper.receivedResult, imageView, context).execute()
                     }
                 }
 

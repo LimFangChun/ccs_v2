@@ -31,7 +31,7 @@
     <!-- Strings related to settings/preferences -->
     <string name="privacy_control">Privacy control</string>
     <string name="privacy_control_info">Privacy control protects your personal information from being leaked in messages. Turn this off will allow those messages to be sent, but warnings will still be given.</string>
-    <string name="media_path">Media storage path</string>
+    <string name="storage_path">Media storage path</string>
     <string name="about">About us</string>
 
     <!-- TODO: Remove or change this placeholder text -->
@@ -268,4 +268,5 @@
     <string name="privacyControl_msgBlocked">Our privacy control module reports that you have entered your private data in your message. Tell them to lower down the security if you find this annoying!</string>
     <string name="privacyControl_msgSent">Your message has been sent. Oh wait, a gentle reminder from our privacy control module: Make sure your private data is not handed to untrusted parties! (Yeah we know we are annoying tho)</string>
     <string name="see_pinned_messages">See pinned messages</string>
+    <string name="pref_storagePath">storagePath</string>
 </resources>

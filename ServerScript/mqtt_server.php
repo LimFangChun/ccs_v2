@@ -201,6 +201,10 @@ function procmsg($topic, $msg){
 					$ack_message = GET_ROOM_MESSAGE($msg);
 					publishMessage($topic, $ack_message);
 					break;}
+				case "CREATE_PUBLIC_CHAT_ROOM":{
+					$ack_message = CREATE_PUBLIC_CHAT_ROOM($msg);
+					publishMessage($topic, $ack_message);
+					break;}
 				// case "SEND_ROOM_MESSAGE": {
 				// 	$ack_message = SEND_ROOM_MESSAGE($msg); break;}
 				case "DELETE_CHAT_ROOM":{

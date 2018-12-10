@@ -40,7 +40,7 @@ public class MqttHelper {
     private String receivedResult;
 
     //change MQTT broker IP address here
-    private static final String serverUri = "tcp://192.168.0.110:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
+    private static final String serverUri = "tcp://192.168.0.11:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
 
     //private static final String serverUri = "tcp://broker.hivemq.com:1883";
     //private static String mqttUsername = "";
@@ -813,6 +813,7 @@ public class MqttHelper {
     //same as server side, use split method
     public void decode(String msg) {
         if (msg != null && !msg.isEmpty()) {
+            Log.i(TAG, "Received message: "+ msg);
             receivedHeader = msg.split(",")[0];
             receivedResult = msg.split(",", 2)[1];
         } else {

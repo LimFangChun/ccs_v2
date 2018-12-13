@@ -69,7 +69,7 @@ class BackgroundService : IntentService("MqttBackground") {
             val roomHelper = MqttHelper()
             //val received_message = Message()
             roomHelper.decode(message.toString())
-            if (roomHelper.receivedHeader == MqttHeader.SEND_ROOM_MESSAGE) {
+            if (roomHelper.receivedHeader == MqttHeader.SEND_ROOM_MESSAGE||roomHelper.receivedHeader ==  MqttHeader.SEND_ROOM_IMAGE) {
                 try {
                     val incomeMessage = JSONObject(roomHelper.receivedResult)
 
@@ -78,30 +78,32 @@ class BackgroundService : IntentService("MqttBackground") {
                     }
                     val chat_room = Chat_Room()
                     chat_room.room_id = incomeMessage.getInt(Message.COL_ROOM_ID)
+                    val secretKey = pref!!.getString(RoomSecretHelper.getRoomPrefKey(chat_room.room_id), null)
 
 
                     val topic = "checkRoomType/" + chat_room.room_id
                     val header = MqttHeader.CHECK_ROOM_TYPE
                     mqttHelper.connectPublishSubscribe(applicationContext, topic, header, chat_room)
                     mqttHelper.mqttClient.setCallback(getRoomTypeCallback)
-
                     received_message.sender_id = incomeMessage.getInt(Message.COL_SENDER_ID)
-                    received_message.message = incomeMessage.getString(Message.COL_MESSAGE)
-                    received_message.setDate_created(incomeMessage.getString(Message.COL_DATE_CREATED))
-                    received_message.message_type = incomeMessage.getString(Message.COL_MESSAGE_TYPE)
                     received_message.room_id = incomeMessage.getInt(Message.COL_ROOM_ID)
                     received_message.sender_name = incomeMessage.getString(Message.COL_SENDER_NAME)
+                    received_message.setDate_created(incomeMessage.getString(Message.COL_DATE_CREATED))
+                    received_message.message_type = incomeMessage.getString(Message.COL_MESSAGE_TYPE)
                     if(!received_message.message_type.equals("Text")){
-                        val media = Base64.decode(incomeMessage.getString(Message.COL_MEDIA), 0)
-                        received_message.media = media
+                        received_message.message = "[Image]"
                     }else {
-                        received_message.media = null
+                        if(secretKey!=null)
+                            received_message.message = AdvancedEncryptionStandard(secretKey).decrypt(incomeMessage.getString(Message.COL_MESSAGE))
+                        else{
+                            received_message.message=incomeMessage.getString(Message.COL_MESSAGE)
+                        }
                     }
-                    val secretKey = pref!!.getString(RoomSecretHelper.getRoomPrefKey(chat_room.room_id), null)
-                    if(secretKey!=null){
-                        if(received_message.message_type.equals("Text"))
-                        received_message.message = AdvancedEncryptionStandard(secretKey).decrypt(incomeMessage.getString(Message.COL_MESSAGE))
-                    }
+                    Log.v("TESTING", received_message.message_type+"wwwww")
+                    Log.v("TESTING", received_message.sender_name+"wwwww")
+                    Log.v("TESTING", received_message.date_created.toString())
+                    Log.v("TESTING", received_message.sender_id.toString())
+
 
                     val intent = Intent(applicationContext, MainActivity::class.java)
                     val pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intent, 0)
@@ -137,13 +139,11 @@ class BackgroundService : IntentService("MqttBackground") {
                 val receivedResult = helper.receivedResult
                 try {
                     val jsonResult = JSONArray(receivedResult)
-                    Log.v("TESTING", jsonResult.toString())
+
 
                     val temp = jsonResult.getJSONObject(0)
                     setRoomName(temp.getString("room_name"))
                     setChatRoomType(temp.getString("room_type"))
-                    Log.v("TESTING ROOMNAME", getRoomName())
-                    Log.v("TESTING ROOMTYPE", getChatRoomType())
 
 
                     NotificationView.sendNotification(applicationContext,received_message);

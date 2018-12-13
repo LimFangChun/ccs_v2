@@ -12,6 +12,8 @@ import my.edu.tarc.communechat_v2.Utility.MyUtil
 import my.edu.tarc.communechat_v2.NotificationView.*
 import my.edu.tarc.communechat_v2.internal.MqttHeader
 import my.edu.tarc.communechat_v2.internal.MqttHelper
+import my.edu.tarc.communechat_v2.internal.RoomSecretHelper
+import my.edu.tarc.communechat_v2.model.AdvancedEncryptionStandard
 import my.edu.tarc.communechat_v2.model.Chat_Room
 import my.edu.tarc.communechat_v2.model.Message
 import my.edu.tarc.communechat_v2.model.User
@@ -76,6 +78,8 @@ class BackgroundService : IntentService("MqttBackground") {
                     }
                     val chat_room = Chat_Room()
                     chat_room.room_id = incomeMessage.getInt(Message.COL_ROOM_ID)
+
+
                     val topic = "checkRoomType/" + chat_room.room_id
                     val header = MqttHeader.CHECK_ROOM_TYPE
                     mqttHelper.connectPublishSubscribe(applicationContext, topic, header, chat_room)
@@ -93,10 +97,16 @@ class BackgroundService : IntentService("MqttBackground") {
                     }else {
                         received_message.media = null
                     }
+                    val secretKey = pref!!.getString(RoomSecretHelper.getRoomPrefKey(chat_room.room_id), null)
+                    if(secretKey!=null){
+                        if(received_message.message_type.equals("Text"))
+                        received_message.message = AdvancedEncryptionStandard(secretKey).decrypt(incomeMessage.getString(Message.COL_MESSAGE))
+                    }
+
                     val intent = Intent(applicationContext, MainActivity::class.java)
                     val pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intent, 0)
 
-                    //NotificationView.sendNotification(applicationContext,received_message);
+
 
 //                    MyUtil.makeNotification(
 //                            context = applicationContext,

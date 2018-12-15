@@ -76,11 +76,6 @@
     android:title="@string/privacy_control"/>
 
 
-<CheckBoxPreference
-    android:defaultValue="true"
-    android:key="@string/key_auto_download"
-    android:summary="@string/summary_upload_over_wifi"
-    android:title="@string/title_auto_download" />
 
 </PreferenceCategory>
 

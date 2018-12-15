@@ -156,7 +156,7 @@ class ChatRoomActivity : AppCompatActivity(), View.OnClickListener {
         if (isNetworkAvailable) {
             initializeChatRoomByRoomID()
         } else {
-            Toast.makeText(this, R.string.no_internet_connection, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.no_internet_connection, Toast.LENGTH_LONG).show()
         }
 
         initializeListeners()

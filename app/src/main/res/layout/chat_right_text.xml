@@ -32,7 +32,7 @@
             android:id="@+id/textView_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="3dp"
+            android:padding="5dp"
             android:text="123456789"
             android:textColor="@color/black"
             android:textSize="20sp"

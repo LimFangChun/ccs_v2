@@ -15,7 +15,8 @@
         android:layout_margin="@dimen/small_margin"
         app:srcCompat="@drawable/ic_info_outline_black_24dp"
         tools:ignore="ContentDescription"
-        android:layout_weight="0.1"/>
+        android:layout_weight="0.1" />
+
     <TextView
         android:layout_width="0dp"
         android:layout_height="wrap_content"

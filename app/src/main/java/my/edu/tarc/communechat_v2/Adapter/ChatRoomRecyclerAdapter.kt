@@ -1,11 +1,12 @@
 package my.edu.tarc.communechat_v2.Adapter
 
 import android.app.AlertDialog
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.Drawable
 import android.graphics.drawable.TransitionDrawable
 import android.preference.PreferenceManager
 import android.support.v7.widget.RecyclerView
@@ -22,6 +23,7 @@ import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.chat_action_row.view.*
 import kotlinx.android.synthetic.main.chat_date_row.view.*
 import kotlinx.android.synthetic.main.chat_left_image.view.*
+import kotlinx.android.synthetic.main.chat_left_text.view.*
 import kotlinx.android.synthetic.main.chat_warning_row.view.*
 import my.edu.tarc.communechat_v2.ImageFullscreenActivity
 import my.edu.tarc.communechat_v2.MainActivity.mqttHelper
@@ -60,6 +62,7 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
         const val PIN_MESSAGE = "Pin message"
         const val UNPIN_MESSAGE = "Unpin message"
         const val DELETE_MESSAGE = "Delete message"
+        const val COPY_MESSAGE = "Copy to clipboard"
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -105,6 +108,8 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
 
             if (role == "Admin" && message?.message_type != DATE && message?.message_type != ACTION) {
                 initItemListener(message)
+            } else if (role == "Member") {
+                initMemberItemListener()
             }
 
             when (message!!.message_type) {
@@ -118,7 +123,8 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
             if (message.message_type == TEXT || message.message_type == IMAGE) {
                 //when message is at first
                 //or when last message and current message is not sent by same person
-                //or when message interval is more than 1 day
+                //or when message interval is more than 1 hour
+                //or last message is not a text or image message
                 //display time
                 val textViewTime = itemView.findViewById<TextView>(R.id.textView_time)
                 if (position == 0 ||
@@ -126,7 +132,7 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
                         messageList[position - 1].message_type == ACTION ||
                         messageList[position - 1].message_type == DATE ||
                         messageList[position].sender_id != messageList[position - 1].sender_id ||
-                        MyUtil.isSameHour(messageList[position].date_created)) {
+                        !MyUtil.isSameHour(messageList[position].date_created)) {
                     textViewTime.visibility = TextView.VISIBLE
                     textViewTime.text = calculateTime(message)
                 } else {
@@ -258,7 +264,7 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
             itemView.textView_action.text = message.message
         }
 
-        private fun inflateWarningRow(message: Message){
+        private fun inflateWarningRow(message: Message) {
             itemView.textView_warning.text = message.message
 
             //Animation
@@ -341,10 +347,31 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
                 }
 
                 items += (DELETE_MESSAGE)
+                items += (COPY_MESSAGE)
 
                 dialogBuilder.setTitle("Select an action")
                 dialogBuilder.setItems(items) { _, position ->
-                    pinMessage(message, position, items)
+                    if (items[position] == COPY_MESSAGE) {
+                        copyTextToClipBoard(position)
+                    } else {
+                        pinMessage(message, position, items)
+                    }
+                }
+                dialogBuilder.show()
+                true
+            }
+        }
+
+        private fun initMemberItemListener() {
+            itemView.setOnLongClickListener {
+                val dialogBuilder = AlertDialog.Builder(context)
+                val items = arrayOf<CharSequence>(COPY_MESSAGE)
+
+                dialogBuilder.setTitle("Select an action")
+                dialogBuilder.setItems(items) { _, position ->
+                    if (items[position] == COPY_MESSAGE) {
+                        copyTextToClipBoard(position)
+                    }
                 }
                 dialogBuilder.show()
                 true
@@ -373,6 +400,13 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
                 override fun deliveryComplete(token: IMqttDeliveryToken?) {
                 }
             })
+        }
+
+        private fun copyTextToClipBoard(position: Int) {
+            val clipboardManager: ClipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clipData: ClipData = ClipData.newPlainText("text", itemView.textView_message.text.toString())
+            clipboardManager.primaryClip = clipData
+            MyUtil.makeToast(context, "Copied to clipboard")
         }
 
         private fun processReceivedMessage(topic: String?, message: MqttMessage?, position: Int) {

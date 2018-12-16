@@ -266,7 +266,24 @@
     <string name="no_classroom_install_desc">Your phone didn\'t install Classroom. Download now?</string>
     <string name="type_room_name_here">Type room name here</string>
     <string name="privacyControl_msgBlocked">Our privacy control module reports that you have entered your private data in your message. Tell them to lower down the security if you find this annoying!</string>
-    <string name="privacyControl_msgSent">Your message has been sent. Oh wait, a gentle reminder from our privacy control module: Make sure your private data is not handed to untrusted parties! (Yeah we know we are annoying tho)</string>
+    <string name="privacyControl_msgSent">Your message has been sent. A gentle reminder from our privacy control module: Make sure your private data is not handed to untrusted parties! (Yeah we know we are annoying tho)</string>
     <string name="see_pinned_messages">See pinned messages</string>
     <string name="pref_storagePath">storagePath</string>
+    <string name="feedback">Feedback</string>
+    <string name="your_feedback">Your feedback</string>
+    <string name="your_feedback_optional">Your feedback (Optional)</string>
+    <string name="rate_us">Rate Us\*</string>
+    <string name="submit">Submit</string>
+
+    <!-- About us -->
+    <string name="introduction">Introduction</string>
+    <string name="introduction_desc">Commune chat system is a chatting mobile application developed by Tunku Abdul Rahman University College students.
+    This application adopted MQTT protocol to control traffic and conserve bandwidth usage. The front end programming languages used here is Java and Kotlin,
+        while back-end is using PHP and Node.JS, database used here is MySQL.</string>
+    <string name="contributors">Contributors</string>
+    <string name="supervisor_miss_pua_bee_lian">Supervisor: Miss Pua Bee Lian</string>
+    <string name="contributor_1">\u2022 Lim Fang Chun (RSD)</string>
+    <string name="contributor_2">\u2022 Gan Zhen Jie (RSD)</string>
+    <string name="contibutor_3">\u2022 Phuah Wai Yan (RSD)</string>
+    <string name="contibutor_4">\u2022 Quek Wai Jian (RSD)</string>
 </resources>

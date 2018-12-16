@@ -238,9 +238,9 @@ class ChatRoomActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun showPrivacyControlWarning(privacyControlEnabled: Boolean) {
         val message = Message()
-        if(privacyControlEnabled){
+        if (privacyControlEnabled) {
             message.message = getString(R.string.privacyControl_msgBlocked)
-        }else{
+        } else {
             message.message = getString(R.string.privacyControl_msgSent)
         }
         message.message_type = WARNING
@@ -263,9 +263,10 @@ class ChatRoomActivity : AppCompatActivity(), View.OnClickListener {
             title = chatRoom.room_name
         }
 
-        val topic = "getRoomMessage/room" + chatRoom!!.room_id + "_user" + pref!!.getInt(User.COL_USER_ID, -1)
+        val topic = "getRoomMessage/room" + chatRoom.room_id + "_user" + pref!!.getInt(User.COL_USER_ID, -1)
         val header = MqttHeader.GET_ROOM_MESSAGE
-        mqttHelper.connectPublishSubscribe(this,topic, header, chatRoom)
+        mqttHelper.connectPublishSubscribe(this, topic, header, chatRoom)
+        mqttHelper.connectSubscribe(this, this.topic)
         mqttHelper.mqttClient.setCallback(getRoomMessagesCallback)
     }
 
@@ -357,22 +358,21 @@ class ChatRoomActivity : AppCompatActivity(), View.OnClickListener {
             } else if (helper.receivedHeader == MqttHeader.SEND_ROOM_MESSAGE ||
                     helper.receivedHeader == MqttHeader.SEND_ROOM_IMAGE) {
                 addReceivedMessage(helper.receivedResult)
-                makeVibrationOrSound()
-            } else if (helper.receivedHeader.equals(MqttHeader.GET_CHATROOM_SECRET_REPLY)){
+            } else if (helper.receivedHeader.equals(MqttHeader.GET_CHATROOM_SECRET_REPLY)) {
                 //Todo: move this to other place later
-                        Log.i(TAG, "Saving chatroom secret...")
-                        mqttHelper.unsubscribe(topic)
+                Log.i(TAG, "Saving chatroom secret...")
+                mqttHelper.unsubscribe(topic)
 
-                        val jsonResult = JSONArray(helper.receivedResult)
+                val jsonResult = JSONArray(helper.receivedResult)
 
-                        val editor = pref!!.edit()
-                        editor.putString(RoomSecretHelper.getRoomPrefKey(chatRoom!!.room_id), jsonResult.getJSONObject(0).getString(Chat_Room.COL_SECRET_KEY))
-                        editor.commit();
+                val editor = pref!!.edit()
+                editor.putString(RoomSecretHelper.getRoomPrefKey(chatRoom!!.room_id), jsonResult.getJSONObject(0).getString(Chat_Room.COL_SECRET_KEY))
+                editor.apply()
 
-                        editText_message.isEnabled = true
-                        editText_message.setText("")
-                        button_send.isEnabled = true
-                    }
+                editText_message.isEnabled = true
+                editText_message.setText("")
+                button_send.isEnabled = true
+            }
         }
 
         override fun connectionLost(cause: Throwable?) {
@@ -473,6 +473,8 @@ class ChatRoomActivity : AppCompatActivity(), View.OnClickListener {
                 return
             }
 
+            makeVibrationOrSound()
+            
             //put into message object
             val message = Message()
             message.room_id = receivedMessage.getInt(Message.COL_ROOM_ID)

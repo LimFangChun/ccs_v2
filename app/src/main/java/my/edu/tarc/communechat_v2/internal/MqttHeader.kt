@@ -11,6 +11,8 @@ object MqttHeader {
     const val REGISTER_USER_REPLY = "REGISTER_USER_REPLY"
     const val UPDATE_USER_STATUS = "UPDATE_USER_STATUS"
     const val NO_REPLY = "NO_REPLY"
+    const val SEND_FEEDBACK = "SEND_FEEDBACK"
+    const val SEND_FEEDBACK_REPLY = "SEND_FEEDBACK_REPLY"
 
     //Chatting module
     const val GET_CHAT_ROOM = "GET_CHAT_ROOM"
@@ -47,8 +49,8 @@ object MqttHeader {
     const val GET_PINNED_MESSAGE_REPLY = "GET_PINNED_MESSAGE_REPLY"
     const val CHAT_BOT = "CHAT_BOT"
     const val CHAT_BOT_REPLY = "CHAT_BOT_REPLY"
-    const val CHECK_ROOM_TYPE="CHECK_ROOM_TYPE"
-    const val CHECK_ROOM_TYPE_REPLY="CHECK_ROOM_TYPE_REPLY"
+    const val CHECK_ROOM_TYPE = "CHECK_ROOM_TYPE"
+    const val CHECK_ROOM_TYPE_REPLY = "CHECK_ROOM_TYPE_REPLY"
 
     //Friend Management module
     const val COUNT_FRIEND_REQUEST = "COUNT_FRIEND_REQUEST"

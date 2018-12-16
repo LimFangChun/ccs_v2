@@ -109,6 +109,12 @@ public class MainActivity extends AppCompatActivity {
             case R.id.nav_edit_profile:
                 startActivity(new Intent(MainActivity.this, UpdateProfileActivity.class));
                 break;
+            case R.id.nav_about_us:
+                startActivity(new Intent(MainActivity.this, AboutUsActivity.class));
+                break;
+            case R.id.nav_feedback:
+                startActivity(new Intent(MainActivity.this, FeedbackActivity.class));
+                break;
         }
 
         return super.onOptionsItemSelected(item);

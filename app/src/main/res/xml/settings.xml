@@ -1,83 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-   <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-<PreferenceCategory android:title="@string/title_first_section">
-    <CheckBoxPreference
-        android:defaultValue="true"
-        android:key="@string/notification_key"
-        android:title="@string/chat_notification" />
+    <PreferenceCategory android:title="@string/title_first_section">
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@string/notification_key"
+            android:title="@string/chat_notification" />
 
-    <SwitchPreference
-        android:defaultValue="true"
-        android:key="@string/message_preview_key"
-        android:summary="@string/summary_message_preview"
-        android:title="Message Preview" />
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="@string/message_preview_key"
+            android:summary="@string/summary_message_preview"
+            android:title="Message Preview" />
 
-</PreferenceCategory>
-<PreferenceCategory android:title="@string/subtitle_message_notification">
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/subtitle_message_notification">
 
-<RingtonePreference
-    android:defaultValue="content://settings/system/notification_sound"
-    android:dependency="notification_key"
-    android:enabled="true"
-    android:key="@string/ring_tone_pref"
-    android:ringtoneType="notification"
-    android:showDefault="true"
-    android:showSilent="false"
-    android:summary="@string/summary_choose_ringtone"
-    android:title="@string/sound" />
+        <RingtonePreference
+            android:defaultValue="content://settings/system/notification_sound"
+            android:dependency="notification_key"
+            android:enabled="true"
+            android:key="@string/ring_tone_pref"
+            android:ringtoneType="notification"
+            android:showDefault="true"
+            android:showSilent="false"
+            android:summary="@string/summary_choose_ringtone"
+            android:title="@string/sound" />
 
-<SwitchPreference
-    android:defaultValue="false"
-    android:key="@string/mute_key"
-    android:title="@string/mute" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/mute_key"
+            android:title="@string/mute" />
 
-<SwitchPreference
-    android:defaultValue="true"
-    android:key="@string/pop_up"
-    android:title="Popup Notification" />
-</PreferenceCategory>
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="@string/pop_up"
+            android:title="Popup Notification" />
+    </PreferenceCategory>
 
-<PreferenceCategory android:title="@string/subtitle_group_notification">
+    <PreferenceCategory android:title="@string/subtitle_group_notification">
 
-<RingtonePreference
-    android:defaultValue="content://settings/system/notification_sound"
-    android:dependency="notification_key"
-    android:enabled="true"
-    android:key="@string/group_ring_tone_pref"
-    android:ringtoneType="notification"
-    android:showDefault="true"
-    android:showSilent="false"
-    android:summary="@string/summary_choose_ringtone"
-    android:title="@string/sound" />
-
-
-<SwitchPreference
-    android:defaultValue="false"
-    android:key="@string/group_mute_key"
-    android:title="@string/mute" />
-
-<SwitchPreference
-    android:defaultValue="true"
-    android:key="@string/group_pop_up"
-    android:title="Popup Notification" />
-</PreferenceCategory>
-
-<PreferenceCategory android:title="@string/title_second_section">
-<Preference
-    android:defaultValue="/storage/emulated/0/Tarc"
-    android:key="@string/pref_storagePath"
-    android:title="@string/storage_path" />
-
-<SwitchPreference
-    android:defaultValue="true"
-    android:key="privacyControl"
-    android:summary="@string/privacy_control_info"
-    android:title="@string/privacy_control"/>
+        <RingtonePreference
+            android:defaultValue="content://settings/system/notification_sound"
+            android:dependency="notification_key"
+            android:enabled="true"
+            android:key="@string/group_ring_tone_pref"
+            android:ringtoneType="notification"
+            android:showDefault="true"
+            android:showSilent="false"
+            android:summary="@string/summary_choose_ringtone"
+            android:title="@string/sound" />
 
 
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/group_mute_key"
+            android:title="@string/mute" />
 
-</PreferenceCategory>
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="@string/group_pop_up"
+            android:title="Popup Notification" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/title_second_section">
+        <Preference
+            android:defaultValue="/storage/emulated/0/Tarc"
+            android:key="@string/pref_storagePath"
+            android:title="@string/storage_path" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="privacyControl"
+            android:summary="@string/privacy_control_info"
+            android:title="@string/privacy_control" />
 
 
-    </PreferenceScreen>
+    </PreferenceCategory>
+
+
+</PreferenceScreen>

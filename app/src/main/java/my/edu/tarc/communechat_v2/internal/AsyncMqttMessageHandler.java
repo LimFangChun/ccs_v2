@@ -77,7 +77,7 @@ public class AsyncMqttMessageHandler extends AsyncTask<Object, Void, Void> {
 				}break;
 			}
 			case MqttHeader.GET_PUBLIC_KEY_REPLY:
-			case MqttHeader.GET_PUBLIC_KEY_ROOM_REPLY:{
+			case MqttHeader.GET_PUBLIC_KEY_ROOM_REPLY: {
 				//JSONArray of userID, pubKey
 				if (!result.equals(MqttHeader.NO_RESULT)) {
 					Log.i(TAG, "Public key reply: " + result);

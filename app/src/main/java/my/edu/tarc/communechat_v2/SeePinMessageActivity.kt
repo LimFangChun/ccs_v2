@@ -21,11 +21,9 @@ import org.json.JSONArray
 
 class SeePinMessageActivity : AppCompatActivity() {
 
-    companion object {
-        private lateinit var pref: SharedPreferences
-        private val chatRoom = Chat_Room()
-        private val messageArrayList = ArrayList<Message>()
-    }
+    private lateinit var pref: SharedPreferences
+    private val chatRoom = Chat_Room()
+    private val messageArrayList = ArrayList<Message>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -102,8 +100,12 @@ class SeePinMessageActivity : AppCompatActivity() {
                 val message = Message()
                 message.message_id = receivedMessage.getInt(Message.COL_MESSAGE_ID)
                 message.room_id = receivedMessage.getInt(Message.COL_ROOM_ID)
-                message.message = AdvancedEncryptionStandard(chatRoom!!.secret_key).decrypt(receivedMessage.getString(Message.COL_MESSAGE))
                 message.message_type = receivedMessage.getString(Message.COL_MESSAGE_TYPE)
+
+                if (message.message_type == ChatRoomRecyclerAdapter.TEXT) {
+                    message.message = AdvancedEncryptionStandard(chatRoom.secret_key).decrypt(receivedMessage.getString(Message.COL_MESSAGE))
+                }
+
                 message.setDate_created(receivedMessage.getString(Message.COL_DATE_CREATED))
                 message.sender_id = receivedMessage.getInt(Message.COL_SENDER_ID)
                 message.sender_name = receivedMessage.getString(User.COL_DISPLAY_NAME)

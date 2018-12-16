@@ -17,6 +17,7 @@ SET time_zone = "+08:00";
 --  drop all tables first in case you have any duplicated table with same name
 --  drop in reverse order
 --  Also make your life easier when you have changes in database
+DROP TABLE IF EXISTS Feedback;
 DROP TABLE IF EXISTS Message_Image;
 DROP TABLE IF EXISTS RoomSecret;
 DROP TABLE IF EXISTS Friendship;
@@ -156,6 +157,15 @@ CREATE TABLE RoomSecret(
 	FOREIGN KEY (user_id) REFERENCES User(user_id)
 );
 
+CREATE TABLE Feedback(
+	feedback_id int(10) AUTO_INCREMENT NOT NULL,
+	message 	varchar(500),
+	rate 		float(10,2),
+	date_created datetime DEFAULT CURRENT_TIMESTAMP,
+	user_id int(10) NOT NULL,
+	PRIMARY KEY (feedback_id),
+	FOREIGN KEY (user_id) REFERENCES User(user_id)
+);
 
 -- Setup necessary triggers
 -- drop the triggers first, like we drop table before creating

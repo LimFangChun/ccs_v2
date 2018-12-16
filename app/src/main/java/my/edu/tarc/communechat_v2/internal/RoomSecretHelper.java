@@ -19,8 +19,8 @@ import my.edu.tarc.communechat_v2.model.User;
 public class RoomSecretHelper {
 
 	private static final String TAG = "[RoomSecretHelper]";
-	//todo: change to mqttHelper from main activity
-	private static final MqttHelper roomSecretListener = new MqttHelper();
+    //todo: change to mqttHelper from main activity
+    private static final MqttHelper roomSecretListener = new MqttHelper();
 	private static final MqttHelper roomSecretMqttHelper = new MqttHelper();
 
 	public static void initializeRoomSecretHelper(Context context, int userID) {
@@ -31,7 +31,7 @@ public class RoomSecretHelper {
 
 	private static void refreshForbiddenSecrets(final Context context, int userID) {
 		//Todo: request list of secret key need to be resent
-		final String uniqueTopic = UUID.randomUUID().toString().substring(0, 8);
+        final String uniqueTopic = UUID.randomUUID().toString().substring(0, 8);
 		User user = new User();
 		user.setUser_id(userID);
 		roomSecretMqttHelper.connectPublishSubscribe(context, uniqueTopic, MqttHeader.GET_FORBIDDEN_SECRETS, user);
@@ -44,7 +44,7 @@ public class RoomSecretHelper {
 
 			@Override
 			public void messageArrived(String topic, MqttMessage message) throws Exception {
-				roomSecretMqttHelper.unsubscribe(topic);
+                roomSecretMqttHelper.unsubscribe(topic);
 				new AsyncMqttMessageHandler(context, message.toString()).execute();
 			}
 
@@ -76,7 +76,7 @@ public class RoomSecretHelper {
 	//Use this when starting a chat room.
 	public static void sendRoomSecret(final Context context, final User user, Chat_Room chat_room) {
 		final Chat_Room chat_room1 = getOrGenerateRoomKey(context, chat_room.getRoom_id());
-		final String uniqueTopic = UUID.randomUUID().toString().substring(0, 8);
+        final String uniqueTopic = UUID.randomUUID().toString().substring(0, 8);
 
 		//get public from server
 		roomSecretMqttHelper.connectPublishSubscribe(context, uniqueTopic, MqttHeader.GET_PUBLIC_KEY, user);
@@ -102,7 +102,7 @@ public class RoomSecretHelper {
 	//Use this when starting a group chat room.
 	public static void sendRoomSecret(final Context context, Chat_Room chat_room) {
 		final Chat_Room chat_room1 = getOrGenerateRoomKey(context, chat_room.getRoom_id());
-		final String uniqueTopic = UUID.randomUUID().toString().substring(0, 8);
+        final String uniqueTopic = UUID.randomUUID().toString().substring(0, 8);
 
 		//get public from server
 		roomSecretMqttHelper.connectPublishSubscribe(context, uniqueTopic, MqttHeader.GET_PUBLIC_KEY_ROOM, chat_room1);
@@ -125,7 +125,7 @@ public class RoomSecretHelper {
 		});
 	}
 
-	private static void listenIncomingSecrets(final Context context, final int userID) {
+    private static void listenIncomingSecrets(final Context context, final int userID) {
 		//subscribe to my own topic
 		roomSecretListener.connectSubscribe(context, userTopic(userID));
 		//listen to incoming secret key
@@ -148,7 +148,7 @@ public class RoomSecretHelper {
 	}
 
 	private static void getMyRoomSecrets(final Context context, int userID) {
-		final String uniqueTopic = UUID.randomUUID().toString().substring(0, 8);
+        final String uniqueTopic = UUID.randomUUID().toString().substring(0, 8);
 		User user = new User();
 		user.setUser_id(userID);
 		roomSecretMqttHelper.connectPublishSubscribe(context, uniqueTopic, MqttHeader.GET_CHATROOM_SECRET_ALL, user);
@@ -160,7 +160,7 @@ public class RoomSecretHelper {
 
 			@Override
 			public void messageArrived(String topic, MqttMessage message) throws Exception {
-				roomSecretMqttHelper.unsubscribe(topic);
+                roomSecretMqttHelper.unsubscribe(topic);
 				new AsyncMqttMessageHandler(context, message.toString()).execute();
 			}
 

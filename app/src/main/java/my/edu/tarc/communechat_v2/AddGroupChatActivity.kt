@@ -38,6 +38,7 @@ class AddGroupChatActivity : AppCompatActivity() {
 
         assert(supportActionBar != null)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+        title = "Create group chat"
 
         pref = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         userID = pref.getInt(User.COL_USER_ID, -1)

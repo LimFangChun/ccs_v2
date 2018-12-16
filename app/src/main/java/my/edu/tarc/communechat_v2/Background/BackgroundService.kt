@@ -69,7 +69,7 @@ class BackgroundService : IntentService("MqttBackground") {
             val roomHelper = MqttHelper()
             //val received_message = Message()
             roomHelper.decode(message.toString())
-            if (roomHelper.receivedHeader == MqttHeader.SEND_ROOM_MESSAGE||roomHelper.receivedHeader ==  MqttHeader.SEND_ROOM_IMAGE) {
+            if (roomHelper.receivedHeader == MqttHeader.SEND_ROOM_MESSAGE || roomHelper.receivedHeader == MqttHeader.SEND_ROOM_IMAGE) {
                 try {
                     val incomeMessage = JSONObject(roomHelper.receivedResult)
 
@@ -93,21 +93,20 @@ class BackgroundService : IntentService("MqttBackground") {
                     if(!received_message.message_type.equals("Text")){
                         received_message.message = "[Image]"
                     }else {
-                        if(secretKey!=null)
+                        if (secretKey != null)
                             received_message.message = AdvancedEncryptionStandard(secretKey).decrypt(incomeMessage.getString(Message.COL_MESSAGE))
-                        else{
-                            received_message.message=incomeMessage.getString(Message.COL_MESSAGE)
+                        else {
+                            received_message.message = incomeMessage.getString(Message.COL_MESSAGE)
                         }
                     }
-                    Log.v("TESTING", received_message.message_type+"wwwww")
-                    Log.v("TESTING", received_message.sender_name+"wwwww")
+                    Log.v("TESTING", received_message.message_type + "wwwww")
+                    Log.v("TESTING", received_message.sender_name + "wwwww")
                     Log.v("TESTING", received_message.date_created.toString())
                     Log.v("TESTING", received_message.sender_id.toString())
 
 
                     val intent = Intent(applicationContext, MainActivity::class.java)
                     val pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intent, 0)
-
 
 
 //                    MyUtil.makeNotification(
@@ -146,7 +145,7 @@ class BackgroundService : IntentService("MqttBackground") {
                     setChatRoomType(temp.getString("room_type"))
 
 
-                    NotificationView.sendNotification(applicationContext,received_message);
+                    NotificationView.sendNotification(applicationContext, received_message);
 
 
                 } catch (e: Exception) {

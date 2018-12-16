@@ -18,6 +18,7 @@ import org.json.JSONObject;
 import java.lang.ref.WeakReference;
 
 import my.edu.tarc.communechat_v2.model.Chat_Room;
+import my.edu.tarc.communechat_v2.model.Feedback;
 import my.edu.tarc.communechat_v2.model.Friendship;
 import my.edu.tarc.communechat_v2.model.Message;
 import my.edu.tarc.communechat_v2.model.Participant;
@@ -40,7 +41,7 @@ public class MqttHelper {
     private String receivedResult;
 
     //change MQTT broker IP address here
-    private static final String serverUri = "tcp://192.168.0.6:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
+    private static final String serverUri = "tcp://192.168.0.110:1883";//change to your broker's IP, window key+r -> cmd -> ipconfig
 
     //private static final String serverUri = "tcp://broker.hivemq.com:1883";
     //private static String mqttUsername = "";
@@ -805,6 +806,14 @@ public class MqttHelper {
                 result = temp.toString();
                 break;
             }
+            case MqttHeader.SEND_FEEDBACK: {
+                Feedback feedback = (Feedback) data;
+                temp.append(MqttHeader.SEND_FEEDBACK)
+                        .append(",")
+                        .append(feedback.toJSON());
+                result = temp.toString();
+                break;
+            }
         }
         return result;
     }
@@ -813,7 +822,7 @@ public class MqttHelper {
     //same as server side, use split method
     public void decode(String msg) {
         if (msg != null && !msg.isEmpty()) {
-            Log.i(TAG, "Received message: "+ msg);
+            Log.i(TAG, "Received message: " + msg);
             receivedHeader = msg.split(",")[0];
             receivedResult = msg.split(",", 2)[1];
         } else {

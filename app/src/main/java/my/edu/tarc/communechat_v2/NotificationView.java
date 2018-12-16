@@ -1,6 +1,5 @@
 package my.edu.tarc.communechat_v2;
 
-import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -13,34 +12,16 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.RemoteInput;
 import android.util.Log;
-import android.view.View;
-import android.widget.Toast;
-
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
-import co.intentservice.chatui.models.ChatMessage;
-import my.edu.tarc.communechat_v2.Adapter.ParticipantListAdapter;
-import my.edu.tarc.communechat_v2.internal.MqttHeader;
-import my.edu.tarc.communechat_v2.internal.MqttHelper;
-import my.edu.tarc.communechat_v2.model.Chat_Room;
 import my.edu.tarc.communechat_v2.model.Message;
-import my.edu.tarc.communechat_v2.model.Participant;
 
 import static android.support.constraint.Constraints.TAG;
-import static my.edu.tarc.communechat_v2.MainActivity.mqttHelper;
 
 
 public class NotificationView {
@@ -56,9 +37,8 @@ public class NotificationView {
     public static String NOTIFICTION_DISMISS = "notification_dismiss";
     private static int NOTIFICATION_ID;
     public static String CHAT_ROOM_TYPE;
-    public static String PRIVATE="Private";
-    public static String PUBLIC="Public";
-
+    public static String PRIVATE = "Private";
+    public static String PUBLIC = "Public";
 
 
     private static int numMessage = 0;
@@ -117,12 +97,12 @@ public class NotificationView {
         String strRingtonePreference;
 
 
-        boolean isMute=false;
-        if(notificationType.equals(PRIVATE)) {
+        boolean isMute = false;
+        if (notificationType.equals(PRIVATE)) {
             strRingtonePreference = pref.getString("ring_tone_pref", "content://settings/system/notification_sound");
             uri = Uri.parse(strRingtonePreference);
             isMute = pref.getBoolean("mute_key", false);
-        }else{
+        } else {
             strRingtonePreference = pref.getString("group_ring_tone_pref", "content://settings/system/notification_sound");
             uri = Uri.parse(strRingtonePreference);
             isMute = pref.getBoolean("group_mute_key", false);
@@ -234,25 +214,25 @@ public class NotificationView {
 
 
     public static void sendNotification(Context mContext, Message chat) {
-        String str ="";
-        String notificationType="";
+        String str = "";
+        String notificationType = "";
         NOTIFICATION_ID = (int) chat.getRoom_id();
-        CHAT_ROOM_TYPE=getChatRoomType();
-        ROOM_NAME=getRoomName();
+        CHAT_ROOM_TYPE = getChatRoomType();
+        ROOM_NAME = getRoomName();
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mContext);
         boolean isOn = pref.getBoolean("notification_key", false);
         Uri uri = null;
         if (isOn) {
             //checkRoom(mContext,chat.getRoom_id());
             NotificationManager mNotificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-            Log.v("TESTING_NEW",CHAT_ROOM_TYPE+ROOM_NAME);
-            List<String> oldMessage=loadArray(String.valueOf(chat.getRoom_id()),mContext);
-            setPendingNotificationsCount(oldMessage.size()+1);
+            Log.v("TESTING_NEW", CHAT_ROOM_TYPE + ROOM_NAME);
+            List<String> oldMessage = loadArray(String.valueOf(chat.getRoom_id()), mContext);
+            setPendingNotificationsCount(oldMessage.size() + 1);
 
             if (CHAT_ROOM_TYPE.equals(PUBLIC)) {
-                notificationType=PUBLIC;
-            }else
-                notificationType=PRIVATE;
+                notificationType = PUBLIC;
+            } else
+                notificationType = PRIVATE;
 
             String roomName = ROOM_NAME;
             String sender = chat.getSender_name();
@@ -269,30 +249,30 @@ public class NotificationView {
             createNotificationChannel(mNotificationManager, uri);
 
             NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
-            NotificationCompat.MessagingStyle messagingStyle =new NotificationCompat.MessagingStyle(chat.getSender_name()).setConversationTitle(roomName);
+            NotificationCompat.MessagingStyle messagingStyle = new NotificationCompat.MessagingStyle(chat.getSender_name()).setConversationTitle(roomName);
 
-            String incomingMessage=chat.getMessage();
+            String incomingMessage = chat.getMessage();
 
             Log.v("testingLOADSIZE", String.valueOf(oldMessage.size()));
 
-            if(oldMessage.size()>0){
+            if (oldMessage.size() > 0) {
                 oldMessage.add(new String(incomingMessage));
                 boolean store = saveArray(oldMessage, String.valueOf(chat.getRoom_id()), mContext);
 
-                for (int i = 0; i <oldMessage.size() ; i++) {
-                    if(CHAT_ROOM_TYPE.equals(PUBLIC)){
-                        messagingStyle.addMessage(oldMessage.get(i),0,chat.getSender_name());
-                    }else {
+                for (int i = 0; i < oldMessage.size(); i++) {
+                    if (CHAT_ROOM_TYPE.equals(PUBLIC)) {
+                        messagingStyle.addMessage(oldMessage.get(i), 0, chat.getSender_name());
+                    } else {
                         inboxStyle.addLine(oldMessage.get(i));
                     }
 
                 }
-            }else{
+            } else {
                 List<String> message = new ArrayList<String>();
-                message.add(new String (incomingMessage));
-                if(CHAT_ROOM_TYPE.equals(PUBLIC)){
-                    messagingStyle.addMessage(incomingMessage,0,chat.getSender_name());
-                }else {
+                message.add(new String(incomingMessage));
+                if (CHAT_ROOM_TYPE.equals(PUBLIC)) {
+                    messagingStyle.addMessage(incomingMessage, 0, chat.getSender_name());
+                } else {
                     inboxStyle.addLine(incomingMessage);
                     str = incomingMessage;
                 }
@@ -300,32 +280,30 @@ public class NotificationView {
             }
 
             boolean showMessagePreview = pref.getBoolean("message_preview_key", true);
-            if(oldMessage.size()==0){
+            if (oldMessage.size() == 0) {
                 if (showMessagePreview) {
                     str = chat.getMessage();
-                }else{
+                } else {
                     str = "You have a new message";
                 }
-            }else{
+            } else {
                 if (!showMessagePreview) {
-                    str = "You have "+oldMessage.size()+" new message";
+                    str = "You have " + oldMessage.size() + " new message";
                 }
             }
 
 
-
-
             Intent dismissIntent = new Intent(mContext, NotificationBroadcastReceiver.class);
-            dismissIntent.putExtra("notificationID",NOTIFICATION_ID);
+            dismissIntent.putExtra("notificationID", NOTIFICATION_ID);
             dismissIntent.setAction(NOTIFICTION_DISMISS);
             dismissIntent.putExtra("SELECTED_CHAT_ROOM_ID", chat.getRoom_id());
             PendingIntent dismissNotification = PendingIntent.getBroadcast(mContext, NOTIFICATION_ID, dismissIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 
-            if(CHAT_ROOM_TYPE.equals(PRIVATE)) {
+            if (CHAT_ROOM_TYPE.equals(PRIVATE)) {
                 setNotifID(NOTIFICATION_ID);
                 NotificationCompat.Builder mNotification = new NotificationCompat.Builder(mContext, getChannelID());
-                        //.setContentIntent(chatIntent)
+                //.setContentIntent(chatIntent)
                 mNotification.setContentTitle(sender);  //Set the title of Notification
                 mNotification.setContentText(str);
                 mNotification.setSmallIcon(R.mipmap.ic_launcher);
@@ -333,18 +311,18 @@ public class NotificationView {
                 mNotification.setNumber(numMessage);
                 mNotification.setAutoCancel(true);
                 mNotification.setShowWhen(true);
-                        //.setPriority(priority)
-                        //.addAction(replyAction)
+                //.setPriority(priority)
+                //.addAction(replyAction)
                 mNotification.setVibrate(new long[]{100, 100, 100, 100, 100});
                 mNotification.setDeleteIntent(dismissNotification);
                 mNotification.setVisibility(Notification.VISIBILITY_PUBLIC);
-                if(showMessagePreview) {
+                if (showMessagePreview) {
                     mNotification.setStyle(inboxStyle);
-                }else{
+                } else {
                     mNotification.setContentText(str);
                 }
                 mNotificationManager.notify(getNotifID(), mNotification.build());
-            }else{
+            } else {
                 setNotifID(NOTIFICATION_ID);
                 NotificationCompat.Builder mNotification = new NotificationCompat.Builder(mContext, getChannelID())
                         .setStyle(messagingStyle)
@@ -382,7 +360,7 @@ public class NotificationView {
 
 
         for (int i = 0; i < size; i++) {
-            message.add(new String( prefs.getString(arrayName + "_" + i, null)));
+            message.add(new String(prefs.getString(arrayName + "_" + i, null)));
         }
 
         return message;
@@ -390,7 +368,7 @@ public class NotificationView {
 
     public static void clearMessage(String arrayName, Context mContext) {
         SharedPreferences prefs = mContext.getSharedPreferences("message", 0);
-        SharedPreferences.Editor editor=prefs.edit();
+        SharedPreferences.Editor editor = prefs.edit();
         editor.putInt(arrayName + "_size", 0);
         editor.remove(arrayName);
         editor.apply();
@@ -398,6 +376,7 @@ public class NotificationView {
 
 
     }
+
     public static void setNotifID(int id) {
         NOTIFICATION_ID = id;
     }

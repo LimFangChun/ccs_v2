@@ -1,4 +1,6 @@
 <?php 
+
+//depecrated -> see ChatModule.js
 function GET_CHAT_ROOM($msg){
 	echo "\nGetting chat room...\n";
 	$ack_message = "GET_CHAT_ROOM_REPLY,";
@@ -46,6 +48,7 @@ function GET_CHAT_ROOM($msg){
 	return $ack_message;
 }
 
+//depecrated -> see ChatModule.js
 function GET_ROOM_MESSAGE($msg){
 	echo "\nGetting room messages...\n";
 	$ack_message = "GET_ROOM_MESSAGE_REPLY,";
@@ -74,6 +77,7 @@ function GET_ROOM_MESSAGE($msg){
 	return $ack_message;
 }
 
+//depecrated -> see ChatModule.js
 function DELETE_CHAT_ROOM($msg){
 	echo "\n Deleting chat room, user exiting group...\n";
 	$ack_message = "DELETE_CHAT_ROOM_REPLY,";
@@ -96,6 +100,7 @@ function DELETE_CHAT_ROOM($msg){
 	return $ack_message;
 }
 
+//depecrated -> see ChatModule.js
 function GET_ROOM_INFO($msg){
 	echo "\n Getting room info...\n";
 	$ack_message = "GET_ROOM_INFO_REPLY,";
@@ -135,6 +140,7 @@ function GET_ROOM_INFO($msg){
 	return $ack_message;
 }
 
+//depecrated -> see ChatModule.js
 function ADD_PEOPLE_TO_GROUP($msg){
 	echo "\n Adding people to existing chat room...\n";
 	$ack_message = "ADD_PEOPLE_TO_GROUP_REPLY,";
@@ -158,6 +164,7 @@ function ADD_PEOPLE_TO_GROUP($msg){
 	return $ack_message;
 }
 
+//depecrated -> see ChatModule.js
 function REMOVE_PEOPLE_FROM_GROUP($msg){
 	echo "\n Removing user from group chat, by group admin...\n";
 	$ack_message = "REMOVE_PEOPLE_FROM_GROUP_REPLY,";
@@ -180,6 +187,7 @@ function REMOVE_PEOPLE_FROM_GROUP($msg){
 	return $ack_message;
 }
 
+//depecrated -> see ChatModule.js
 function GET_FRIEND_LIST_FOR_PARTICIPANT_ADD($msg){
 	echo "\n Getting available friends to add into group chat as participant...\n";
 	$ack_message = "GET_FRIEND_LIST_FOR_PARTICIPANT_ADD_REPLY,";
@@ -223,6 +231,7 @@ function GET_FRIEND_LIST_FOR_PARTICIPANT_ADD($msg){
 	return $ack_message;
 }
 
+//depecrated -> see ChatModule.js
 function GET_PARTICIPANT_LIST_REMOVE($msg){
 	echo "\n Getting available participant in group chat to be removed, by admin...\n";
 	$ack_message = "GET_PARTICIPANT_LIST_REMOVE_REPLY,";
@@ -372,14 +381,14 @@ function CREATE_PUBLIC_CHAT_ROOM($msg){
 		$new_room_id = mysqli_insert_id($link);
 
 		//insert owner into participant
-		$sql = "INSERT into participant(room_id, user_id) values ($new_room_id, $user_id)";
+		$sql = "INSERT into participant(room_id, user_id, role) values ($new_room_id, $user_id, 'Admin')";
 		if(mysqli_query($link, $sql)){
 			echo "\nOwner $user_id has join the chat room";
 		}
 		
 		for ($x = 0; $x < sizeof($targetUserJson); $x++){
 			$paticipant_id = $targetUserJson[$x]['user_id'];
-			$sql = "INSERT into participant(room_id, user_id) values ($new_room_id, $paticipant_id)";
+			$sql = "INSERT into participant(room_id, user_id, role) values ($new_room_id, $paticipant_id, 'Member')";
 			
 			if(!mysqli_query($link, $sql)){
 				echo "\nError occured while inserting user $paticipant_id\n";

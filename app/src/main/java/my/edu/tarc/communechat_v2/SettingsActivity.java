@@ -13,6 +13,7 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 
 /**
@@ -52,6 +53,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
 					Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+					//intent.setType("file/*");
 					Intent i = Intent.createChooser(intent, "File");
 					startActivityForResult(i, CHOOSE_FILE_REQUESTCODE);
 					return false;
@@ -137,12 +139,13 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
+		Log.i(TAG, "Data: " + data.getDataString());
 		if (requestCode == CHOOSE_FILE_REQUESTCODE && resultCode == RESULT_OK){
-			Uri selectedPath = data.getData();
-			String path = selectedPath.getLastPathSegment(); //path format matters, change if related methods are not working.
+			String path = data.getDataString(); //path format matters, change if related methods are not working.
 			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 			SharedPreferences.Editor editor = preferences.edit();
-			editor.putString("storagePath", path);
+			Log.i(TAG, "Path: " + path);
+			editor.putString(getString(R.string.pref_storagePath), path);
 			editor.commit();
 		}
 	}

@@ -47,6 +47,8 @@ object MqttHeader {
     const val GET_PINNED_MESSAGE_REPLY = "GET_PINNED_MESSAGE_REPLY"
     const val CHAT_BOT = "CHAT_BOT"
     const val CHAT_BOT_REPLY = "CHAT_BOT_REPLY"
+    const val CHECK_ROOM_TYPE="CHECK_ROOM_TYPE"
+    const val CHECK_ROOM_TYPE_REPLY="CHECK_ROOM_TYPE_REPLY"
 
     //Friend Management module
     const val COUNT_FRIEND_REQUEST = "COUNT_FRIEND_REQUEST"
@@ -82,8 +84,9 @@ object MqttHeader {
     //security, encryption module
     const val UPDATE_PUBLIC_KEY = "UPDATE_PUBLIC_KEY"
     const val GET_PUBLIC_KEY = "GET_PUBLIC_KEY"
-    const val GET_PUBLIC_KEY_ROOM = "GET_PUBLIC_KEY_ROOM"
     const val GET_PUBLIC_KEY_REPLY = "GET_PUBLIC_KEY_REPLY"
+    const val GET_PUBLIC_KEY_ROOM = "GET_PUBLIC_KEY_ROOM"
+    const val GET_PUBLIC_KEY_ROOM_REPLY = "GET_PUBLIC_KEY_ROOM_REPLY"
     const val SET_CHATROOM_SECRET = "SET_CHATROOM_SECRET"
     const val SEND_CHATROOM_SECRET = "SEND_CHATROOM_SECRET"
     const val GET_CHATROOM_SECRET = "GET_CHATROOM_SECRET"

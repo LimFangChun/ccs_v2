@@ -13,10 +13,7 @@ import my.edu.tarc.communechat_v2.Adapter.ChatRoomRecyclerAdapter
 import my.edu.tarc.communechat_v2.Utility.MyUtil
 import my.edu.tarc.communechat_v2.internal.MqttHeader
 import my.edu.tarc.communechat_v2.internal.MqttHelper
-import my.edu.tarc.communechat_v2.model.Chat_Room
-import my.edu.tarc.communechat_v2.model.Message
-import my.edu.tarc.communechat_v2.model.Participant
-import my.edu.tarc.communechat_v2.model.User
+import my.edu.tarc.communechat_v2.model.*
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
 import org.eclipse.paho.client.mqttv3.MqttCallback
 import org.eclipse.paho.client.mqttv3.MqttMessage
@@ -48,6 +45,7 @@ class SeePinMessageActivity : AppCompatActivity() {
         chatRoom.room_id = intent.getIntExtra(Chat_Room.COL_ROOM_ID, -1)
         chatRoom.room_name = intent.getStringExtra(Chat_Room.COL_ROOM_NAME)
         chatRoom.role = intent.getStringExtra(Participant.COL_ROLE)
+        chatRoom.secret_key = intent.getStringExtra(Chat_Room.COL_SECRET_KEY)
 
         if ("" != chatRoom.room_name) {
             title = "Pinned messages"
@@ -104,7 +102,7 @@ class SeePinMessageActivity : AppCompatActivity() {
                 val message = Message()
                 message.message_id = receivedMessage.getInt(Message.COL_MESSAGE_ID)
                 message.room_id = receivedMessage.getInt(Message.COL_ROOM_ID)
-                message.message = receivedMessage.getString(Message.COL_MESSAGE) //todo decrypt here
+                message.message = AdvancedEncryptionStandard(chatRoom!!.secret_key).decrypt(receivedMessage.getString(Message.COL_MESSAGE))
                 message.message_type = receivedMessage.getString(Message.COL_MESSAGE_TYPE)
                 message.setDate_created(receivedMessage.getString(Message.COL_DATE_CREATED))
                 message.sender_id = receivedMessage.getInt(Message.COL_SENDER_ID)

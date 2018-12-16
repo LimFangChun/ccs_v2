@@ -3,6 +3,10 @@ package my.edu.tarc.communechat_v2.Adapter
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.TransitionDrawable
 import android.preference.PreferenceManager
 import android.support.v7.widget.RecyclerView
 import android.util.Base64
@@ -18,6 +22,7 @@ import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.chat_action_row.view.*
 import kotlinx.android.synthetic.main.chat_date_row.view.*
 import kotlinx.android.synthetic.main.chat_left_image.view.*
+import kotlinx.android.synthetic.main.chat_warning_row.view.*
 import my.edu.tarc.communechat_v2.ImageFullscreenActivity
 import my.edu.tarc.communechat_v2.MainActivity.mqttHelper
 import my.edu.tarc.communechat_v2.R
@@ -46,10 +51,12 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
         const val RIGHT_IMAGE = 4
         const val DATE_ROW = 5
         const val ACTION_ROW = 6
+        const val WARNING_ROW = 7
         const val TEXT = "Text"
         const val IMAGE = "Image"
         const val DATE = "Date"
         const val ACTION = "Action"
+        const val WARNING = "Warning"
         const val PIN_MESSAGE = "Pin message"
         const val UNPIN_MESSAGE = "Unpin message"
         const val DELETE_MESSAGE = "Delete message"
@@ -62,6 +69,7 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
                 ACTION -> ACTION_ROW
                 TEXT -> if (isMine(sender_id)) RIGHT_TEXT else LEFT_TEXT
                 IMAGE -> if (isMine(sender_id)) RIGHT_IMAGE else LEFT_IMAGE
+                WARNING -> WARNING_ROW
                 else -> -1
             }
         }
@@ -76,9 +84,9 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
                     RIGHT_IMAGE -> R.layout.chat_right_image
                     DATE_ROW -> R.layout.chat_date_row
                     ACTION_ROW -> R.layout.chat_action_row
+                    WARNING_ROW -> R.layout.chat_warning_row
                     else -> -1
                 }
-
 
         val view = LayoutInflater.from(context).inflate(layoutType, parent, false)
         return this.ViewHolder(view)
@@ -104,6 +112,7 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
                 IMAGE -> if (isMine(message.sender_id)) inflateRightImage(message) else inflateLeftImage(message)
                 DATE -> inflateDateRow()
                 ACTION -> inflateActionRow(message)
+                WARNING -> inflateWarningRow(message)
             }
 
             if (message.message_type == TEXT || message.message_type == IMAGE) {
@@ -162,7 +171,7 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
             val textViewName = itemView.findViewById<TextView>(R.id.textView_name)
             textViewName.text = message.sender_name
 
-            val localImageFile = File(MyUtil.getLocalImagePath(), "${message.message_id}.jpg")
+            val localImageFile = File(MyUtil.getLocalImagePath(context), "${message.message_id}.jpg")
             when {
                 message.mediaPath != null -> {
                     Picasso.get().load(message.mediaPath)
@@ -193,7 +202,7 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
                     messageObject.put(Message.COL_MESSAGE_ID, message.message_id)
                     messageObject.put(Message.COL_IMAGE, Base64.encode(message.media, Base64.DEFAULT))
                     messageArray.put(messageObject)
-                    StoreImageAsync(messageArray.toString(), itemView.imageView_image).execute()
+                    StoreImageAsync(messageArray.toString(), itemView.imageView_image, context).execute()
                 }
                 else -> {
                     itemView.imageView_image.setImageResource(R.drawable.ic_file_download_black_24dp)
@@ -208,7 +217,7 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
             //if media path has value
             //means this image come from local
             //use Picasso to do it
-            val localImageFile = File(MyUtil.getLocalImagePath(), "${message.message_id}.jpg")
+            val localImageFile = File(MyUtil.getLocalImagePath(context), "${message.message_id}.jpg")
             when {
                 message.mediaPath != null -> {
                     Picasso.get().load(message.mediaPath)
@@ -247,6 +256,16 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
 
         private fun inflateActionRow(message: Message) {
             itemView.textView_action.text = message.message
+        }
+
+        private fun inflateWarningRow(message: Message){
+            itemView.textView_warning.text = message.message
+
+            //Animation
+            val backgrounds = arrayOf(ColorDrawable(Color.RED), ColorDrawable(Color.WHITE))
+            val crossfader = TransitionDrawable(backgrounds)
+            itemView.layout_warning.background = crossfader
+            crossfader.startTransition(1000)
         }
 
         private fun calculateTime(message: Message?): String {
@@ -298,7 +317,7 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
                     helper.decode(message.toString())
                     if (helper.receivedHeader == MqttHeader.DOWNLOAD_IMAGE_REPLY) {
                         mqttHelper.unsubscribe(topic)
-                        StoreImageAsync(helper.receivedResult, imageView).execute()
+                        StoreImageAsync(helper.receivedResult, imageView, context).execute()
                     }
                 }
 

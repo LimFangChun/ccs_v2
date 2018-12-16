@@ -31,6 +31,7 @@ import my.edu.tarc.communechat_v2.Fragment.ProfileFragment;
 import my.edu.tarc.communechat_v2.Utility.MyUtil;
 import my.edu.tarc.communechat_v2.internal.MqttHeader;
 import my.edu.tarc.communechat_v2.internal.MqttHelper;
+import my.edu.tarc.communechat_v2.internal.RoomSecretHelper;
 import my.edu.tarc.communechat_v2.model.User;
 
 public class MainActivity extends AppCompatActivity {
@@ -146,6 +147,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         PreferenceManager.setDefaultValues(this, R.xml.settings, false);
+        initializeEncryption();
     }
 
     //method to get user's current longitude and latitude
@@ -300,5 +302,13 @@ public class MainActivity extends AppCompatActivity {
             activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         }
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+
+    private void initializeEncryption() {
+        //listen to incoming secret key
+        if (pref.getInt(User.COL_USER_ID, -1) != -1) {
+            RoomSecretHelper.initializeRoomSecretHelper(getApplicationContext(), pref.getInt(User.COL_USER_ID, -1));
+        }
     }
 }

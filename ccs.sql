@@ -12,7 +12,7 @@
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
 START TRANSACTION;
-SET time_zone = "+08:00";
+SET GLOBAL time_zone = "+08:00";
 
 --  drop all tables first in case you have any duplicated table with same name
 --  drop in reverse order
@@ -118,7 +118,7 @@ CREATE TABLE Chat_Room(
 CREATE TABLE Participant(
 	room_id 	int(10) NOT NULL,
 	user_id 	int(10) NOT NULL,
-	role 		varchar(50) NOT NULL DEFAULT 'Member',
+	role 		varchar(50) NOT NULL DEFAULT 'Admin',
 	join_date 	datetime DEFAULT CURRENT_TIMESTAMP,
 	status 	varchar(100) DEFAULT 'Active',
 	PRIMARY KEY (room_id, user_id, join_date),

@@ -272,6 +272,10 @@ function procmsg($topic, $msg){
 					$ack_message = GET_PUBLIC_KEY($msg);
 					publishMessage($topic, $ack_message);
 					break;}
+	            case "CHECK_ROOM_TYPE":	{
+					$ack_message = CHECK_ROOM_TYPE($msg);
+					publishMessage($topic, $ack_message);
+					break;}
 			}
 		}
 }
@@ -583,6 +587,34 @@ function GET_PUBLIC_KEY(){
 			$temp[] = $row;
 		}
 		echo "\nPublic key found\n";
+		$ack_message .= json_encode($temp);
+	}else{
+		echo "\nNo result\n";
+		$ack_message .= "NO_RESULT";
+	}
+	echo "\n".$ack_message;
+	return $ack_message;
+}
+
+function CHECK_ROOM_TYPE(){
+	$temp = func_get_arg(0);
+	echo "\n checking room type...\n";
+	$ack_message = "CHECK_ROOM_TYPE_REPLY,";
+
+	$temp = explode(',', $temp);
+	$room_id = $temp[1];
+
+	$sql = "SELECT room_name,room_type FROM Chat_Room
+                         WHERE Chat_Room.room_id = $room_id";
+
+	$result = dbResult($sql);
+
+	if(mysqli_num_rows($result) > 0){
+		$temp = array();
+		while($row = mysqli_fetch_array($result)){
+			$temp[] = $row;
+		}
+		echo "\nCount finish\n";
 		$ack_message .= json_encode($temp);
 	}else{
 		echo "\nNo result\n";

@@ -625,7 +625,6 @@ function CHECK_ROOM_TYPE(){
 }
 
 
-
 //The following functions are
 //Done by 1st generation seniors
 //Will leave it here for future reference

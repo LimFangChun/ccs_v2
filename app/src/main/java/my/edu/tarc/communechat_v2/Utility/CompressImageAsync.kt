@@ -17,7 +17,6 @@ import java.lang.ref.WeakReference
 
 class CompressImageAsync(context: Context,
                          val message: Message,
-                         val messageArrayList: ArrayList<Message>,
                          val adapter: ChatRoomRecyclerAdapter,
                          recyclerView: RecyclerView,
                          val topic: String?,

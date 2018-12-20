@@ -174,6 +174,7 @@ public class MainActivity extends AppCompatActivity {
                 });
                 alertDialog.setNegativeButton(R.string.no, null);
                 alertDialog.create().show();
+                return;
             }
 
             //check if user has granted permission to the app to access to GPS service

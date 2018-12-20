@@ -4,12 +4,11 @@ import android.app.IntentService
 import android.app.PendingIntent
 import android.content.Intent
 import android.preference.PreferenceManager
-import android.util.Base64
 import android.util.Log
 import my.edu.tarc.communechat_v2.MainActivity
 import my.edu.tarc.communechat_v2.NotificationView
-import my.edu.tarc.communechat_v2.Utility.MyUtil
-import my.edu.tarc.communechat_v2.NotificationView.*
+import my.edu.tarc.communechat_v2.NotificationView.setChatRoomType
+import my.edu.tarc.communechat_v2.NotificationView.setRoomName
 import my.edu.tarc.communechat_v2.internal.MqttHeader
 import my.edu.tarc.communechat_v2.internal.MqttHelper
 import my.edu.tarc.communechat_v2.internal.RoomSecretHelper
@@ -23,6 +22,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+import java.util.*
 
 class BackgroundService : IntentService("MqttBackground") {
     val tag = "BackgroundService"
@@ -88,9 +88,9 @@ class BackgroundService : IntentService("MqttBackground") {
                     received_message.sender_id = incomeMessage.getInt(Message.COL_SENDER_ID)
                     received_message.room_id = incomeMessage.getInt(Message.COL_ROOM_ID)
                     received_message.sender_name = incomeMessage.getString(Message.COL_SENDER_NAME)
-                    received_message.setDate_created(incomeMessage.getString(Message.COL_DATE_CREATED))
+                    received_message.date_created = Calendar.getInstance()
                     received_message.message_type = incomeMessage.getString(Message.COL_MESSAGE_TYPE)
-                    if(!received_message.message_type.equals("Text")){
+                    if (received_message.message_type != "Text") {
                         received_message.message = "[Image]"
                     }else {
                         if (secretKey != null)

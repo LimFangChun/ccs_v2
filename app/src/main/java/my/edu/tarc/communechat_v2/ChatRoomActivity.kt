@@ -14,7 +14,6 @@ import android.preference.PreferenceManager
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
-import android.util.Base64
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -483,19 +482,18 @@ class ChatRoomActivity : AppCompatActivity(), View.OnClickListener {
             if (message.message_type == TEXT) {
                 message.message = AdvancedEncryptionStandard(chatRoom!!.secret_key).decrypt(receivedMessage.getString(Message.COL_MESSAGE))
             } else if (message.message_type == IMAGE) {
-                //todo test
-                message.media = Base64.decode(receivedMessage.getString(Message.COL_MEDIA), Base64.DEFAULT)
+                //todo its okay now
+                //message.media = Base64.decode(receivedMessage.getString(Message.COL_MEDIA), Base64.DEFAULT)
+                message.media64 = receivedMessage.getString(Message.COL_MEDIA)
             }
 
-            message.setDate_created(receivedMessage.getString(Message.COL_DATE_CREATED))
+            message.date_created = Calendar.getInstance()
             message.sender_id = receivedMessage.getInt(Message.COL_SENDER_ID)
-            message.sender_name = receivedMessage.getString(User.COL_DISPLAY_NAME)
+            message.sender_name = receivedMessage.getString(Message.COL_SENDER_NAME)
 
             chatRoomRecyclerAdapter.addMessage(message)
-            //todo test
-            if (layoutManager.findLastCompletelyVisibleItemPosition() == chatRoomRecyclerAdapter.itemCount) {
-                recyclerView_chat.smoothScrollToPosition(chatRoomRecyclerAdapter.getLastIndex())
-            }
+
+            recyclerView_chat.smoothScrollToPosition(chatRoomRecyclerAdapter.getLastIndex())
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -512,7 +510,7 @@ class ChatRoomActivity : AppCompatActivity(), View.OnClickListener {
         message.mediaPath = filePath
 
         CompressImageAsync(this, topic = topic,
-                recyclerView = recyclerView_chat, message = message, messageArrayList = messageArrayList,
+                recyclerView = recyclerView_chat, message = message,
                 adapter = chatRoomRecyclerAdapter, filePath = filePath)
                 .execute()
     }

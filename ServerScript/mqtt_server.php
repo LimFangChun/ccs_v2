@@ -111,7 +111,7 @@ $client_id = "CCS_SERVER";
  */
  
 //$server = "broker.hivemq.com";     		// change to your broker's ip
-$server = "192.168.0.110";
+$server = "172.16.118.222";
 $port = 1883;                     		// change if necessary, default is 1883
 $username = "";                 // set your username
 $password = "";             // set your password
@@ -141,7 +141,7 @@ $mqtt->close();
 //MQTT publish message
 //DO NOT MODIFY, except ip address
 function publishMessage($topic, $ack_message){
-	$server = "192.168.0.110";     		// change if necessary
+	$server = "172.16.118.222";     		// change if necessary
 	$port = 1883;                     		// change if necessary
 	$username = "";                 // set your username
 	$password = "";             // set your password
@@ -232,30 +232,30 @@ function procmsg($topic, $msg){
 					publishMessage($topic, $ack_message);
 					break;}
 					////////////////////////
-				case "GET_FRIEND_LIST":	{
-					$ack_message = GET_FRIEND_LIST($msg); 
-					publishMessage($topic, $ack_message);
-					break;}
-				case "GET_FRIEND_REQUEST":{
-					$ack_message = GET_FRIEND_REQUEST($msg); 
-					publishMessage($topic, $ack_message);
-					break;}
-				case "COUNT_FRIEND_REQUEST":{
-					$ack_message = COUNT_FRIEND_REQUEST($msg);
-					publishMessage($topic, $ack_message);
-					break;}
-				case "ADD_FRIEND":	{
-					$ack_message = ADD_FRIEND($msg); 
-					publishMessage($topic, $ack_message);
-					break;}
-				case "REQ_ADD_FRIEND":	{
-					$ack_message = REQ_ADD_FRIEND($msg); 
-					publishMessage($topic, $ack_message);
-					break;}
-				case "DELETE_FRIEND":	{
-					$ack_message = DELETE_FRIEND($msg); 
-					publishMessage($topic, $ack_message);
-					break;}
+				// case "GET_FRIEND_LIST":	{
+				// 	$ack_message = GET_FRIEND_LIST($msg); 
+				// 	publishMessage($topic, $ack_message);
+				// 	break;}
+				// case "GET_FRIEND_REQUEST":{
+				// 	$ack_message = GET_FRIEND_REQUEST($msg); 
+				// 	publishMessage($topic, $ack_message);
+				// 	break;}
+				// case "COUNT_FRIEND_REQUEST":{
+				// 	$ack_message = COUNT_FRIEND_REQUEST($msg);
+				// 	publishMessage($topic, $ack_message);
+				// 	break;}
+				// case "ADD_FRIEND":	{
+				// 	$ack_message = ADD_FRIEND($msg); 
+				// 	publishMessage($topic, $ack_message);
+				// 	break;}
+				// case "REQ_ADD_FRIEND":	{
+				// 	$ack_message = REQ_ADD_FRIEND($msg); 
+				// 	publishMessage($topic, $ack_message);
+				// 	break;}
+				// case "DELETE_FRIEND":	{
+				// 	$ack_message = DELETE_FRIEND($msg); 
+				// 	publishMessage($topic, $ack_message);
+				// 	break;}
 				case "SEARCH_USER":	{
 					$ack_message = SEARCH_USER($msg); 
 					publishMessage($topic, $ack_message);

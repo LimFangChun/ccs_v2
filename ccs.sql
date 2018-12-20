@@ -104,7 +104,7 @@ CREATE TABLE Friendship(
 
 CREATE TABLE Chat_Room(
 	room_id 	int(10) NOT NULL AUTO_INCREMENT,
-	owner_id 	int(10) NOT NULL,
+	owner_id 	int(10),
 	room_name 	varchar(100),
 	room_type 	varchar(100) DEFAULT 'Private',
 	date_created 	datetime DEFAULT CURRENT_TIMESTAMP,
@@ -175,6 +175,7 @@ DROP TRIGGER IF EXISTS Trg_Insert_New_Message;
 DROP TRIGGER IF EXISTS Trg_Create_New_Chat_Room;
 DROP TRIGGER IF EXISTS Trg_Update_Participant;
 DROP TRIGGER IF EXISTS Trg_Insert_Participant;
+DROP TRIGGER IF EXISTS Trg_Update_Student;
 DELIMITER //
 -- this trigger is to track user activity
 -- you may add more conditions in future
@@ -241,14 +242,74 @@ Begin
 	DECLARE owner_name varchar(100);
 	DECLARE messages varchar(200);
 	DECLARE currentDate varchar(200);
+	DECLARE var_room_type varchar(200);
 	SET currentDate := DATE_FORMAT(CURRENT_TIMESTAMP, "%d %b %Y, %I:%i %p");
 
-	Select display_name into owner_name FROM User WHERE user_id = NEW.user_id;
+	Select DISTINCT room_type into var_room_type FROM Chat_Room WHERE Chat_Room.room_id = NEW.room_id;
 
-	SET messages := CONCAT(owner_name, " joined the chat room on ", currentDate);
+	IF var_room_type LIKE 'Public' THEN
+		Select display_name into owner_name FROM User WHERE user_id = NEW.user_id;
 
-	INSERT INTO Message (message, sender_id, room_id, message_type) 
-        VALUES (messages, NEW.user_id, NEW.room_id, 'Action');
+		SET messages := CONCAT(owner_name, " joined the chat room on ", currentDate);
+
+		INSERT INTO Message (message, sender_id, room_id, message_type) 
+        	VALUES (messages, NEW.user_id, NEW.room_id, 'Action');
+	END IF;
+END;
+//
+
+CREATE TRIGGER Trg_Update_Student
+AFTER UPDATE ON Student
+FOR EACH ROW
+Begin
+	DECLARE var_room_name varchar(100);
+	DECLARE var_room_id int(10);
+
+	IF OLD.faculty = '' OR OLD.faculty IS NULL THEN
+		-- insert into faculty chat room
+		SELECT room_id INTO var_room_id FROM Chat_Room 
+		WHERE room_name LIKE NEW.faculty AND room_id < 0;
+
+		IF var_room_id = '' OR var_room_id IS NULL THEN 
+			SELECT ((COUNT(*) + 1) * -1) INTO var_room_id FROM Chat_Room;
+
+			INSERT INTO Chat_Room (room_id, room_name, room_type, owner_id) 
+			VALUES (var_room_id, NEW.faculty, "Public", -1);
+		END IF;
+
+		INSERT INTO Participant (room_id, user_id, role)
+		VALUES (var_room_id, NEW.user_id, 'Member');
+	END IF;
+
+	IF OLD.course = '' OR OLD.course IS NULL THEN
+		SELECT room_id INTO var_room_id FROM Chat_Room 
+		WHERE room_name LIKE NEW.course AND room_id < 0;
+
+		IF var_room_id = '' OR var_room_id IS NULL THEN 
+			SELECT ((COUNT(*) + 1) * -1) INTO var_room_id FROM Chat_Room;
+
+			INSERT INTO Chat_Room (room_id, room_name, room_type, owner_id) 
+			VALUES (var_room_id, CONCAT(NEW.faculty, '-', NEW.course), "Public", -1);
+		END IF;
+
+		INSERT INTO Participant (room_id, user_id, role)
+		VALUES (var_room_id, NEW.user_id, 'Member');
+	END IF;
+
+	IF OLD.tutorial_group = '' OR OLD.tutorial_group IS NULL THEN
+		SELECT room_id INTO var_room_id FROM Chat_Room 
+		WHERE room_name LIKE NEW.tutorial_group AND room_id < 0;
+
+		IF var_room_id = '' OR var_room_id IS NULL THEN 
+			SELECT ((COUNT(*) + 1) * -1) INTO var_room_id FROM Chat_Room;
+
+			INSERT INTO Chat_Room (room_id, room_name, room_type, owner_id) 
+			VALUES (var_room_id, CONCAT(NEW.faculty, '-', NEW.course, NEW.academic_year, '-G', NEW.tutorial_group), "Public", -1);
+		END IF;
+
+		INSERT INTO Participant (room_id, user_id, role)
+		VALUES (var_room_id, NEW.user_id, 'Member');
+	END IF;
 END;
 //
 
@@ -610,11 +671,6 @@ insert into Friendship (user_id, friend_id, sender_id) values (1, 11, 11);
 insert into Friendship (user_id, friend_id, status, sender_id) values (9, 1,'Pending', 9);
 insert into Friendship (user_id, friend_id, sender_id) values (11, 1, 11);
 
--- Done by: Lim Fang Chun
--- Chat_Room table records
--- Column: room_id(PK), owner_id, room_name, date_created, last_update, topic_address
-insert into Chat_Room (owner_id, room_name, date_created, last_update, topic_address) values (1, 'TestRoom1', '2018-10-01 14:59:01', '2018-10-01 13:59:01', 'room/room_1');
-insert into Chat_Room (owner_id, room_name, room_type, date_created, last_update, topic_address) values (1, 'TestRoom2', 'Public', '2018-09-29 14:59:01', '2018-10-01 11:59:01', 'room/room_2');
 
 -- Done by: Lim Fang Chun
 -- Participant table records

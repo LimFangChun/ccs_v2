@@ -1,4 +1,8 @@
 <?php
+
+/**
+ * @Deprecated
+ */
 function GET_FRIEND_LIST($msg){
 	echo "\ngetting friend list...\n";
 	$ack_message = "GET_FRIEND_LIST_REPLY,";
@@ -35,6 +39,9 @@ function GET_FRIEND_LIST($msg){
 	return $ack_message;
 } 
 
+/**
+ * @Deprecated
+ */
 function COUNT_FRIEND_REQUEST($msg){
 	echo "\nCounting friend requests...\n";
 	$ack_message = "COUNT_FRIEND_REQUEST_REPLY,";
@@ -57,6 +64,9 @@ function COUNT_FRIEND_REQUEST($msg){
 	return $ack_message;
 }
 
+/**
+ * @Deprecated
+ */
 function REQ_ADD_FRIEND($msg){
 	echo "\nRequesting to add friends...\n";
 	$ack_message = "REQ_ADD_FRIEND_REPLY,";
@@ -78,6 +88,9 @@ function REQ_ADD_FRIEND($msg){
 	return $ack_message;
 }
 
+/**
+ * @Deprecated
+ */
 function GET_FRIEND_REQUEST($msg){
 	echo "\ngetting friend request...\n";
 	$ack_message = "GET_FRIEND_REQUEST_REPLY,";
@@ -115,6 +128,9 @@ function GET_FRIEND_REQUEST($msg){
 	return $ack_message;
 }
 
+/**
+ * @Deprecated
+ */
 function ADD_FRIEND($msg){
 	echo "\nAdding friends...\n";
 	$ack_message = "ADD_FRIEND_REPLY,";
@@ -140,6 +156,9 @@ function ADD_FRIEND($msg){
 	return $ack_message;
 }
 
+/**
+ * @Deprecated
+ */
 function DELETE_FRIEND($msg){
 	echo "\nDeleting friends...\n";
 	$ack_message = "DELETE_FRIEND_REPLY,";

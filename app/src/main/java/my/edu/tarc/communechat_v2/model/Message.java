@@ -57,6 +57,8 @@ public class Message {
     @ColumnInfo(name = COL_MEDIA)
     private byte[] media;
 
+    private String media64;
+
     private Uri mediaPath;
 
     public Message() {
@@ -211,6 +213,14 @@ public class Message {
         message.message_type = this.message_type;
         message.sender_name = this.sender_name;
         return message;
+    }
+
+    public String getMedia64() {
+        return media64;
+    }
+
+    public void setMedia64(String media64) {
+        this.media64 = media64;
     }
 }
 

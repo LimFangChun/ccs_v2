@@ -280,18 +280,21 @@ function CREATE_CHAT_ROOM($msg){
 	$owner_id = $receivedData[1];
 	$friend_id = $receivedData[2];
 
-	$sql = "SELECT chat_room.room_id from chat_room 
-			WHERE chat_room.room_id NOT in 
-				(SELECT DISTINCT chat_room.room_id 
-				FROM Chat_Room INNER JOIN Participant ON Participant.room_id = Chat_Room.room_id 
-				where participant.user_id not in 
-					(select participant.user_id 
-					from participant 
-					WHERE user_id = $owner_id or user_id = $friend_id))";
+	$sql = "SELECT DISTINCT ChatList.room_id from (
+				SELECT participant.room_id, chat_room.room_type, participant.user_id 
+				from participant inner join chat_room on chat_room.room_id = participant.room_id
+				where participant.room_id in (
+	  				SELECT chat_room.room_id
+	  				FROM Chat_Room 
+	  				INNER JOIN Participant ON Chat_Room.room_id = Participant.room_id 
+	  				WHERE Participant.user_id = $user_id AND Participant.status = 'Active' and room_type = 'Private'
+	  				) 
+  				) AS ChatList
+  			WHERE (ChatList.user_id = $friend_id)";
 
 	$result = dbResult($sql);
 
-	if(mysqli_num_rows($result) == 1){
+	if(mysqli_num_rows($result) >= 1){
 		$row = mysqli_fetch_array($result);
 		$chat_room_id = $row['room_id'];
 		echo "\n User $owner_id and $friend_id already has chat room setup before\n";

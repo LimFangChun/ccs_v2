@@ -5,6 +5,8 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.TransitionDrawable
@@ -37,8 +39,6 @@ import my.edu.tarc.communechat_v2.model.User
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
 import org.eclipse.paho.client.mqttv3.MqttCallback
 import org.eclipse.paho.client.mqttv3.MqttMessage
-import org.json.JSONArray
-import org.json.JSONObject
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -109,7 +109,7 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
             if (role == "Admin" && message?.message_type != DATE && message?.message_type != ACTION) {
                 initItemListener(message)
             } else if (role == "Member") {
-                initMemberItemListener()
+                initMemberItemListener(message)
             }
 
             when (message!!.message_type) {
@@ -179,6 +179,13 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
 
             val localImageFile = File(MyUtil.getLocalImagePath(context), "${message.message_id}.jpg")
             when {
+                message.media64 != null -> {
+                    //when user is in chat room, and someone sent an image
+                    //todo test this
+                    val mediaByteArray: ByteArray = Base64.decode(message.media64, Base64.DEFAULT)
+                    val mediaBitmap: Bitmap = BitmapFactory.decodeByteArray(mediaByteArray, 0, mediaByteArray.size)
+                    itemView.imageView_image.setImageBitmap(mediaBitmap)
+                }
                 message.mediaPath != null -> {
                     Picasso.get().load(message.mediaPath)
                             .centerCrop()
@@ -200,15 +207,6 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
                         intent.putExtra("ImagePath", localImageFile.absolutePath)
                         context.startActivity(intent)
                     }
-                }
-                message.media != null -> {
-                    //todo test this
-                    val messageArray = JSONArray()
-                    val messageObject = JSONObject()
-                    messageObject.put(Message.COL_MESSAGE_ID, message.message_id)
-                    messageObject.put(Message.COL_IMAGE, Base64.encode(message.media, Base64.DEFAULT))
-                    messageArray.put(messageObject)
-                    StoreImageAsync(messageArray.toString(), itemView.imageView_image, context).execute()
                 }
                 else -> {
                     itemView.imageView_image.setImageResource(R.drawable.ic_file_download_black_24dp)
@@ -347,7 +345,10 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
                 }
 
                 items += (DELETE_MESSAGE)
-                items += (COPY_MESSAGE)
+
+                if (message.message_type == TEXT) {
+                    items += (COPY_MESSAGE)
+                }
 
                 dialogBuilder.setTitle("Select an action")
                 dialogBuilder.setItems(items) { _, position ->
@@ -362,18 +363,21 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
             }
         }
 
-        private fun initMemberItemListener() {
+        private fun initMemberItemListener(message: Message?) {
             itemView.setOnLongClickListener {
-                val dialogBuilder = AlertDialog.Builder(context)
-                val items = arrayOf<CharSequence>(COPY_MESSAGE)
+                if (message?.message_type == TEXT) {
+                    val dialogBuilder = AlertDialog.Builder(context)
+                    val items = arrayOf<CharSequence>(COPY_MESSAGE)
 
-                dialogBuilder.setTitle("Select an action")
-                dialogBuilder.setItems(items) { _, position ->
-                    if (items[position] == COPY_MESSAGE) {
-                        copyTextToClipBoard(position)
+                    dialogBuilder.setTitle("Select an action")
+                    dialogBuilder.setItems(items) { _, position ->
+                        if (items[position] == COPY_MESSAGE) {
+                            copyTextToClipBoard(position)
+                        }
                     }
+                    dialogBuilder.show()
                 }
-                dialogBuilder.show()
+
                 true
             }
         }

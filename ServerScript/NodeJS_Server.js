@@ -1,6 +1,6 @@
 var mysql = require('mysql');
 var mqtt = require('mqtt');
-var serverAddress = 'tcp://192.168.0.110:1883';//change to broker's ip
+var serverAddress = 'tcp://172.16.118.222:1883';//change to broker's ip
 var mqttClient = mqtt.connect(serverAddress);
 var DB_CONNECTION;
 
@@ -65,6 +65,8 @@ function initializeDbConnection() {
 function processReceivedData(topic, message) {
     var FindFriendModule = require("./FindFriendModule.js");
     var ChatModule = require("./ChatModule.js");
+    var FriendManagementModule = require("./FriendManagementModule.js");
+	var EndToEndEncrpytionModule = require("./EndToEndEncryptionModule.js");
     var temp = message.toString().split(',');
     switch (temp[0]) {
         case "SEND_FEEDBACK":
@@ -145,6 +147,48 @@ function processReceivedData(topic, message) {
             break;
         case "ADVANCED_SEARCH":
             FindFriendModule.ADVANCED_SEARCH(topic, message);
+            break;
+
+        //friend management module
+        case "GET_FRIEND_LIST":
+            FriendManagementModule.GET_FRIEND_LIST(topic, message);
+            break;
+        case "COUNT_FRIEND_REQUEST":
+            FriendManagementModule.COUNT_FRIEND_REQUEST(topic, message);
+            break;
+        case "REQ_ADD_FRIEND":
+            FriendManagementModule.REQ_ADD_FRIEND(topic, message);
+            break;
+        case "GET_FRIEND_REQUEST":
+            FriendManagementModule.GET_FRIEND_REQUEST(topic, message);
+            break;
+        case "ADD_FRIEND":
+            FriendManagementModule.ADD_FRIEND(topic, message);
+            break;
+        case "DELETE_FRIEND":
+            FriendManagementModule.DELETE_FRIEND(topic, message);
+            break;
+            
+		case "UPDATE_PUBLIC_KEY":
+            EndToEndEncrpytionModule.UPDATE_PUBLIC_KEY(topic, message);
+            break;
+		case "GET_PUBLIC_KEY_ROOM":
+            EndToEndEncrpytionModule.GET_PUBLIC_KEY_ROOM(topic, message);
+            break;
+		case "GET_PUBLIC_KEY":
+            EndToEndEncrpytionModule.GET_PUBLIC_KEY(topic, message);
+            break;
+		case "GET_CHATROOM_SECRET":
+            EndToEndEncrpytionModule.GET_CHATROOM_SECRET(topic, message);
+            break;
+		case "GET_CHATROOM_SECRET_ALL":
+            EndToEndEncrpytionModule.GET_CHATROOM_SECRET_ALL(topic, message);
+            break;
+		case "SET_CHATROOM_SECRET":
+            EndToEndEncrpytionModule.SET_CHATROOM_SECRET(topic, message);
+            break;
+		case "GET_FORBIDDEN_SECRETS":
+            EndToEndEncrpytionModule.GET_FORBIDDEN_SECRETS(topic, message);
             break;
         default:
             console.log('Invalid header');

@@ -260,8 +260,12 @@ function procmsg($topic, $msg){
 					$ack_message = SEARCH_USER($msg); 
 					publishMessage($topic, $ack_message);
 					break;}
-	            case "CHECK_ROOM_TYPE":	{
+		            	case "CHECK_ROOM_TYPE":	{
 					$ack_message = CHECK_ROOM_TYPE($msg);
+					publishMessage($topic, $ack_message);
+					break;}
+				case "GET_USER_PROFILE":	{
+					$ack_message = GET_USER_PROFILE($msg); 
 					publishMessage($topic, $ack_message);
 					break;}
 				case "UPDATE_USER":	{

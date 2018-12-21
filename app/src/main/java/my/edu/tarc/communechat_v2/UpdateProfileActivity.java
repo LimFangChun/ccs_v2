@@ -146,21 +146,12 @@ public class UpdateProfileActivity extends AppCompatActivity {
 	private void initializeProfile(Student student) {
 		initializeProfile((User) student);
 		//initialize student things here
-		Log.i("[UpdateProfile]", "Hello world!");
 		editTextStudentID.setText(student.getStudent_id());
 		if (!editTextStudentID.getText().toString().equals("")) {
 			editTextStudentID.setEnabled(false);
 			editTextStudentID.setFocusable(false);
 		}
-		Log.i("[UpdateProfile]", "Hello warudo!");
 		spinnerFaculty.setSelection(getSpinnerIndex(spinnerFaculty, student.getFaculty()));
-		//Todo: spinners except faculty cannot be initialized
-		Log.i("[UpdateProfile]", Integer.toString(getSpinnerIndex(spinnerCourse, student.getCourse())));
-		Log.i("[UpdateProfile]", student.getCourse());
-		spinnerCourse.setSelection(getSpinnerIndex(spinnerCourse, student.getCourse()),false);
-		spinnerTutorialGroup.setSelection(getSpinnerIndex(spinnerTutorialGroup, Integer.toString(student.getTutorial_group())),false);
-		spinnerIntake.setSelection(getSpinnerIndex(spinnerIntake, student.getIntake()),false);
-		spinnerAcademicYear.setSelection(getSpinnerIndex(spinnerAcademicYear, Integer.toString(student.getAcademic_year())),false);
 	}
 
 	private void initializeProfile() {
@@ -210,7 +201,7 @@ public class UpdateProfileActivity extends AppCompatActivity {
 
 
 	private void initializeFacultySpinner() {
-		//TODO: should be change to retrieve from server due to hard coding.
+		//TODO: should be changed to retrieve from server due to hard coding.
 		String[] facultyArray = {"-Tap here-", "FOCS"};
 		ArrayAdapter<String> facultyAdapter = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item, facultyArray);
 		spinnerFaculty.setAdapter(facultyAdapter);
@@ -227,6 +218,14 @@ public class UpdateProfileActivity extends AppCompatActivity {
 					initializeGroupSpinner();
 					initializeIntakeSpinner();
 					initializeYearSpinner();
+					//initialize student profile
+					if (spinnerFaculty.getSelectedItem().equals(pref.getString(Student.COL_FACULTY, null))){
+						Student student = getStudentFromPreferences();
+						spinnerCourse.setSelection(getSpinnerIndex(spinnerCourse, student.getCourse()),false);
+						spinnerTutorialGroup.setSelection(getSpinnerIndex(spinnerTutorialGroup, Integer.toString(student.getTutorial_group())),false);
+						spinnerIntake.setSelection(getSpinnerIndex(spinnerIntake, student.getIntake()),false);
+						spinnerAcademicYear.setSelection(getSpinnerIndex(spinnerAcademicYear, Integer.toString(student.getAcademic_year())),false);
+					}
 				}
 			}
 

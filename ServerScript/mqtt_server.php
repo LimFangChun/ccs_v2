@@ -432,26 +432,27 @@ function UPDATE_USER_STATUS(){
 	}
 	return $ack_message;
 }
-
 function UPDATE_STUDENT($msg){
 	//TODO: GAN DO this
 	//update student table, everything (except user_id) from null to something
-	$receivedData = explode(',', $msg);	// 1=user_id, 2...=faculty, course, tutorial_group, intake, academic_year
+	$receivedData = explode(',', $msg);	// 1=user_id, 2...=student_id, faculty, course, tutorial_group, intake, academic_year
 	$user_id = $receivedData[1];
-	$faculty = $receivedData[2];
-	$course = $receivedData[3];
-	$tutorial_group = $receivedData[4];
-	$intake = $receivedData[5];
-	$academic_year = $receivedData[6];
+	$student_id = $receivedData[2];
+	$faculty = $receivedData[3];
+	$course = $receivedData[4];
+	$tutorial_group = $receivedData[5];
+	$intake = $receivedData[6];
+	$academic_year = $receivedData[7];
 
-	$sql = "UPDATE Student SET faculty = 'faculty', course = '$course', tutorial_group = '$tutorial_group', intake = '$intake', academic_year = '$academic_year'
-			WHERE user_id = '$user_id'";
+	$sql = "UPDATE TABLE Student
+			SET student_id = $student_id, faculty = '$faculty', course = '$course', tutorial_group = '$tutorial_group', intake = '$intake', academic_year = '$academic_year'
+			WHERE user_id = $user_id";
 	$result = dbResult($sql);
 
-	if(mysqli_affected_rows($result) > 0){
-		echo "\nUpdated student: $user_id\n";
+	if($result){
+		echo "\nUpdated student: $user_id, $student_id\n";
 	}else{
-		echo "\nFailed to update student: $user_id, $status\n";
+		echo "\nFailed to update student: $user_id, $student_id, $status\n";
 		echo mysqli_error($result)."\n";
 	}
 }
@@ -460,31 +461,29 @@ function UPDATE_USER($msg){
 	//TODO: GAN DO this
 	//update everything except user_id, status, last_online
 	//position = student by default
-	//username, nric, phone_number, email requires validation
 
-	echo "\nupdating user...\n";
-	$receivedData = explode(',', $msg);	// 1,...=user_id, username, display_name, position, password, gender, nric, phone_number, email, address, city_id
-	$user_id = $receivedData[1];
-	$username = $receivedData[2];
-	$display_name = $receivedData[3];
-	$position = $receivedData[4];
-	$password = $receivedData[5];
-	$gender = $receivedData[6];
-	$nric = $receivedData[7];
-	$phone_number = $receivedData[8];
-	$email = $receivedData[9];
-	$address = $receivedData[10];
-	$city_id = $receivedData[11];
-	//if position="Student", create student table with user_id=[received user_id] (postponed, not now :P)
-	//$sql = "INSERT INTO Student (user_id) VALUES ('$user_id');";
+	echo "\nUpdating user...\n";
+	$temp = func_get_arg(0);
+	$temp = explode(',', $temp);	// 1,...=user_id, username, display_name, position, gender, date_of_birth, phone_number, email, address, city_id
+	$user_id = $temp[1];
+	$username = $temp[2];
+	$display_name = $temp[3];
+	$position = $temp[4];
+	$gender = $temp[5];
+	$date_of_birth = $temp[6];
+	$phone_number = $temp[7];
+	$email = $temp[8];
+	//$address = $receivedData[9];
+	//$city_id = $receivedData[10];
 
-	$sql = "UPDATE User SET username = '$username', display_name = '$display_name', position = '$position', password = '$password',
-	gender = '$gender', nric = '$nric', phone_number = '$phone_number', email = '$email', address = '$address', city_id = '$city_id' WHERE user_id = 'user_id'";
+	$sql = "UPDATE User SET username = '$username', display_name = '$display_name', position = '$position', gender = '$gender',
+			date_of_birth = '$date_of_birth ', phone_number = '$phone_number', email = '$email'
+			WHERE user_id = '$user_id'";  //, address = '$address', city_id = '$city_id'
 	$result = dbResult($sql);
-		if(mysqli_affected_rows($result) > 0){
+	if($result){
 		echo "\nUpdated user: $user_id\n";
 	}else{
-		echo "\nFailed to user: $user_id, $status\n";
+		echo "\nFailed to update user: $user_id\n";
 		echo mysqli_error($result)."\n";
 	}
 }

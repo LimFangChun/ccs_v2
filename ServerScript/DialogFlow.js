@@ -5,7 +5,7 @@ const uuid = require('uuid');
  * Send a query to the dialogflow agent, and return the query result.
  */
 async function DialogFlow_Respond(inputText) {
-  console.log("Inside runSample");
+  console.log("Inside DialogFlow_Respond");
   // A unique identifier for the given session
   const sessionId = uuid.v4();
 

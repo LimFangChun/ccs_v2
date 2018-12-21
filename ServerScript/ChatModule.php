@@ -287,7 +287,7 @@ function CREATE_CHAT_ROOM($msg){
 	  				SELECT chat_room.room_id
 	  				FROM Chat_Room 
 	  				INNER JOIN Participant ON Chat_Room.room_id = Participant.room_id 
-	  				WHERE Participant.user_id = $user_id AND Participant.status = 'Active' and room_type = 'Private'
+	  				WHERE Participant.user_id = $owner_id AND Participant.status = 'Active' and room_type = 'Private'
 	  				) 
   				) AS ChatList
   			WHERE (ChatList.user_id = $friend_id)";

@@ -13,7 +13,7 @@ import android.graphics.drawable.TransitionDrawable
 import android.preference.PreferenceManager
 import android.support.v7.widget.RecyclerView
 import android.util.Base64
-import android.util.Log
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -334,6 +334,9 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
         }
 
         private fun initItemListener(message: Message?) {
+            val outValue = TypedValue()
+            context.theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true)
+            itemView.root_layout.setBackgroundResource(outValue.resourceId)
             itemView.setOnLongClickListener {
                 val dialogBuilder = AlertDialog.Builder(context)
                 var items = arrayOf<CharSequence>()
@@ -364,6 +367,9 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
         }
 
         private fun initMemberItemListener(message: Message?) {
+            val outValue = TypedValue()
+            context.theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true)
+            itemView.root_layout.setBackgroundResource(outValue.resourceId)
             itemView.setOnLongClickListener {
                 if (message?.message_type == TEXT) {
                     val dialogBuilder = AlertDialog.Builder(context)
@@ -383,7 +389,6 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
         }
 
         private fun pinMessage(message: Message, position: Int, items: Array<CharSequence>) {
-            Log.d("RecyclerAdapter", "Item clicked: ${message.message_id}, position: ${items[position]}")
             val topic = "updateMessage/${message.message_id}"
             val header: String = when (items[position]) {
                 PIN_MESSAGE -> MqttHeader.PIN_MESSAGE

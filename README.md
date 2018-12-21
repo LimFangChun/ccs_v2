@@ -38,7 +38,7 @@ To setup this project in your device, follow these steps:<br>
       Note: to check your ip address, use hotkey Windows key+R, open cmd, type ipconfig
      Also change the database name, username and password in mqtt_server.php as well
   7. Bring the Php online <br>
-      Open a cmd terminal and type something like "C:\xampp\php\php.exe -f C:\xampp\htdocs\mtqq_server.php"
+      Open a cmd terminal and type something like "C:\xampp\php\php.exe -f C:\xampp\htdocs\mqtt_server.php"
       I recommend to put the server script in htdocs because thats the default directory of localhost
   8. Bring Node JS online<br>
       Open a cmd terminal and type "node C:\xampp\htdocs\NodeJS_Server.js"

@@ -18,6 +18,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.RelativeLayout
 import android.widget.TextView
 import com.amulyakhare.textdrawable.TextDrawable
 import com.amulyakhare.textdrawable.util.ColorGenerator
@@ -334,9 +335,14 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
         }
 
         private fun initItemListener(message: Message?) {
-            val outValue = TypedValue()
-            context.theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true)
-            itemView.root_layout.setBackgroundResource(outValue.resourceId)
+            try {
+                val outValue = TypedValue()
+                context.theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true)
+                val rootLayout = itemView.findViewById<RelativeLayout>(R.id.root_layout)
+                rootLayout.setBackgroundResource(outValue.resourceId)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
             itemView.setOnLongClickListener {
                 val dialogBuilder = AlertDialog.Builder(context)
                 var items = arrayOf<CharSequence>()
@@ -367,9 +373,14 @@ class ChatRoomRecyclerAdapter(val context: Context, val messageList: ArrayList<M
         }
 
         private fun initMemberItemListener(message: Message?) {
-            val outValue = TypedValue()
-            context.theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true)
-            itemView.root_layout.setBackgroundResource(outValue.resourceId)
+            try {
+                val outValue = TypedValue()
+                context.theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true)
+                val rootLayout = itemView.findViewById<RelativeLayout>(R.id.root_layout)
+                rootLayout.setBackgroundResource(outValue.resourceId)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
             itemView.setOnLongClickListener {
                 if (message?.message_type == TEXT) {
                     val dialogBuilder = AlertDialog.Builder(context)

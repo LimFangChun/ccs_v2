@@ -186,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
                 ActivityCompat.requestPermissions(this, permission, 112);
             } else if (locationManager != null) {
                 //else get user's current longitude and latitude
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 20000, 10, locationListener);
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 300000, 10, locationListener);
                 Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 pref.edit().putFloat(User.COL_LAST_LONGITUDE, (float) location.getLongitude()).apply();
                 pref.edit().putFloat(User.COL_LAST_LATITUDE, (float) location.getLatitude()).apply();

@@ -64,7 +64,7 @@ public class NotificationView {
                 currentID = DEFAULT_CHANNEL_ID + "" + nm;
                 Log.v(TAG, "path:" + mChannel.getSound() + currentID);
 
-                NotificationChannel notificationChannel = new NotificationChannel(currentID, DEFAULT_CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT);
+                NotificationChannel notificationChannel = new NotificationChannel(currentID, DEFAULT_CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH);
                 notificationChannel.enableLights(true);
                 notificationChannel.setShowBadge(true);
                 notificationChannel.setSound(uri, attrs.build());
@@ -72,7 +72,7 @@ public class NotificationView {
                 notificationManager.createNotificationChannel(notificationChannel);
             } else {
                 currentID = DEFAULT_CHANNEL_ID;
-                NotificationChannel notificationChannel = new NotificationChannel(currentID, DEFAULT_CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT);
+                NotificationChannel notificationChannel = new NotificationChannel(currentID, DEFAULT_CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH);
                 notificationChannel.enableLights(true);
                 notificationChannel.setShowBadge(true);
                 notificationChannel.setSound(uri, attrs.build());
@@ -282,13 +282,15 @@ public class NotificationView {
             boolean showMessagePreview = pref.getBoolean("message_preview_key", true);
             if (oldMessage.size() == 0) {
                 if (showMessagePreview) {
-                    str = chat.getMessage();
+                    str = incomingMessage;
                 } else {
                     str = "You have a new message";
                 }
             } else {
                 if (!showMessagePreview) {
                     str = "You have " + oldMessage.size() + " new message";
+                }else{
+                    str = incomingMessage;
                 }
             }
 
@@ -300,30 +302,63 @@ public class NotificationView {
             PendingIntent dismissNotification = PendingIntent.getBroadcast(mContext, NOTIFICATION_ID, dismissIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 
+            int priority=4;
+            boolean popUp;
+
             if (CHAT_ROOM_TYPE.equals(PRIVATE)) {
+                popUp = pref.getBoolean("pop_up", true);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    if (popUp) {
+                        priority = NotificationManager.IMPORTANCE_HIGH;
+                    } else {
+                        priority = NotificationManager.IMPORTANCE_LOW;
+                    }
+                }
+                else {
+                    if (popUp) {
+                        priority = NotificationCompat.PRIORITY_HIGH;
+                    } else {
+                        priority = NotificationCompat.PRIORITY_LOW;
+                    }
+                }
                 setNotifID(NOTIFICATION_ID);
                 NotificationCompat.Builder mNotification = new NotificationCompat.Builder(mContext, getChannelID());
                 //.setContentIntent(chatIntent)
-                mNotification.setContentTitle(sender);  //Set the title of Notification
+                mNotification.setContentTitle(sender);
                 mNotification.setContentText(str);
-                mNotification.setSmallIcon(R.mipmap.ic_launcher);
-                mNotification.setSound(uri);
-                mNotification.setNumber(numMessage);
-                mNotification.setAutoCancel(true);
-                mNotification.setShowWhen(true);
-                //.setPriority(priority)
-                //.addAction(replyAction)
-                mNotification.setVibrate(new long[]{100, 100, 100, 100, 100});
-                mNotification.setDeleteIntent(dismissNotification);
-                mNotification.setVisibility(Notification.VISIBILITY_PUBLIC);
                 if (showMessagePreview) {
                     mNotification.setStyle(inboxStyle);
                 } else {
                     mNotification.setContentText(str);
                 }
+                mNotification.setSmallIcon(R.mipmap.ic_launcher);
+                mNotification.setSound(uri);
+                mNotification.setNumber(numMessage);
+                mNotification.setAutoCancel(true);
+                mNotification.setShowWhen(true);
+                mNotification.setPriority(priority);
+                //.addAction(replyAction)
+                mNotification.setVibrate(new long[]{100, 100, 100, 100, 100});
+                mNotification.setDeleteIntent(dismissNotification);
+                mNotification.setVisibility(Notification.VISIBILITY_PUBLIC);
                 mNotificationManager.notify(getNotifID(), mNotification.build());
             } else {
                 setNotifID(NOTIFICATION_ID);
+                popUp = pref.getBoolean("group_pop_up", true);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    if (popUp) {
+                        priority = NotificationManager.IMPORTANCE_HIGH;
+                    } else {
+                        priority = NotificationManager.IMPORTANCE_LOW;
+                    }
+                }
+                else {
+                    if (popUp) {
+                        priority = NotificationCompat.PRIORITY_HIGH;
+                    } else {
+                        priority = NotificationCompat.PRIORITY_LOW;
+                    }
+                }
                 NotificationCompat.Builder mNotification = new NotificationCompat.Builder(mContext, getChannelID())
                         .setStyle(messagingStyle)
                         .setSmallIcon(R.mipmap.ic_launcher)
@@ -333,7 +368,7 @@ public class NotificationView {
                         .setNumber(numMessage)
                         .setShowWhen(true)
                         .setVibrate(new long[]{100, 100, 100, 100, 100})
-                        //.setPriority(priority)
+                        .setPriority(priority)
                         //.addAction(replyAction)
                         .setDeleteIntent(dismissNotification)
                         .setVisibility(Notification.VISIBILITY_PUBLIC);
@@ -410,8 +445,6 @@ public class NotificationView {
     }
 
 }
-
-
 
 
 

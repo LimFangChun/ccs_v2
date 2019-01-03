@@ -472,7 +472,7 @@ class ChatRoomActivity : AppCompatActivity(), View.OnClickListener {
                 return
             }
 
-            makeVibrationOrSound()
+            //makeVibrationOrSound()
             
             //put into message object
             val message = Message()

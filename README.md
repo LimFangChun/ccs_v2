@@ -1,11 +1,3 @@
-Commune Chat System For Tunku Abdul Rahman University College, KL Main Campus<br>
-
-Supervisor: Miss Pua Bee Lian<br>
-Moderator: Miss Gan Lay Kee<br>
-
-Minimum API level: 19<br>
-Target API level: 26<br>
-
 <h1>Introduction</h1>
 Hello there and welcome.
 This is my university final year project.
@@ -18,11 +10,13 @@ Currently, we are using XAMPP to simulate a local server.
 <h1>Getting started</h1>
 To setup this project in your device, follow these steps:<br>
   1. Download the required tools
-    - XAMPP, make sure Apache and MySQL is installed
-    - NodeJS
-    - Android Studio
-    - A text editor such as Visual Studio Code is recommended
-    - A local MQTT broker is recommended (You may use a public broker such as hivemq.broker.com, but it is not secured and very slow)
+    <ul>
+  <li> XAMPP, make sure Apache and MySQL is installed</li>
+  <li> NodeJS</li>
+  <li> Android Studio</li>
+  <li> A text editor such as Visual Studio Code is recommended</li>
+    <li> A local MQTT broker is recommended (You may use a public broker such as hivemq.broker.com, but it is not secured and very slow)</li>
+    </ul>
     
   2. Turn on server and MQTT broker
   3. Activate XAMPP, turn on Apache and MySQL, turn off the rest in case they cause troubles
